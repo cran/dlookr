@@ -1,0 +1,32 @@
+Package: dlookr
+Type: Package
+Title: Tools for Data Diagnosis, Exploration, Transformation
+Version: 0.3.0
+Authors@R: c(
+  person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
+  )
+Description: A collection of tools that support data diagnosis, exploration, and transformation. 
+    Data diagnostics provides information and visualization of missing values and outliers and 
+    unique and negative values to help you understand the distribution and quality of your data. 
+    Data exploration provides information and visualization of the descriptive statistics of 
+    univariate variables, normality tests and outliers, correlation of two variables, and 
+    relationship between target variable and predictor. Data transformation supports binning 
+    for categorizing continuous variables, imputates missing values and outliers, resolving skewness. 
+    And it creates automated reports that support these three tasks.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.2.0)
+Imports: dplyr, magrittr, tidyr, ggplot2, RcmdrMisc, corrplot, rlang,
+        purrr, tibble, tidyselect, classInt, moments, kableExtra,
+        prettydoc, smbinning, xtable, knitr, rmarkdown, RColorBrewer,
+        gridExtra, tinytex, methods, DMwR, mice, rpart, randomForest
+Suggests: ISLR, nycflights13, testthat
+Author: Choonghyun Ryu [aut, cre]
+Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2018-04-27 08:56:14 UTC; choonghyunryu
+Repository: CRAN
+Date/Publication: 2018-04-27 10:25:45 UTC
