@@ -1,4 +1,4 @@
-## ----environment, echo = FALSE, message = FALSE--------------------------
+## ----environment, echo = FALSE, message = FALSE, warning=FALSE-----------
 knitr::opts_chunk$set(collapse = TRUE, comment = "")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 
@@ -6,7 +6,7 @@ library(dlookr)
 library(dplyr)
 library(ggplot2)
 
-## ----import_data---------------------------------------------------------
+## ----import_data, warning=FALSE------------------------------------------
 library(nycflights13)
 dim(flights)
 flights
@@ -62,11 +62,11 @@ diagnose_outlier(flights) %>%
   arrange(desc(rate)) %>% 
   select(-outliers_cnt)
 
-## ----plot_outlier, fig.width = 7, fig.height = 4-------------------------
+## ----plot_outlier, fig.width = 5, fig.height = 3-------------------------
 flights %>%
   plot_outlier(arr_delay) 
 
-## ----plot_outlier_pipe, fig.width = 7, fig.height = 4--------------------
+## ----plot_outlier_pipe, fig.width = 5, fig.height = 3--------------------
 flights %>%
   plot_outlier(diagnose_outlier(flights) %>% 
                  filter(outliers_ratio >= 0.5) %>% 
@@ -105,4 +105,100 @@ knitr::include_graphics('img/diag_table_html.png')
 
 ## ----diag_outlier_html, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Data diagnosis report outlier diagnosis contents (html)"----
 knitr::include_graphics('img/diag_outlier_html.png')
+
+## ----dbi_table, warning=FALSE, message=FALSE-----------------------------
+if (!require(DBI)) install.packages('DBI')
+if (!require(RSQLite)) install.packages('RSQLite')
+if (!require(dplyr)) install.packages('dplyr')
+if (!require(dbplyr)) install.packages('dbplyr')
+
+library(dbplyr)
+library(dplyr)
+
+carseats <- ISLR::Carseats
+carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
+carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
+
+# connect DBMS
+con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+
+# copy carseats to the DBMS with a table named TB_CARSEATS
+copy_to(con_sqlite, carseats, name = "TB_CARSEATS", overwrite = TRUE)
+
+## ----dbi_diag------------------------------------------------------------
+# Diagnosis of all columns
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose()
+
+# Positions values select columns, and In-memory mode
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose(1, 3, 8, in_database = FALSE)
+  
+# Positions values select columns, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
+
+## ----dbi_category--------------------------------------------------------
+# Positions values select variables, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_category(7, in_database = FALSE, collect_size = 200) 
+  
+# Positions values select variables
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_category(-7)
+
+## ----dbi_numeric---------------------------------------------------------
+# Diagnosis of all numerical variables
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_numeric()
+  
+# Positive values select variables, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_numeric(Sales, Income, collect_size = 200)
+
+## ----dbi_outlier---------------------------------------------------------
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_outlier()  %>%
+  filter(outliers_ratio > 1)
+
+## ----plot_outlier_dbi, fig.width = 5, fig.height = 3---------------------
+# Visualization of numerical variables with a ratio of
+# outliers greater than 1%
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  plot_outlier(con_sqlite %>% 
+                 tbl("TB_CARSEATS") %>% 
+                 diagnose_outlier() %>%
+                 filter(outliers_ratio > 1) %>%
+                 select(variables) %>%
+                 pull())
+
+## ----dbi_diag_report, eval=FALSE-----------------------------------------
+#  # create pdf file. file name is DataDiagnosis_Report.pdf
+#  con_sqlite %>%
+#    tbl("TB_CARSEATS") %>%
+#    diagnose_report()
+#  
+#  # create pdf file. file name is Diagn.pdf, and collect size is 350
+#  con_sqlite %>%
+#    tbl("TB_CARSEATS") %>%
+#    diagnose_report(collect_size = 350, output_file = "Diagn.pdf")
+#  
+#  # create html file. file name is Diagnosis_Report.html
+#  con_sqlite %>%
+#    tbl("TB_CARSEATS") %>%
+#    diagnose_report(output_format = "html")
+#  
+#  # create html file. file name is Diagn.html
+#  con_sqlite %>%
+#    tbl("TB_CARSEATS") %>%
+#    diagnose_report(output_format = "html", output_file = "Diagn.html")
 

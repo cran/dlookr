@@ -2,9 +2,12 @@
 % Please edit documentation in R/diagnose.R
 \name{plot_outlier}
 \alias{plot_outlier}
+\alias{plot_outlier.data.frame}
 \title{Plot outlier information of numerical data diagnosis}
 \usage{
 plot_outlier(.data, ...)
+
+\method{plot_outlier}{data.frame}(.data, ..., col = "lightblue")
 }
 \arguments{
 \item{.data}{a data.frame or a \code{\link{tbl_df}}.}
@@ -17,6 +20,8 @@ with all variables.
 These arguments are automatically quoted and evaluated in a context
 where column names represent column positions.
 They support unquoting and splicing.}
+
+\item{col}{a color to be used to fill the bars. The default is "lightblue".}
 }
 \description{
 The plot_outlier() visualize outlier information
@@ -56,6 +61,9 @@ plot_outlier(carseats, -Sales, -Price)
 plot_outlier(carseats, "Sales", "Price")
 plot_outlier(carseats, 6)
 
+# Using the col argument
+plot_outlier(carseats, Sales, col = "gray")
+
 # Using pipes ---------------------------------
 library(dplyr)
 
@@ -84,7 +92,8 @@ carseats \%>\%
       filter(outliers_ratio > 1) \%>\%
       select(variables) \%>\%
       pull())
+  
 }
 \seealso{
-\code{\link{diagnose_outlier}}.
+\code{\link{plot_outlier.tbl_dbi}}, \code{\link{diagnose_outlier.data.frame}}.
 }

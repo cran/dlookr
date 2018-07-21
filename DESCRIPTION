@@ -1,7 +1,7 @@
 Package: dlookr
 Type: Package
 Title: Tools for Data Diagnosis, Exploration, Transformation
-Version: 0.3.0
+Version: 0.3.2
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
@@ -17,16 +17,17 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.2.0)
-Imports: dplyr, magrittr, tidyr, ggplot2, RcmdrMisc, corrplot, rlang,
-        purrr, tibble, tidyselect, classInt, moments, kableExtra,
-        prettydoc, smbinning, xtable, knitr, rmarkdown, RColorBrewer,
-        gridExtra, tinytex, methods, DMwR, mice, rpart, randomForest
-Suggests: ISLR, nycflights13, testthat
+Imports: dplyr, dbplyr, magrittr, tidyr, ggplot2, RcmdrMisc, corrplot,
+        rlang, purrr, tibble, tidyselect, classInt, moments,
+        kableExtra, prettydoc, smbinning, xtable, knitr, rmarkdown,
+        RColorBrewer, gridExtra, tinytex, methods, DMwR, mice, rpart,
+        randomForest
+Suggests: ISLR, nycflights13, DBI, RSQLite, testthat
 Author: Choonghyun Ryu [aut, cre]
 Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2018-04-27 08:56:14 UTC; choonghyunryu
+Packaged: 2018-07-21 03:56:49 UTC; choonghyunryu
 Repository: CRAN
-Date/Publication: 2018-04-27 10:25:45 UTC
+Date/Publication: 2018-07-21 04:40:02 UTC

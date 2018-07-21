@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r environment, echo = FALSE, message = FALSE}
+```{r environment, echo = FALSE, message = FALSE, warning=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 
@@ -37,11 +37,19 @@ This document introduces **Data Quality Diagnosis** methods provided by the dloo
 
 dlookr synergy with `dplyr` increases. Particularly in data exploration and data wrangle, it increases the efficiency of the `tidyverse` package group.
 
+## Supported data structures
+Data diagnosis supports the following data structures.
+
+* data frame : data.frame class.
+* data table : tbl_df class.
+* **table of DBMS** : table of the DBMS through tbl_dbi.
+  + **Using dplyr backend for any DBI-compatible database.**
+  
 ## Data: nycflights13
 
 To illustrate basic use of the dlookr package, use the `flights` data from the `nycflights13` package. The `flights` data frame is data about departure and arrival on all flights departing from NYC in 2013.
 
-```{r import_data}
+```{r import_data, warning=FALSE}
 library(nycflights13)
 dim(flights)
 flights
@@ -221,14 +229,14 @@ The plot derived from the numerical data diagnosis is as follows.
 
 `plot_outlier()` can visualize an anomaly in the `arr_delay` variable of `flights` as follows:
 
-```{r plot_outlier, fig.width = 7, fig.height = 4}
+```{r plot_outlier, fig.width = 5, fig.height = 3}
 flights %>%
   plot_outlier(arr_delay) 
 ```
 
 Use the function of the dplyr package and `plot_outlier()` and `diagnose_outlier()` to visualize anomaly values of all numeric variables with an outlier ratio of 0.5% or more.:
 
-```{r plot_outlier_pipe, fig.width = 7, fig.height = 4}
+```{r plot_outlier_pipe, fig.width = 5, fig.height = 3}
 flights %>%
   plot_outlier(diagnose_outlier(flights) %>% 
                  filter(outliers_ratio >= 0.5) %>% 
@@ -335,4 +343,139 @@ knitr::include_graphics('img/diag_table_html.png')
 
 ```{r diag_outlier_html, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Data diagnosis report outlier diagnosis contents (html)"}
 knitr::include_graphics('img/diag_outlier_html.png')
+```
+
+## Diagnosing tables in DBMS
+The DBMS table diagnostic function supports In-database mode that performs SQL operations on the DBMS side. If the size of the data is large, using In-database mode is faster.
+
+It is difficult to obtain anomaly or to implement the sampling-based algorithm in SQL of DBMS. So some functions do not yet support In-database mode. In this case, it is performed in In-memory mode in which table data is brought to R side and calculated.
+In this case, if the data size is large, the execution speed may be slow. It supports the collect_size argument, which allows you to import the specified number of samples of data into R.
+
+* In-database support fuctions
+    + `diagonse()`
+    + `diagnose_category()`
+* In-database not support fuctions
+    + `diagnose_numeric()`
+    + `diagnose_outlier()`    
+    + `plot_outlier()`  
+    + `diagnose_report()`
+
+### Preparing table data
+Copy the `carseats` data frame to the SQLite DBMS and create it as a table named `TB_CARSEATS`.
+Mysql/MariaDB, PostgreSQL, Oracle DBMS, etc. are also available for your environment. 
+
+```{r dbi_table, warning=FALSE, message=FALSE}
+if (!require(DBI)) install.packages('DBI')
+if (!require(RSQLite)) install.packages('RSQLite')
+if (!require(dplyr)) install.packages('dplyr')
+if (!require(dbplyr)) install.packages('dbplyr')
+
+library(dbplyr)
+library(dplyr)
+
+carseats <- ISLR::Carseats
+carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
+carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
+
+# connect DBMS
+con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+
+# copy carseats to the DBMS with a table named TB_CARSEATS
+copy_to(con_sqlite, carseats, name = "TB_CARSEATS", overwrite = TRUE)
+```
+
+### Diagnose data quality of variables in the DBMS
+Use `dplyr::tbl()` to create a tbl_dbi object, then use it as a data frame object. That is, the data argument of all diagonose function is specified as tbl_dbi object instead of data frame object.
+
+```{r dbi_diag}
+# Diagnosis of all columns
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose()
+
+# Positions values select columns, and In-memory mode
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose(1, 3, 8, in_database = FALSE)
+  
+# Positions values select columns, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
+```
+
+### Diagnose data quality of categorical variables in the DBMS
+```{r dbi_category}
+# Positions values select variables, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_category(7, in_database = FALSE, collect_size = 200) 
+  
+# Positions values select variables
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_category(-7)
+```
+
+### Diagnose data quality of numerical variables in the DBMS
+```{r dbi_numeric}
+# Diagnosis of all numerical variables
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_numeric()
+  
+# Positive values select variables, and In-memory mode and collect size is 200
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_numeric(Sales, Income, collect_size = 200)
+```
+
+### Diagnose outlier of numerical variables in the DBMS
+```{r dbi_outlier}
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_outlier()  %>%
+  filter(outliers_ratio > 1)
+```
+
+### Plot outlier information of numerical data diagnosis in the DBMS
+```{r plot_outlier_dbi, fig.width = 5, fig.height = 3}
+# Visualization of numerical variables with a ratio of
+# outliers greater than 1%
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  plot_outlier(con_sqlite %>% 
+                 tbl("TB_CARSEATS") %>% 
+                 diagnose_outlier() %>%
+                 filter(outliers_ratio > 1) %>%
+                 select(variables) %>%
+                 pull())
+```
+
+### Reporting the information of data diagnosis for table of thr DBMS
+The following shows several examples of creating an data diagnosis report for a DBMS table.
+
+Using the `collect_size` argument, you can perform data diagonosis with the corresponding number of sample data.
+If the number of data is very large, use `collect_size`.
+
+```{r dbi_diag_report, eval=FALSE}
+# create pdf file. file name is DataDiagnosis_Report.pdf
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_report()
+  
+# create pdf file. file name is Diagn.pdf, and collect size is 350
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_report(collect_size = 350, output_file = "Diagn.pdf")
+
+# create html file. file name is Diagnosis_Report.html
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_report(output_format = "html")
+
+# create html file. file name is Diagn.html
+con_sqlite %>% 
+  tbl("TB_CARSEATS") %>% 
+  diagnose_report(output_format = "html", output_file = "Diagn.html")
 ```
