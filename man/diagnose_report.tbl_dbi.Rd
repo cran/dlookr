@@ -4,9 +4,9 @@
 \alias{diagnose_report.tbl_dbi}
 \title{Reporting the information of data diagnosis for table of the DBMS}
 \usage{
-\method{diagnose_report}{tbl_dbi}(.data, output_format = c("pdf", "html"),
-  output_file = NULL, output_dir = tempdir(), in_database = FALSE,
-  collect_size = Inf, ...)
+\method{diagnose_report}{tbl_dbi}(.data, output_format = c("pdf",
+  "html"), output_file = NULL, output_dir = tempdir(),
+  font_family = NULL, in_database = FALSE, collect_size = Inf, ...)
 }
 \arguments{
 \item{.data}{a tbl_dbi.}
@@ -18,6 +18,8 @@
 \item{output_file}{name of generated file. default is NULL.}
 
 \item{output_dir}{name of directory to generate report file. default is tempdir().}
+
+\item{font_family}{charcter. font family name for figure in pdf.}
 
 \item{in_database}{Specifies whether to perform in-database operations. 
 If TRUE, most operations are performed in the DBMS. if FALSE, 
@@ -37,6 +39,7 @@ Generate generalized data diagnostic reports automatically.
 You can choose to output to pdf and html files.
 This is useful for diagnosing a data frame with a large number of variables
 than data with a small number of variables.
+For pdf output, Korean Gothic font must be installed in Korean operating system.
 }
 \section{Reported information}{
 
@@ -76,7 +79,6 @@ See vignette("diagonosis") for an introduction to these concepts.
 \examples{
 \donttest{
 library(dplyr)
-library(dbplyr)
 
 # Generate data for the example
 carseats <- ISLR::Carseats

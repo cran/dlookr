@@ -1,3 +1,89 @@
+dlookr 0.3.8
+----------------------------------------------------------------
+* summary.imputation() modified features to correspond to dplyr 0.8.0 or later.
+
+* describe.grouped_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* normality.grouped_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* plot_normality.grouped_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* correlate.grouped_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* plot_correlate.grouped_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* relate.target_df() modified features to correspond to dplyr 0.8.0 or later.
+
+* plot.relate() modified features to correspond to dplyr 0.8.0 or later.
+
+* plot_correlate.grouped_df() fixed error in the main title of the plot output the factor value as an integer.
+
+
+dlookr 0.3.7
+----------------------------------------------------------------
+* diagnose_report() fixed errors when number of numeric variables is zero.
+
+* eda_report() fixed errors that are outputting abnormalities in pdf documents when the target variable name contains "_".
+
+* eda_report() Handle exceptions when there are fewer than two numeric variables when outputting a reflation plot.
+
+
+dlookr 0.3.6
+----------------------------------------------------------------
+* diagnose_report() was converted to Korean version of Hangul Report in Korean O/S.
+
+* diagnose_report() was added an argument to choose whether to present the report results to the browser.
+
+* diagnose_report() limited the maximum number of cases per "Categorical variable level top 10" to 50 cases.
+
+* eda_report() was converted to Korean version of Hangul Report in Korean O/S.
+
+* eda_report() was added an argument to choose whether to present the report results to the browser.
+
+* transformation_report() was converted to Korean version of Hangul Report in Korean O/S.
+
+* transformation_report() was added an argument to choose whether to present the report results to the browser.
+
+
+dlookr 0.3.5
+----------------------------------------------------------------
+* diagnose_category() fixed subscript error in data where all variables are numeric variables
+
+* diagnose_numeric() fixed subscript error in data where all variables are categorical variables
+
+* diagnose_outlier() fixed subscript error in data where all variables are categorical variables
+
+* plot_outlier() change message in data where all variables are categorical variables
+
+* diagnose_report() modify the table column name in pdf report and lower the number of decimal places
+
+* eda_report() fixed errors in pdf report when variable name contains "_"
+
+
+dlookr 0.3.4
+----------------------------------------------------------------
+* find_outliers() fixed errors in index or name extraction of variables containing outliers
+
+* find_skewness() fixed errors in index or name extraction of variables with skewness exceeds the threshold
+
+* eda_report() fixed in table caption of EDA report. and added ability to set font family of pdf report figure
+
+* transformation_report() fixed in table caption of Transformation report. and added ability to set font family of pdf report figure 
+
+* diagnose_report() Added ability to set font family of pdf report figure 
+
+
+dlookr 0.3.3
+----------------------------------------------------------------
+* diagnose_report() supports Korean language(hangul) with pdf output. (@cardiomoon)
+
+* eda_report() supports Korean language(hangul) with pdf output. (@cardiomoon)
+
+* transformation_report() supports Korean language(hangul) with pdf output. (@cardiomoon)
+
+* eda_report() fixed in table/figure caption of EDA report 
+
+
 dlookr 0.3.2
 ----------------------------------------------------------------
 * plot.relate() supports hexabin plotting when this target variable is numeric and the predictor is also a numeric type.
@@ -26,12 +112,13 @@ dlookr 0.3.2
 
 * target_by() supports columns of table in the DBMS.
 
-* Fix in 4.1.1 of EDA report without target variable.
+* Fixed in 4.1.1 of EDA report without target variable.
+
 
 dlookr 0.3.1
 ----------------------------------------------------------------
 
-* Fix typographical errors in EDA Report headings (@hangtime79, #2).
+* Fixed typographical errors in EDA Report headings (@hangtime79, #2).
 
 * The `plot_outlier()` supports a col argument that a color to be used to fill the bars. (@hangtime79, #3).
 

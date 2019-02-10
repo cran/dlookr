@@ -218,13 +218,18 @@ diagnose_category.data.frame <- function(.data, ..., top = 10, add_character = T
 diagn_category_impl <- function(df, vars, top, add_character) {
   if (length(vars) == 0) vars <- names(df)
 
-  if (length(vars) == 1 & !tibble::is.tibble(df)) df <- as.tibble(df)
+  if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
 
   if (add_character)
     idx_factor <- find_class(df[, vars], type = "categorical2")
   else
     idx_factor <- find_class(df[, vars], type = "categorical")
 
+  if (length(idx_factor) == 0) {
+    message("There is no categorical variable in the data or variable list.\n")
+    return(NULL)
+  }
+  
   get_topn <- function(df, var, top) {
     df %>%
       select(variable = var) %>%
@@ -344,10 +349,15 @@ diagnose_numeric.data.frame <- function(.data, ...) {
 diagn_numeric_impl <- function(df, vars) {
   if (length(vars) == 0) vars <- names(df)
 
-  if (length(vars) == 1 & !tibble::is.tibble(df)) df <- as.tibble(df)
+  if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
 
   idx_numeric <- find_class(df[, vars], type = "numerical")
 
+  if (length(idx_numeric) == 0) {
+    message("There is no numeric variable in the data or variable list.\n")
+    return(NULL)
+  }
+  
   get_descr <- function(df, var) {
     df %>%
       select(variable = var) %>%
@@ -469,10 +479,15 @@ diagnose_outlier.data.frame <- function(.data, ...) {
 diagnose_outlier_impl <- function(df, vars) {
   if (length(vars) == 0) vars <- names(df)
 
-  if (length(vars) == 1 & !tibble::is.tibble(df)) df <- as.tibble(df)
+  if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
 
   idx_numeric <- find_class(df[, vars], type = "numerical")
 
+  if (length(idx_numeric) == 0) {
+    message("There is no numeric variable in the data or variable list.\n")
+    return(NULL)
+  }
+  
   get_outlier <- function(df, var) {
     df %>%
       select(variable = var) %>%
@@ -598,14 +613,14 @@ plot_outlier.data.frame <- function(.data, ..., col = "lightblue") {
 plot_outlier_impl <- function(df, vars, col = "lightblue") {
   if (length(vars) == 0) vars <- names(df)
 
-  if (length(vars) == 1 & !tibble::is.tibble(df)) 
-    df <- tibble::as.tibble(df)
+  if (length(vars) == 1 & !tibble::is_tibble(df)) 
+    df <- as_tibble(df)
 
   idx_numeric <- find_class(df[, vars], type = "numerical")
-
+  
   if (length(idx_numeric) == 0) {
-    cat("The argument 'var' does not contain a numeric variable name.\n")
-    invisible()
+    message("There is no numeric variable in the data or variable list.\n")
+    invisible(NULL)
   }
 
   plot_outliers <- function(df, var, col) {
@@ -647,6 +662,7 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' You can choose to output to pdf and html files.
 #' This is useful for diagnosing a data frame with a large number of variables
 #' than data with a small number of variables.
+#' For pdf output, Korean Gothic font must be installed in Korean operating system.
 #'
 #' @section Reported information:
 #' Reported from the data diagnosis is as follows.
@@ -687,6 +703,8 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
+#' @param font_family charcter. font family name for figure in pdf.
+#' @param browse logical. choose whether to output the report results to the browser.
 #' @param ... arguments to be passed to methods.
 #'
 #' @examples
@@ -700,6 +718,9 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' diagnose_report(carseats)
 #' # create pdf file. file name is Diagn.pdf
 #' diagnose_report(carseats, output_file = "Diagn.pdf")
+#' # create pdf file. file name is ./Diagn.pdf and not browse
+#' diagnose_report(carseats, output_dir = ".", output_file = "Diagn.pdf", 
+#'   browse = FALSE)
 #' # create html file. file name is Diagnosis_Report.html
 #' diagnose_report(carseats, output_format = "html")
 #' # create html file. file name is Diagn.html
@@ -715,12 +736,24 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' @method diagnose_report data.frame
 #' @export
 diagnose_report.data.frame <- function(.data, output_format = c("pdf", "html"),
-  output_file = NULL, output_dir = tempdir(), ...) {
+  output_file = NULL, output_dir = tempdir(), font_family = NULL, browse = TRUE, ...) {
   output_format <- match.arg(output_format)
   
   assign("edaData", as.data.frame(.data), .dlookrEnv)
   
   path <- output_dir
+  if (length(grep("ko_KR", Sys.getenv("LANG"))) == 1) {
+    latex_main <- "DataDiagnosis_Report_KR.Rnw"
+    latex_sub <- "01_Diagnose_KR.Rnw"
+  } else {
+    latex_main <- "DataDiagnosis_Report.Rnw"
+    latex_sub <- "01_Diagnose.Rnw"
+  }
+  
+  if (!is.null(font_family)) {
+    ggplot2::theme_set(ggplot2::theme_gray(base_family = font_family))
+    par(family = font_family)
+  }
   
   if (output_format == "pdf") {
     installed <- file.exists(Sys.which("pdflatex"))
@@ -733,11 +766,11 @@ diagnose_report.data.frame <- function(.data, output_format = c("pdf", "html"),
       output_file <- "DataDiagnosis_Report.pdf"
     
     Rnw_file <- file.path(system.file(package = "dlookr"),
-      "report", "DataDiagnosis_Report.Rnw")
+      "report", latex_main)
     file.copy(from = Rnw_file, to = path)
     
     Rnw_file <- file.path(system.file(package = "dlookr"),
-      "report", "01_Diagnose.Rnw")
+      "report", latex_sub)
     file.copy(from = Rnw_file, to = path)
     
     Img_file <- file.path(system.file(package = "dlookr"), "img")
@@ -746,12 +779,12 @@ diagnose_report.data.frame <- function(.data, output_format = c("pdf", "html"),
     dir.create(paste(path, "figure", sep = "/"))
     
     # you needs tinytex package for compiler = "pdflatex"
-    knitr::knit2pdf(paste(path, "DataDiagnosis_Report.Rnw", sep = "/"),
+    knitr::knit2pdf(paste(path, latex_main, sep = "/"),
       compiler = "pdflatex",
       output = sub("pdf$", "tex", paste(path, output_file, sep = "/")))
       
-    file.remove(paste(path, "01_Diagnose.Rnw", sep = "/"))
-    file.remove(paste(path, "DataDiagnosis_Report.Rnw", sep = "/"))
+    file.remove(paste(path, latex_sub, sep = "/"))
+    file.remove(paste(path, latex_main, sep = "/"))
       
     fnames <- sub("pdf$", "", output_file)
     fnames <- grep(fnames, list.files(path), value = TRUE)
@@ -762,20 +795,26 @@ diagnose_report.data.frame <- function(.data, output_format = c("pdf", "html"),
     unlink(paste(path, "figure", sep = "/"), recursive = TRUE)
     unlink(paste(path, "img", sep = "/"), recursive = TRUE)
   } else if (output_format == "html") {
-    output_file <- "Diagnosis_Report.html"
+    if (length(grep("ko_KR", Sys.getenv("LANG"))) == 1) {
+      rmd <- "Diagnosis_Report_KR.Rmd"
+    } else {
+      rmd <- "Diagnosis_Report.Rmd"
+    }
     
-    Rmd_file <- file.path(system.file(package = "dlookr"),
-      "report", "Diagnosis_Report.Rmd")
+    if (is.null(output_file))
+      output_file <- "Diagnosis_Report.html"
+    
+    Rmd_file <- file.path(system.file(package = "dlookr"), "report", rmd)
     file.copy(from = Rmd_file, to = path, recursive = TRUE)
     
-    rmarkdown::render(paste(path, "Diagnosis_Report.Rmd", sep = "/"),
+    rmarkdown::render(paste(path, rmd, sep = "/"),
       output_format = prettydoc::html_pretty(toc = TRUE, number_sections = TRUE),
       output_file = paste(path, output_file, sep = "/"))
     
-    file.remove(paste(path, "Diagnosis_Report.Rmd", sep = "/"))
+    file.remove(paste(path, rmd, sep = "/"))
   }
   
-  if (file.exists(paste(path, output_file, sep = "/"))) {
+  if (browse & file.exists(paste(path, output_file, sep = "/"))) {
     browseURL(paste(path, output_file, sep = "/"))
   }
 }

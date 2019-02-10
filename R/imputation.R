@@ -479,7 +479,7 @@ summary.imputation <- function(object, ...) {
     smmry <- dframe %>%
       group_by(key) %>%
       describe("value") %>%
-      select(-variable, -key) %>%
+      select(which(!names(.) %in% c("variable", "key"))) %>% 
       t
 
     smmry <- smmry[, 2:1]

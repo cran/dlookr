@@ -5,7 +5,8 @@
 \title{Reporting the information of transformation}
 \usage{
 transformation_report(.data, target = NULL, output_format = c("pdf",
-  "html"), output_file = NULL, output_dir = tempdir())
+  "html"), output_file = NULL, output_dir = tempdir(),
+  font_family = NULL, browse = TRUE)
 }
 \arguments{
 \item{.data}{a data.frame or a \code{\link{tbl_df}}.}
@@ -22,6 +23,10 @@ target variable is not a binary class.}
 \item{output_file}{name of generated file. default is NULL.}
 
 \item{output_dir}{name of directory to generate report file. default is tempdir().}
+
+\item{font_family}{charcter. font family name for figure in pdf.}
+
+\item{browse}{logical. choose whether to output the report results to the browser.}
 }
 \description{
 The transformation_report() report the information of transformate
@@ -32,6 +37,7 @@ Generate transformation reports automatically.
 You can choose to output to pdf and html files.
 This is useful for Binning a data frame with a large number of variables
 than data with a small number of variables.
+For pdf output, Korean Gothic font must be installed in Korean operating system.
 }
 \section{Reported information}{
 

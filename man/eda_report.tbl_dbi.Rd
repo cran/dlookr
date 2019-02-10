@@ -4,9 +4,10 @@
 \alias{eda_report.tbl_dbi}
 \title{Reporting the information of EDA for table of the DBMS}
 \usage{
-\method{eda_report}{tbl_dbi}(.data, target = NULL, output_format = c("pdf",
-  "html"), output_file = NULL, output_dir = tempdir(),
-  in_database = FALSE, collect_size = Inf, ...)
+\method{eda_report}{tbl_dbi}(.data, target = NULL,
+  output_format = c("pdf", "html"), output_file = NULL,
+  font_family = NULL, output_dir = tempdir(), in_database = FALSE,
+  collect_size = Inf, ...)
 }
 \arguments{
 \item{.data}{a tbl_dbi.}
@@ -18,6 +19,8 @@
 "html" create html file by rmarkdown::render().}
 
 \item{output_file}{name of generated file. default is NULL.}
+
+\item{font_family}{charcter. font family name for figure in pdf.}
 
 \item{output_dir}{name of directory to generate report file. default is tempdir().}
 
@@ -39,6 +42,7 @@ Generate generalized data EDA reports automatically.
 You can choose to output to pdf and html files.
 This is useful for EDA a data frame with a large number of variables
 than data with a small number of variables.
+For pdf output, Korean Gothic font must be installed in Korean operating system.
 }
 \section{Reported information}{
 
@@ -88,7 +92,6 @@ See vignette("EDA") for an introduction to these concepts.
 \examples{
 \donttest{
 library(dplyr)
-library(dbplyr)
 
 # Generate data for the example
 carseats <- ISLR::Carseats

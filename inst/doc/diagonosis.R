@@ -62,11 +62,11 @@ diagnose_outlier(flights) %>%
   arrange(desc(rate)) %>% 
   select(-outliers_cnt)
 
-## ----plot_outlier, fig.width = 5, fig.height = 3-------------------------
+## ----plot_outlier, fig.width = 7, fig.height = 5-------------------------
 flights %>%
   plot_outlier(arr_delay) 
 
-## ----plot_outlier_pipe, fig.width = 5, fig.height = 3--------------------
+## ----plot_outlier_pipe, fig.width = 7, fig.height = 5--------------------
 flights %>%
   plot_outlier(diagnose_outlier(flights) %>% 
                  filter(outliers_ratio >= 0.5) %>% 
@@ -112,7 +112,6 @@ if (!require(RSQLite)) install.packages('RSQLite')
 if (!require(dplyr)) install.packages('dplyr')
 if (!require(dbplyr)) install.packages('dbplyr')
 
-library(dbplyr)
 library(dplyr)
 
 carseats <- ISLR::Carseats
@@ -169,7 +168,7 @@ con_sqlite %>%
   diagnose_outlier()  %>%
   filter(outliers_ratio > 1)
 
-## ----plot_outlier_dbi, fig.width = 5, fig.height = 3---------------------
+## ----plot_outlier_dbi, fig.width = 7, fig.height = 5---------------------
 # Visualization of numerical variables with a ratio of
 # outliers greater than 1%
 con_sqlite %>% 

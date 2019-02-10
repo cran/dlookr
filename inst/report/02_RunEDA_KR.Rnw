@@ -1,4 +1,4 @@
-% !Rnw root = EDA_Report.Rnw
+% !Rnw root = EDA_Report_KR.Rnw
 
 <<enrironment, echo=FALSE, warning=FALSE, message=FALSE>>=
 options(warn = -1)
@@ -18,7 +18,7 @@ options(replace.assign = TRUE, width = 90)
 dist_numeric <- function(df, target, predictor) {
   descr <- df %>%
     target_by(target) %>%
-    describe(predictor)
+    relate(predictor)
 
   vars <- unlist(descr[, 2])
 
@@ -81,15 +81,15 @@ idx.numeric <- idx.numeric[apply(edaData[, idx.numeric], 2,
                                  function(x) diff(range(x, na.rm = TRUE)) > 0)]
 @
 
-\chapter{Introduction}
-The EDA Report provides exploratory data analysis information on objects that inherit data.frame and data.frame.
+\chapter{개요}
+EDA(Exploratory Data Analysis) 보고서는 data.frame 및 data.frame을 상속받은 객체에 대한 탐색적 데이터 분석 정보를 제공한다.
 
-\section{Information of Dataset}
-The dataset that generated the EDA Report is an '\Sexpr{class(edaData)[1]}' object. It consists of \Sexpr{format(NROW(edaData), big.mark = ",")} observations and \Sexpr{NCOL(edaData)} variables.
+\section{데이터셋 정보}
+EDA 보고서를 생성한 데이터셋은 '\Sexpr{class(edaData)[1]}' 객체다. 이 데이터 객체는 \Sexpr{format(NROW(edaData), big.mark = ",")}개의 관측치와 \Sexpr{NCOL(edaData)}개의 변수로 구성되었다.
 
-\section{Information of Variables}
+\section{변수들의 정보}
 <<info_variables, echo=FALSE, results='asis'>>=
-cap <- "Information of Variables"
+cap <- "변수들의 정보 목록"
 
 vars <- edaData %>%
   diagnose()
@@ -104,13 +104,13 @@ target_type <- if (is.null(targetVariable))
   class(pull(edaData, targetVariable))[1]
 @
 
-The target variable of the data is '\Sexpr{change_under(target_nm)}', and the data type of the variable is \Sexpr{target_type}.
+데이터셋의 목적변수(target variable) 이름은 '\Sexpr{change_under(target_nm)}', 변수의 데이터 유형(data type)은 \Sexpr{target_type}이다.
 
-\section{About EDA Report}
-EDA reports provide information and visualization results that support the EDA process. In particular, it provides a variety of information to understand the relationship between the target variable and the rest of the variables of interest.
+\section{EDA 보고서에 대해}
+EDA 보고서는 EDA 프로세스를 지원하는 정보 및 시각화 결과를 제공한다. 특히 목적변수와 나머지 변수(predictor, 예측자 혹은 독립변수)의 관계를 이해하기 위한 다양한 정보를 제공한다.
 
-\chapter{Univariate Analysis}
-\section{Descriptive Statistics}
+\chapter{단변량 분석}
+\section{기술통계(Descriptive Statistics)}
 
 <<describe_univariate, echo=FALSE, comment="", results='asis'>>=
 x <- Hmisc:::describe.data.frame(edaData)
@@ -119,11 +119,11 @@ Hmisc::latex(x, file = "")
 
 \clearpage
 
-\section{Normality Test of Numerical Variables}
-\subsection{Statistics and Visualization of (Sample) Data}
+\section{정규성 검정}
+\subsection{통계량과 시각화}
 <<normality, echo=FALSE, results='asis'>>=
 if (length(idx.numeric) == 0) {
-  cat("\n\nThere is no numeric variable.\n\n")
+  cat("\n\n수치형 변수가 없습니다.\n\n")
 } else {
   for (i in idx.numeric) {
       cap <- change_under(names(edaData)[i])
@@ -131,7 +131,7 @@ if (length(idx.numeric) == 0) {
       cat("\n")
       cat("\\subsubsection{", cap, "}\n")
 
-    cat("\nnormality test : Shapiro-Wilk normality test\n\n")
+    cat("\n검정 방법 : Shapiro-Wilk normality test\n\n")
 
     x <- if (NROW(edaData) > 5000) {
       sample(pull(edaData, i), size = 5000, replace = TRUE)
@@ -140,19 +140,19 @@ if (length(idx.numeric) == 0) {
     }
 
     if (all(is.na(x))) {
-      cat("all 'x' values are NA\n\n")
+      cat("모든 관측치가 결측치입니다.\n\n")
       cat("\\clearpage")
       next
     }
 
     if(length(x) < 3L || length(x) > 5000L) {
-      cat("sample size must be between 3 and 5000\n\n")
+      cat("검정을 위한 샘플의 크기는 3 이상 5000 이하여야 합니다.\n\n")
       cat("\\clearpage")
       next
     }
 
     if(diff(range(x, na.rm = TRUE)) == 0) {
-      cat("all 'x' values are identical\n\n")
+      cat("모든 관측치가 동일한 값입니다.\n\n")
       cat("\\clearpage")
       next
     }
@@ -170,7 +170,7 @@ if (length(idx.numeric) == 0) {
               kurtosis(log(x), na.rm = TRUE),
               kurtosis(sqrt(x), na.rm = TRUE))
 
-    type <- c("original", "log transformation", "sqrt transformation")
+    type <- c("원본", "log 변환", "sqrt 변환")
     stats <- data.frame(type = type, skewness = skew, kurtosis = kurt)
 
     tab_cap <- paste("skewness and kurtosis :", cap)
@@ -185,7 +185,8 @@ if (length(idx.numeric) == 0) {
     cat("\\\\")
     cat("\n")
 
-    cairo_pdf(filename = sprintf("./figure/norm%s.pdf", i), width = 6, height = 4)
+    cairo_pdf(filename = sprintf("./figure/norm%s.pdf", i), width = 6, height = 4, 
+      family = "NanumGothic")
     par(mfrow = c(2, 2), mar = c(2, 4, 2, 2))
     hist(x, col = "lightblue", las = 1, main = "origin")
     qqnorm(x, main = "origin: Q-Q plot")
@@ -207,9 +208,9 @@ if (length(idx.numeric) == 0) {
 }
 @
 
-\chapter{Relationship Between Variables}
-\section{Correlation Coefficient}
-\subsection{Correlation Coefficient by Variable Combination}
+\chapter{변수들간의 관계}
+\section{상관계수}
+\subsection{변수조합별 상관계수}
 <<correlations, echo=FALSE, results='asis'>>=
 if (length(idx.numeric) > 2) {
   eps <- 0.5
@@ -221,9 +222,9 @@ if (length(idx.numeric) > 2) {
     arrange(desc(abs(coef_corr)))
 
   if (NROW(cors) > 0) {
-    names(cors) <- c("Variable1", "Variable2", "Correlation Coefficient")
+    names(cors) <- c("기준변수", "대응변수", "상관계수")
 
-    cap <- "The correlation coefficients (0.5 or more)"
+    cap <- "변수별 상관계수 목록 (0.5 이상)"
 
     kable(cors, booktabs = TRUE, caption = cap,
           digits = 3, longtable = TRUE) %>%
@@ -232,32 +233,32 @@ if (length(idx.numeric) > 2) {
       kable_styling(latex_options = c("repeat_header")) %>%
       cat()
   } else {
-    cat("\n\nNo correlation coefficient is greater than 0.5.\n\n")
+    cat("\n\n상관계수의 절대치가 0.5 이상인 수치형 변수의 조합이 없습니다.\n\n")
   }
 } else {
-  cat("\n\nNumber of numerical variables is less than 2.\n\n")
+  cat("\n\n수치형 변수의 개수가 2보다 적습니다.\n\n")
 }
 @
 
-\subsection{Correlation Plot of Numerical Variables}
-<<plot_correlations, dev='cairo_pdf', fig.align='center', fig.width=6, fig.height=6, out.width="0.99\\textwidth", dpi=300, fig.cap="The correlation coefficient of numerical variables", fig.pos="!h", echo=FALSE, comment="">>=
+\subsection{변수조합별 상관계수 시각화}
+<<plot_correlations, dev='cairo_pdf', fig.align='center', fig.width=6, fig.height=6, out.width="0.99\\textwidth", dpi=300, fig.cap="상관행렬 플롯", fig.pos="!h", echo=FALSE, dev.args=list(family='Korea1deb'),comment="">>=
 if (length(idx.numeric) > 2) {
   edaData %>%
     plot_correlate()
 } else {
-  cat("Number of numerical variables is less than 2.\n\n")
+  cat("수치형 변수의 개수가 2보다 적습니다.\n\n")
 } 
 @
 
-\chapter{Target based Analysis}
-\section{Grouped Descriptive Statistics}
-\subsection{Grouped Numerical Variables}
+\chapter{목적변수 기반의 분석}
+\section{목적변수 그룹별 기술통계}
+\subsection{목적변수 대응 수치형 변수}
 
 <<numeric_variables, echo=FALSE, results='asis'>>=
 if (!is.null(targetVariable)) {
   if (factor_flag) {
     if (length(idx.numeric) == 0) {
-      cat("There is no numeric variable.\n\n")
+      cat("수치형 변수가 없습니다.\n\n")
     } else {
       for (i in idx.numeric) {
         cat("\n")
@@ -292,7 +293,8 @@ if (!is.null(targetVariable)) {
                                             y = names(edaData)[i]))
         fig4  <- ggplot(tmpData, aes_string(x = names(tmpData)[2]))
 
-        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 7)
+        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 7,
+          family = "NanumGothic")
         grid.arrange(fig1 + geom_boxplot(aes(fill = target)) +
                        labs(x = targetVariable, y = names(edaData)[i],
                             title = "boxplot with outliers") +
@@ -334,7 +336,7 @@ if (!is.null(targetVariable)) {
     }
   } else if (numeric_flag) {
     if (length(idx.numeric) == 0) {
-        cat("There is no numeric variable.\n\n")
+        cat("수치형 변수가 없습니다.\n\n")
     } else {
       targetby <- target_by(edaData, targetVariable)
       for (i in idx.numeric) {
@@ -345,6 +347,7 @@ if (!is.null(targetVariable)) {
 
         tab <- summary(num_num)$coefficients
         colnames(tab)[4] <- c("Pr($\\textgreater \\mid t \\mid$)")
+        row.names(tab) <- change_under(row.names(tab))
 
         rsq <- summary(num_num)$r.squared
         adj <- summary(num_num)$adj.r.squared
@@ -352,7 +355,7 @@ if (!is.null(targetVariable)) {
         df <- summary(num_num)$df
         rse <- summary(num_num)$sigma
 
-        cat("\n\\textbf{1. Simple Linear Model Information}\n\\\\")
+        cat("\n\\textbf{1. 단순 선형모형 정보}\n\\\\")
         cat("\\\\")
         cat(sprintf("\t Residual standard error: %s on %s degrees of freedom\n\\\\",
                 round(rse),  df[2]))
@@ -363,7 +366,7 @@ if (!is.null(targetVariable)) {
                 round(tab[2, 4], 7)))
         cat("\n")
 
-        cap <- sprintf("Simple Linear Model coefficients : %s", names(edaData)[i])
+        cap <- sprintf("단순 선형모형의 계수 : %s", names(edaData)[i])
         cap <- paste(unlist(strsplit(cap, "_")), collapse = "\\_")
 
         kable(tab, digits = 2, caption = cap, booktabs = TRUE, escape = FALSE) %>%
@@ -376,7 +379,7 @@ if (!is.null(targetVariable)) {
 
         cap <- change_under(names(edaData)[i])
 
-        cat("\n\\noindent\\textbf{2. Visualization - Scatterplots}\n")
+        cat("\n\\noindent\\textbf{2. 시각화 - 산점도}\n")
 
         cat("\n\\begin{center}\n")
         cat("\\begin{figure}[!ht]\n")
@@ -391,17 +394,17 @@ if (!is.null(targetVariable)) {
     }
   }
 } else {
-  cat("There is no target variable.\n\n")
+  cat("목적변수를 지정하지 않았습니다.\n\n")
 }
 @
 
-\subsection{Grouped Categorical Variables}
+\subsection{목적변수 대응 범주형 변수}
 
 <<category_variables, echo=FALSE, results='asis'>>=
 if (!is.null(targetVariable)) {
   if (factor_flag) {
     if (length(idx.factor) == 0) {
-      cat("There is no categorical variable.\n\n")
+      cat("범주형 변수가 없습니다.\n\n")
     } else {
       for (i in idx.factor) {
         if (sum(!is.na(edaData[, i])) == 0) next
@@ -446,7 +449,8 @@ if (!is.null(targetVariable)) {
 
         fig  <- ggplot(edaData, aes_string(x = names(edaData)[i], fill = target))
 
-        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 4)
+        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 4,
+          family = "NanumGothic")
         grid.arrange(fig + geom_bar(position="stack") +
                        labs(x = "") +
                        labs(title = "Stack Bar Chart") +
@@ -477,7 +481,7 @@ if (!is.null(targetVariable)) {
     }
   } else if (numeric_flag) {
     if (length(idx.factor) == 0) {
-        cat("There is no categorical variable.\n\n")
+        cat("범주형 변수가 없습니다.\n\n")
     } else {
       targetby <- target_by(edaData, targetVariable)
       for (i in idx.factor) {
@@ -490,13 +494,13 @@ if (!is.null(targetVariable)) {
         colnames(tab_aov) <- c("Df", "Sum Sq", "Mean Sq", "F value",
                                "Pr($\\textgreater \\mid F \\mid$)")
 
-        cat("\n\\textbf{1. Analysis of Variance}\n\n")
+        cat("\n\\textbf{1. 분산분석(ANOVA)}\n\n")
 
-        cap <- sprintf("Analysis of Variance Table : %s", names(edaData)[i])
+        cap <- sprintf("분산분석표 : %s", names(edaData)[i])
         cap <- paste(unlist(strsplit(cap, "_")), collapse = "\\_")
 
         row.names(tab_aov) <- change_under(row.names(tab_aov))
-        
+
         knitr::kable(tab_aov, digits = 2, caption = cap,
                      booktabs = TRUE, escape = FALSE) %>%
           kable_styling(latex_options = c("striped", "hold_position")) %>%
@@ -513,7 +517,7 @@ if (!is.null(targetVariable)) {
         df <- summary(num_cat)$df
         rse <- summary(num_cat)$sigma
 
-        cat("\\noindent\\textbf{2. Simple Linear Model Information}\n\\\\")
+        cat("\\noindent\\textbf{2. 단순 선형모형 정보}\n\\\\")
         cat("\\\\")
         cat(sprintf("\t Residual standard error: %s on %s degrees of freedom\n\\\\",
                 round(rse),  df[2]))
@@ -524,7 +528,7 @@ if (!is.null(targetVariable)) {
                 round(tab[2, 4], 7)))
         cat("\n")
 
-        cap <- sprintf("Simple Linear Model coefficients : %s", names(edaData)[i])
+        cap <- sprintf("단순 선형모형의 계수 : %s", names(edaData)[i])
         cap <- paste(unlist(strsplit(cap, "_")), collapse = "\\_")
 
         row.names(tab) <- change_under(row.names(tab))
@@ -534,7 +538,8 @@ if (!is.null(targetVariable)) {
           kable_styling(latex_options = c("striped", "hold_position")) %>%
           cat()
 
-        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 4)
+        cairo_pdf(filename = sprintf("./figure/%s.pdf", i), width = 6, height = 4,
+          family = "NanumGothic")
         print(plot(num_cat))
         dev.off()
 
@@ -554,12 +559,12 @@ if (!is.null(targetVariable)) {
     }
   }
 } else {
-  cat("There is no target variable.\n\n")
+  cat("목적변수를 지정하지 않았습니다.\n\n")
 }
 @
 
-\section{Grouped Relationship Between Variables}
-\subsection{Grouped Correlation Coefficient}
+\section{목적변수 그룹별 변수들간의 관계}
+\subsection{목적변수 대응 상관계수}
 <<group_correlations, echo=FALSE, results='asis'>>=
 if (!is.null(targetVariable)) {
   if (factor_flag) {
@@ -577,10 +582,9 @@ if (!is.null(targetVariable)) {
         arrange(targetVariable, desc(abs(coef_corr)))
 
       if (NROW(cors) > 0) {
-        names(cors) <- c(targetVariable, "Variable1", "Variable2",
-                         "Correlation Coefficient")
+        names(cors) <- c(targetVariable, "기준변수", "대응변수", "상관계수")
 
-        cap <- "The correlation coefficients (0.5 or more)"
+        cap <- "변수별 상관계수 목록 (0.5 이상)"
 
         kable(cors, booktabs = TRUE,
               caption = cap, digits = 3, longtable = TRUE) %>%
@@ -589,39 +593,40 @@ if (!is.null(targetVariable)) {
           kable_styling(latex_options = c("repeat_header")) %>%
           cat()
       } else {
-        cat("No correlation coefficient is greater than 0.5.\n\n")
+        cat("상관계수의 절대치가 0.5 이상인 수치형 변수의 조합이 없습니다.\n\n")
       }
     } else {
-      cat("Number of numerical variables is less than 2.\n\n")
+      cat("수치형 변수의 개수가 2보다 적습니다.\n\n")
     }
   } else if (numeric_flag) {
-    cat("Numerical target variables are not supported.\n\n")
+    cat("목적변수가 수치형 변수인 경우에는 지원하지 않습니다.\n\n")
   }
 } else {
-  cat("There is no target variable.\n\n")
+  cat("목적변수를 지정하지 않았습니다.\n\n")
 }
 @
 
-\subsection{Grouped Correlation Plot of Numerical Variables}
+\subsection{목적변수 대응 상관계수 시각화}
 <<plot_group_correlations, dev='cairo_pdf', fig.align='center', fig.width=6, fig.height=6, out.width="0.99\\textwidth", dpi=300, fig.cap="The correlation coefficient of numerical variables", fig.pos="!h", echo=FALSE, results='asis'>>=
 if (!is.null(targetVariable)) {
   if (factor_flag) {
     if (length(idx.numeric) > 2) {
       level_name <- levels(edaData$targetVariable)
 
-      for (nm in level_name) {
-        cat(sprintf("\\noindent- Grouped Correlation Case of (%s == %s)\n\n", 
-          change_under(targetVariable), nm))
+      for (i in seq(level_name)) {
+        cat(sprintf("\\noindent - 목적변수의 조건 (%s == %s)\n\n", 
+          change_under(targetVariable), level_name[i]))
 
-        fname <- paste("./figure/myfile_", nm, ".pdf", sep = "")
-        cairo_pdf(filename = fname, width = 6, height = 6)
+        fname <- paste("./figure/myfile_", i, ".pdf", sep = "")
+        cairo_pdf(filename = fname, width = 6, height = 6, family = "NanumGothic")
         edaData %>%
-          filter(targetVariable %in% nm) %>%
+          filter(targetVariable %in% level_name[i]) %>%
           plot_correlate()
         dev.off()
-
-        cap <- sprintf("Correlation Matrix Plot (%s == %s)", change_under(targetVariable), nm)
         
+        cap <- sprintf("상관행렬 플롯 (%s == %s)", 
+          change_under(targetVariable), level_name[i])
+
         cat("\\begin{figure}")
         cat("\\begin{center}")
         cat("\\includegraphics{", fname, "}\n", sep = "")
@@ -630,13 +635,13 @@ if (!is.null(targetVariable)) {
         cat("\\end{figure}")
       }
     } else {
-      cat("Number of numerical variables is less than 2.\n\n")
+      cat("수치형 변수의 개수가 2보다 적습니다.\n\n")
     }
   } else if (numeric_flag) {
-    cat("Numerical target variables are not supported.\n\n")
+    cat("목적변수가 수치형 변수인 경우에는 지원하지 않습니다.\n\n")
   }
 } else {
-  cat("There is no target variable.\n\n")
+  cat("목적변수를 지정하지 않았습니다.\n\n")
 }
 @
 

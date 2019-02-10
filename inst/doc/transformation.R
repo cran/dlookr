@@ -19,7 +19,7 @@ carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 set.seed(456)
 carseats[sample(seq(NROW(carseats)), 10), "Urban"] <- NA
 
-## ----imputate_na, fig.width = 5, fig.height = 3--------------------------
+## ----imputate_na, fig.width = 7, fig.height = 5--------------------------
 income <- imputate_na(carseats, Income, US, method = "rpart")
 
 # result of imputate
@@ -31,7 +31,7 @@ summary(income)
 # viz of imputate
 plot(income)
 
-## ----imputate_na2, fig.width = 5, fig.height = 3-------------------------
+## ----imputate_na2, fig.width = 7, fig.height = 5-------------------------
 library(mice)
 
 urban <- imputate_na(carseats, Urban, US, method = "mice")
@@ -53,7 +53,7 @@ carseats %>%
   summarise(orig = mean(Income, na.rm = TRUE),
     imputation = mean(Income_imp))
 
-## ----imputate_outlier, fig.width = 5, fig.height = 3---------------------
+## ----imputate_outlier, fig.width = 7, fig.height = 5---------------------
 price <- imputate_outlier(carseats, Price, method = "capping")
 
 # result of imputate
@@ -73,7 +73,7 @@ carseats %>%
   summarise(orig = mean(Price, na.rm = TRUE),
     imputation = mean(Price_imp, na.rm = TRUE))
 
-## ----standardization, fig.width = 5, fig.height = 3----------------------
+## ----standardization, fig.width = 7, fig.height = 5----------------------
 carseats %>% 
   mutate(Income_minmax = transform(carseats$Income, method = "minmax"),
     Sales_minmax = transform(carseats$Sales, method = "minmax")) %>% 
@@ -93,7 +93,7 @@ find_skewness(carseats, value = TRUE)
 # compute the skewness & filtering with threshold
 find_skewness(carseats, value = TRUE, thres = 0.1)
 
-## ----resolving2, fig.width = 5, fig.height = 3---------------------------
+## ----resolving2, fig.width = 7, fig.height = 5---------------------------
 Advertising_log = transform(carseats$Advertising, method = "log")
 
 # result of transformation
@@ -103,7 +103,7 @@ summary(Advertising_log)
 # viz of transformation
 plot(Advertising_log)
 
-## ----resolving3, fig.width = 5, fig.height = 3---------------------------
+## ----resolving3, fig.width = 7, fig.height = 5---------------------------
 Advertising_log <- transform(carseats$Advertising, method = "log+1")
 
 # result of transformation

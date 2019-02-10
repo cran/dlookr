@@ -4,8 +4,8 @@
 \alias{normality.tbl_dbi}
 \title{Performs the Shapiro-Wilk test of normality}
 \usage{
-\method{normality}{tbl_dbi}(.data, ..., sample = 5000, in_database = FALSE,
-  collect_size = Inf)
+\method{normality}{tbl_dbi}(.data, ..., sample = 5000,
+  in_database = FALSE, collect_size = Inf)
 }
 \arguments{
 \item{.data}{a tbl_dbi.}
@@ -59,7 +59,6 @@ The number of observations supported by the stats::shapiro.test function is 3 to
 \examples{
 \donttest{
 library(dplyr)
-library(dbplyr)
 
 # Generate data for the example
 carseats <- ISLR::Carseats
@@ -76,34 +75,34 @@ copy_to(con_sqlite, carseats, name = "TB_CARSEATS", overwrite = TRUE)
 # Normality test of all numerical variables
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- normality()
+  normality()
 
 # Positive values select variables, and In-memory mode and collect size is 200
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- normality(Sales, Price, collect_size  = 200)
+  normality(Sales, Price, collect_size  = 200)
 
 # Positions values select variables
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- normality(1)
+  normality(1)
 
 # Using pipes & dplyr -------------------------
 # Test all numerical variables by 'ShelveLoc' and 'US',
 # and extract only those with 'ShelveLoc' variable level is "Good".
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- group_by(ShelveLoc, US) \%>\%
- normality() \%>\%
- filter(ShelveLoc == "Good")
+  group_by(ShelveLoc, US) \%>\%
+  normality() \%>\%
+  filter(ShelveLoc == "Good")
 
 # extract only those with 'Urban' variable level is "Yes",
 # and test 'Sales' by 'ShelveLoc' and 'US'
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- filter(Urban == "Yes") \%>\%
- group_by(ShelveLoc, US) \%>\%
- normality(Sales)
+  filter(Urban == "Yes") \%>\%
+  group_by(ShelveLoc, US) \%>\%
+  normality(Sales)
 
 # Test log(Income) variables by 'ShelveLoc' and 'US',
 # and extract only p.value greater than 0.01.
@@ -113,10 +112,10 @@ RSQLite::initExtension(con_sqlite)
 
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
- mutate(log_income = log(Income)) \%>\%
- group_by(ShelveLoc, US) \%>\%
- normality(log_income) \%>\%
- filter(p_value > 0.01)
+  mutate(log_income = log(Income)) \%>\%
+  group_by(ShelveLoc, US) \%>\%
+  normality(log_income) \%>\%
+  filter(p_value > 0.01)
 }
 
 }

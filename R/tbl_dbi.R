@@ -35,7 +35,6 @@
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -111,7 +110,6 @@ get_column_info <- function(df) {
 #' @import dplyr
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -255,7 +253,6 @@ diagn_std_impl_dbi <- function(df, vars) {
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -349,7 +346,7 @@ diagn_category_impl_dbi <- function(df, vars, top) {
   
   result <- lapply(vars[idx_factor],
                    function(x) get_topn(df, x, top))
-  tibble::as_tibble(do.call("rbind", result))
+  as_tibble(do.call("rbind", result))
 }
 
 
@@ -403,7 +400,6 @@ diagn_category_impl_dbi <- function(df, vars, top) {
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -507,7 +503,6 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -608,7 +603,6 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -717,7 +711,6 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "lightblue",
 #' @examples
 #' \donttest{
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -845,7 +838,6 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' @examples
 #' \donttest{
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -949,7 +941,6 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1072,7 +1063,6 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1200,7 +1190,6 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' @export
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1298,7 +1287,6 @@ describe.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf
 #' @seealso \code{\link{target_by.data.frame}}, \code{\link{relate}}.
 #' @examples
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1373,7 +1361,8 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' You can choose to output to pdf and html files.
 #' This is useful for diagnosing a data frame with a large number of variables
 #' than data with a small number of variables.
-#'
+#' For pdf output, Korean Gothic font must be installed in Korean operating system.
+#' 
 #' @section Reported information:
 #' Reported from the data diagnosis is as follows.
 #'
@@ -1418,13 +1407,13 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
+#' @param font_family charcter. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{diagnose_report.data.frame}}.
 #' @examples
 #' \donttest{
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1462,12 +1451,14 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' @method diagnose_report tbl_dbi
 #' @export
 #' 
-diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"), output_file = NULL, output_dir = tempdir(), in_database = FALSE, collect_size = Inf, ...) {
+diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"), 
+  output_file = NULL, output_dir = tempdir(), font_family = NULL, 
+  in_database = FALSE, collect_size = Inf, ...) {
   if (in_database) {
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
   } else {
     diagnose_report(collect(.data, n = collect_size), output_format, 
-      output_file, output_dir)
+      output_file, output_dir, font_family)
   }  
 }
 
@@ -1481,7 +1472,8 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"), out
 #' You can choose to output to pdf and html files.
 #' This is useful for EDA a data frame with a large number of variables
 #' than data with a small number of variables.
-#'
+#' For pdf output, Korean Gothic font must be installed in Korean operating system.
+#' 
 #' @section Reported information:
 #' The EDA process will report the following information:
 #'
@@ -1537,13 +1529,13 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"), out
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
+#' @param font_family charcter. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{eda_report.data.frame}}.
 #' @examples
 #' \donttest{
 #' library(dplyr)
-#' library(dbplyr)
 #' 
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
@@ -1623,7 +1615,9 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"), out
 #'
 #' @export
 #' 
-eda_report.tbl_dbi <- function(.data, target = NULL,  output_format = c("pdf", "html"), output_file = NULL, output_dir = tempdir(), in_database = FALSE, collect_size = Inf, ...) {
+eda_report.tbl_dbi <- function(.data, target = NULL,  output_format = c("pdf", "html"), 
+  output_file = NULL, font_family = NULL, output_dir = tempdir(), in_database = FALSE, 
+  collect_size = Inf, ...) {
   tryCatch(vars <- tidyselect::vars_select(colnames(.data), !!! rlang::enquo(target)),
     error = function(e) {
       pram <- as.character(substitute(target))
@@ -1640,7 +1634,7 @@ eda_report.tbl_dbi <- function(.data, target = NULL,  output_format = c("pdf", "
       mutate_if(is.character, as.factor) 
     
     eda_report(tab, target = vars, output_format, 
-      output_file, output_dir)    
+      output_file, output_dir, font_family)    
   }
 }
 

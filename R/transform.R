@@ -228,7 +228,8 @@ plot.transform <- function(x, ...) {
 #' You can choose to output to pdf and html files.
 #' This is useful for Binning a data frame with a large number of variables
 #' than data with a small number of variables.
-#'
+#' For pdf output, Korean Gothic font must be installed in Korean operating system.
+#' 
 #' @section Reported information:
 #' The transformation process will report the following information:
 #'
@@ -277,6 +278,8 @@ plot.transform <- function(x, ...) {
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
+#' @param font_family charcter. font family name for figure in pdf.
+#' @param browse logical. choose whether to output the report results to the browser.
 #'
 #' @examples
 #' \donttest{
@@ -311,7 +314,7 @@ plot.transform <- function(x, ...) {
 #'
 #' @export
 transformation_report <- function(.data, target = NULL, output_format = c("pdf", "html"),
-  output_file = NULL, output_dir = tempdir()) {
+  output_file = NULL, output_dir = tempdir(), font_family = NULL, browse = TRUE) {
   tryCatch(vars <- tidyselect::vars_select(names(.data), !!! rlang::enquo(target)),
     error = function(e) {
       pram <- as.character(substitute(target))
@@ -323,6 +326,18 @@ transformation_report <- function(.data, target = NULL, output_format = c("pdf",
   assign("targetVariable", vars, .dlookrEnv)
 
   path <- output_dir
+  if (length(grep("ko_KR", Sys.getenv("LANG"))) == 1) {
+    latex_main <- "Transformation_Report_KR.Rnw"
+    latex_sub <- "03_Transformation_KR.Rnw"
+  } else {
+    latex_main <- "Transformation_Report_KR.Rnw"
+    latex_sub <- "03_Transformation_KR.Rnw"
+  } 
+  
+  if (!is.null(font_family)) {
+    ggplot2::theme_set(ggplot2::theme_gray(base_family = font_family))
+    par(family = font_family)
+  }
   
   if (output_format == "pdf") {
     installed <- file.exists(Sys.which("pdflatex"))
@@ -334,10 +349,10 @@ transformation_report <- function(.data, target = NULL, output_format = c("pdf",
     if (is.null(output_file))
       output_file <- "Transformation_Report.pdf"
 
-    Rnw_file <- file.path(system.file(package = "dlookr"), "report", "Transformation_Report.Rnw")
+    Rnw_file <- file.path(system.file(package = "dlookr"), "report", latex_main)
     file.copy(from = Rnw_file, to = path)
 
-    Rnw_file <- file.path(system.file(package = "dlookr"), "report", "03_Transformation.Rnw")
+    Rnw_file <- file.path(system.file(package = "dlookr"), "report", latex_sub)
     file.copy(from = Rnw_file, to = path)
 
     Img_file <- file.path(system.file(package = "dlookr"), "img")
@@ -345,12 +360,12 @@ transformation_report <- function(.data, target = NULL, output_format = c("pdf",
 
     dir.create(paste(path, "figure", sep = "/"))
 
-    knitr::knit2pdf(paste(path, "Transformation_Report.Rnw", sep = "/"), 
+    knitr::knit2pdf(paste(path, latex_main, sep = "/"), 
       compiler = "pdflatex",
       output = sub("pdf$", "tex", paste(path, output_file, sep = "/")))
 
-    file.remove(paste(path, "03_Transformation.Rnw", sep = "/"))
-    file.remove(paste(path, "Transformation_Report.Rnw", sep = "/"))
+    file.remove(paste(path, latex_sub, sep = "/"))
+    file.remove(paste(path, latex_main, sep = "/"))
 
     fnames <- sub("pdf$", "", output_file)
     fnames <- grep(fnames, list.files(path), value = TRUE)
@@ -361,19 +376,26 @@ transformation_report <- function(.data, target = NULL, output_format = c("pdf",
     unlink(paste(path, "figure", sep = "/"), recursive = TRUE)
     unlink(paste(path, "img", sep = "/"), recursive = TRUE)
   } else if (output_format == "html") {
-    output_file <- "Transformation_Report.html"
+    if (length(grep("ko_KR", Sys.getenv("LANG"))) == 1) {
+      rmd <- "Transformation_Report_KR.Rmd"
+    } else {
+      rmd <- "Transformation_Report.Rmd"
+    }
+    
+    if (is.null(output_file))
+      output_file <- "Transformation_Report.html"
 
-    Rmd_file <- file.path(system.file(package = "dlookr"), "report", "Transformation_Report.Rmd")
+    Rmd_file <- file.path(system.file(package = "dlookr"), "report", rmd)
     file.copy(from = Rmd_file, to = path, recursive = TRUE)
 
-    rmarkdown::render(paste(path, "Transformation_Report.Rmd", sep = "/"),
+    rmarkdown::render(paste(path, rmd, sep = "/"),
       prettydoc::html_pretty(toc = TRUE, number_sections = TRUE),
       output_file = paste(path, output_file, sep = "/"))
 
-    file.remove(paste(path, "Transformation_Report.Rmd", sep = "/"))
+    file.remove(paste(path, rmd, sep = "/"))
   }
 
-  if (file.exists(paste(path, output_file, sep = "/"))) {
+  if (browse & file.exists(paste(path, output_file, sep = "/"))) {
     browseURL(paste(path, output_file, sep = "/"))
   }
 }
