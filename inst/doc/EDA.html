@@ -327,9 +327,11 @@ str(Carseats)
 
 <pre><code class="r">carseats &lt;- ISLR::Carseats
 
+suppressWarnings(RNGversion(&quot;3.5.0&quot;))
 set.seed(123)
 carseats[sample(seq(NROW(carseats)), 20), &quot;Income&quot;] &lt;- NA
 
+suppressWarnings(RNGversion(&quot;3.5.0&quot;))
 set.seed(456)
 carseats[sample(seq(NROW(carseats)), 10), &quot;Urban&quot;] &lt;- NA
 </code></pre>

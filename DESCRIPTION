@@ -1,7 +1,7 @@
 Package: dlookr
 Type: Package
 Title: Tools for Data Diagnosis, Exploration, Transformation
-Version: 0.3.8
+Version: 0.3.9
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
@@ -29,6 +29,6 @@ BugReports: https://github.com/choonghyunryu/dlookr/issues
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-02-10 02:50:10 UTC; choonghyunryu
+Packaged: 2019-03-16 02:36:15 UTC; choonghyunryu
 Repository: CRAN
-Date/Publication: 2019-02-10 05:23:20 UTC
+Date/Publication: 2019-03-16 06:00:06 UTC
