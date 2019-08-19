@@ -45,6 +45,8 @@
 #' \item na_pos : position of missing value in predictor.
 #' \item seed : the random seed used in mice. only used "mice" method.
 #' \item type : "missing values". type of imputation.
+#' \item message : a message tells you if the result was successful.
+#' \item success : Whether the imputation was successful.
 #' }
 #' @seealso \code{\link{imputate_outlier}}.
 #' @examples
@@ -124,7 +126,7 @@ imputate_na.data.frame <- function(.data, xvar, yvar = NULL,
 
 #' @import tibble
 #' @import dplyr
-#' @import mice
+#' @importFrom mice mice
 #' @importFrom DMwR knnImputation
 #' @importFrom rpart rpart
 #' @importFrom stats predict
@@ -162,6 +164,10 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, print_flag = T
   get_mode <- function() {
     tab <- table(data)
 
+    if (length(tab) == 0) {
+      return(rep(NA, length(data)))
+    }
+    
     if (type == "numerical")
       mode_value <- as.numeric(names(tab)[which.max(tab)])
     else if (type == "categorical") {
@@ -173,7 +179,21 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, print_flag = T
   }
 
   get_knn <- function(x, y) {
-    impute <- knnImputation(df[, !names(df) %in% y])
+    complete_order <- names(sort(apply(df[, setdiff(names(df), y)], 2, 
+                                       function(x) sum(complete.cases(x)) / length(x))))
+  
+    complete_cnt <- length(which(complete.cases(df)))
+    
+    while(complete_cnt <= 10) {
+      complete_order <- complete_order[-1]
+      complete_cnt <- length(which(complete.cases(df[, complete_order])))
+    }
+    
+    if (!y %in% complete_order) {
+      return(rep(NA, length(data)))
+    }
+    
+    impute <- knnImputation(df[, complete_order])
     pred <- impute[, x]
 
     ifelse(is.na(data), pred, data)
@@ -188,9 +208,14 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, print_flag = T
       pred_type <- "class"
     }
 
-
+    complete_flag <- apply(df, 2, function(x) sum(complete.cases(x)) != 0)
+    
+    if (!x %in% complete_flag) {
+      return(rep(NA, length(data)))
+    }
+    
     model <- rpart::rpart(sprintf("%s ~ .", x),
-      data = df[!is.na(pull(df, x)), !names(df) %in% y],
+      data = df[!is.na(pull(df, x)), !names(df) %in% y & complete_flag],
       method = method, na.action = na.omit)
 
     pred <- predict(model, df[is.na(pull(df, x)), !names(df) %in% y],
@@ -209,8 +234,18 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, print_flag = T
     } else {
       suppressWarnings(RNGversion("3.5.0"))
       set.seed(seed = seed)
-      model <- mice(df[, !names(df) %in% y], method = "rf", printFlag = print_flag)
+      
+      if (requireNamespace("mice", quietly = TRUE)) {
+        model <- mice::mice(df[, !names(df) %in% y], method = "rf", printFlag = print_flag)
+      } else {
+        stop("Package 'mice' needed for this function to work. Please install it.", 
+             call. = FALSE)
+      }
 
+      if (all(is.na(model$imp[[x]]))) {
+        return(rep(NA, length(data)))
+      }
+      
       if (type == "numerical") {
         pred <- apply(model$imp[[x]], 1, mean)
 
@@ -244,7 +279,17 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, print_flag = T
   attr(result, "na_pos") <- na_pos
   attr(result, "seed") <- seed
   attr(result, "type") <- "missing values"
-
+  if (all(is.na(result))) {
+    msg <- "All values returned as NA. The data is not good enough for a imputation."
+    warning(msg)
+    
+    attr(result, "message") <- msg
+    attr(result, "success") <- FALSE
+  } else {
+    attr(result, "message") <- "complete imputation"
+    attr(result, "success") <- TRUE
+  }
+  
   class(result) <- append("imputation", class(result))
   result
 }
@@ -352,9 +397,6 @@ imputate_outlier_impl <- function(df, xvar, method) {
   outliers <- data[outlier_pos]
 
   outlier_flag <- length(outlier_pos) > 0
-  if (!outlier_flag) {
-    warning(sprintf("There are no outliers in %s.", xvar))
-  }
 
   get_mean <- function(x) {
     data[outlier_pos] <- mean(data, na.rm = TRUE)
@@ -400,7 +442,18 @@ imputate_outlier_impl <- function(df, xvar, method) {
   attr(result, "outlier_pos") <- outlier_pos
   attr(result, "outliers") <- outliers
   attr(result, "type") <- "outliers"
-
+  
+  if (!outlier_flag) {
+    msg <- sprintf("There are no outliers in %s.", xvar)
+    warning(msg)
+    
+    attr(result, "message") <- msg
+    attr(result, "success") <- FALSE
+  } else {
+    attr(result, "message") <- "complete imputation"
+    attr(result, "success") <- TRUE
+  }
+  
   class(result) <- append("imputation", class(result))
   result
 }
@@ -446,6 +499,13 @@ imputate_outlier_impl <- function(df, xvar, method) {
 #' @importFrom tidyr gather
 #' @export
 summary.imputation <- function(object, ...) {
+  success <- attr(object, "success")
+  
+  if (!success) {
+    message("imputation object isn't success.")
+    return()
+  }
+  
   type <- attr(object, "type")
   method <- attr(object, "method")
   var_type <- attr(object, "var_type")

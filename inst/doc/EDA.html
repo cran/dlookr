@@ -381,7 +381,7 @@ carseats[sample(seq(NROW(carseats)), 10), &quot;Urban&quot;] &lt;- NA
 <pre><code class="r">describe(carseats)
 # A tibble: 8 x 26
   variable     n    na   mean    sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Sales      400     0   7.50  2.82   0.141  3.93   0.186   -0.0809     0
 2 CompPri…   400     0 125.   15.3    0.767 20     -0.0428   0.0417    77
 3 Income     380    20  68.9  28.1    1.44  48.2    0.0449  -1.09      21
@@ -403,7 +403,7 @@ carseats[sample(seq(NROW(carseats)), 10), &quot;Urban&quot;] &lt;- NA
 describe(carseats, Sales, CompPrice, Income)
 # A tibble: 3 x 26
   variable     n    na   mean    sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Sales      400     0   7.50  2.82   0.141  3.93   0.186   -0.0809     0
 2 CompPri…   400     0 125.   15.3    0.767 20     -0.0428   0.0417    77
 3 Income     380    20  68.9  28.1    1.44  48.2    0.0449  -1.09      21
@@ -414,7 +414,7 @@ describe(carseats, Sales, CompPrice, Income)
 describe(carseats, Sales:Income)
 # A tibble: 3 x 26
   variable     n    na   mean    sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Sales      400     0   7.50  2.82   0.141  3.93   0.186   -0.0809     0
 2 CompPri…   400     0 125.   15.3    0.767 20     -0.0428   0.0417    77
 3 Income     380    20  68.9  28.1    1.44  48.2    0.0449  -1.09      21
@@ -425,7 +425,7 @@ describe(carseats, Sales:Income)
 describe(carseats, -(Sales:Income))
 # A tibble: 5 x 26
   variable     n    na   mean     sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Adverti…   400     0   6.64   6.65   0.333  12     0.640    -0.545     0
 2 Populat…   400     0 265.   147.     7.37  260.   -0.0512   -1.20     10
 3 Price      400     0 116.    23.7    1.18   31    -0.125     0.452    24
@@ -1169,7 +1169,7 @@ con_sqlite %&gt;%
   describe(Sales, CompPrice, Income)
 # A tibble: 3 x 26
   variable     n    na   mean    sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Sales      400     0   7.50  2.82   0.141  3.93   0.186   -0.0809     0
 2 CompPri…   400     0 125.   15.3    0.767 20     -0.0428   0.0417    77
 3 Income     380    20  68.8  28.0    1.44  47.2    0.0641  -1.08      21
@@ -1183,7 +1183,7 @@ con_sqlite %&gt;%
   describe(-Sales, -CompPrice, -Income, collect_size = 200)
 # A tibble: 5 x 26
   variable     n    na   mean     sd se_mean   IQR skewness kurtosis   p00
-  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+  &lt;chr&gt;    &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
 1 Adverti…   200     0   5.88   6.07   0.429  11     0.648    -0.667     0
 2 Populat…   200     0 255.   149.    10.6   251.    0.0241   -1.22     10
 3 Price      200     0 114.    23.7    1.68   31.2  -0.107     1.08     24

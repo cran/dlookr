@@ -1,7 +1,7 @@
 Package: dlookr
 Type: Package
 Title: Tools for Data Diagnosis, Exploration, Transformation
-Version: 0.3.9
+Version: 0.3.11
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
@@ -16,11 +16,11 @@ Description: A collection of tools that support data diagnosis, exploration, and
 License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.2.0), mice
 Imports: dplyr, magrittr, tidyr, ggplot2, RcmdrMisc, corrplot, rlang,
         purrr, tibble, tidyselect, classInt, moments, kableExtra,
         prettydoc, smbinning, xtable, knitr, rmarkdown, RColorBrewer,
-        gridExtra, tinytex, methods, DMwR, mice, rpart
+        gridExtra, tinytex, methods, DMwR, rpart
 Suggests: ISLR, nycflights13, randomForest, dbplyr, DBI, RSQLite,
         testthat
 Author: Choonghyun Ryu [aut, cre]
@@ -29,6 +29,6 @@ BugReports: https://github.com/choonghyunryu/dlookr/issues
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-03-16 02:36:15 UTC; choonghyunryu
+Packaged: 2019-08-10 05:56:08 UTC; choonghyunryu
 Repository: CRAN
-Date/Publication: 2019-03-16 06:00:06 UTC
+Date/Publication: 2019-08-19 15:10:02 UTC
