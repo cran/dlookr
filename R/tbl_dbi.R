@@ -224,8 +224,8 @@ diagn_std_impl_dbi <- function(df, vars) {
 #' \item variables : variable names
 #' \item levels: level names
 #' \item N : number of observation
-#' \item freq : number of observation at the levles
-#' \item ratio : percentage of observation at the levles
+#' \item freq : number of observation at the levels
+#' \item ratio : percentage of observation at the levels
 #' \item rank : rank of occupancy ratio of levels
 #' }
 #'
@@ -474,7 +474,7 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #'
 #' \itemize{
 #' \item variables : variable names
-#' \item outliers_cnt : count of outliers
+#' \item outliers_cnt : number of outliers
 #' \item outliers_ratio : percent of outliers
 #' \item outliers_mean : arithmetic average of outliers
 #' \item with_mean : arithmetic average of with outliers
@@ -696,7 +696,7 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "lightblue",
 #' These arguments are automatically quoted and evaluated in a context where column names
 #' represent column positions.
 #' They support unquoting and splicing.
-#' @param sample the numer of samples to perform the test.
+#' @param sample the number of samples to perform the test.
 #' @param in_database Specifies whether to perform in-database operations. 
 #' If TRUE, most operations are performed in the DBMS. if FALSE, 
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
@@ -807,7 +807,7 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
 #' @section Distribution information:
-#' The plot derived from the numerical data vizualization is as follows.
+#' The plot derived from the numerical data visualization is as follows.
 #'
 #' \itemize{
 #' \item histogram by original data
@@ -903,7 +903,7 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 
 #' Compute the correlation coefficient between two numerical data
 #'
-#' @description The correlate() compute pearson's the correlation
+#' @description The correlate() compute Pearson's the correlation
 #' coefficient of the numerical(INTEGER, NUMBER, etc.) column of 
 #' the DBMS table through tbl_dbi.
 #'
@@ -918,7 +918,7 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' \itemize{
 #' \item var1 : names of numerical variable
 #' \item var2 : name of the corresponding numeric variable
-#' \item coef_corr : pearson's correlation coefficient
+#' \item coef_corr : Pearson's correlation coefficient
 #' }
 #'
 #' @param .data a tbl_dbi.
@@ -934,6 +934,8 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
 #' @param collect_size a integer. The number of data samples from the DBMS to R. 
 #' Applies only if in_database = FALSE.
+#' @param method a character string indicating which correlation coefficient (or covariance) is 
+#' to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.
 #' 
 #' See vignette("EDA") for an introduction to these concepts.
 #'
@@ -1005,7 +1007,7 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' # extract only those with 'ShelveLoc' variable level is "Good",
 #' # and compute the correlation coefficient of 'Sales' variable
 #' # by 'Urban' and 'US' variables.
-#' # And the correlation coefficient is negative and smaller than 0.5
+#' # And the correlation coefficient is negative and smaller than -0.5
 #' con_sqlite %>% 
 #'   tbl("TB_CARSEATS") %>% 
 #'   filter(ShelveLoc == "Good") %>%
@@ -1014,8 +1016,11 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'   filter(coef_corr < 0) %>%
 #'   filter(abs(coef_corr) > 0.5)
 #'  
-correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf) {
+correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf,
+                              method = c("pearson", "kendall", "spearman")) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
+  
+  method <- match.arg(method)
   
   if (in_database) {
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
@@ -1023,11 +1028,11 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
     if (class(.data$ops)[1] != "op_group_by") {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        correlate_impl(vars)
+        correlate_impl(vars, method)
     } else {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        correlate(vars)
+        correlate_group_impl(vars, method)
     }
   }
 }
@@ -1056,6 +1061,8 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
 #' @param collect_size a integer. The number of data samples from the DBMS to R. 
 #' Applies only if in_database = FALSE.
+#' @param method a character string indicating which correlation coefficient (or covariance) is 
+#' to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.
 #' 
 #' See vignette("EDA") for an introduction to these concepts.
 #'
@@ -1118,8 +1125,11 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #'   group_by(Urban, US) %>%
 #'   plot_correlate(Sales)
 #'  
-plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf) {
+plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf,
+                                   method = c("pearson", "kendall", "spearman")) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
+  
+  method <- match.arg(method)
   
   if (in_database) {
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
@@ -1127,11 +1137,11 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
     if (class(.data$ops)[1] != "op_group_by") {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_correlate_impl(vars)
+        plot_correlate_impl(vars, method)
     } else {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_correlate(vars)
+        plot_correlate_group_impl(vars, method)
     }
   }  
 }
@@ -1155,8 +1165,8 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' \item n : number of observations excluding missing values
 #' \item na : number of missing values
 #' \item mean : arithmetic average
-#' \item sd : standard devation
-#' \item se_mean : standrd error mean. sd/sqrt(n)
+#' \item sd : standard deviation
+#' \item se_mean : standard error mean. sd/sqrt(n)
 #' \item IQR : interquartile range (Q3-Q1)
 #' \item skewness : skewness
 #' \item kurtosis : kurtosis
@@ -1335,7 +1345,7 @@ describe.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf
 #' @export
 #'
 target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size = Inf, ...) {
-  tryCatch(vars <- tidyselect::vars_select(colnames(.data), !!! rlang::enquo(target)),
+  tryCatch(vars <- tidyselect::vars_select(colnames(.data), !! rlang::enquo(target)),
            error = function(e) {
              pram <- as.character(substitute(target))
              stop(sprintf("Column %s is unknown", pram))
@@ -1407,7 +1417,7 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
-#' @param font_family charcter. font family name for figure in pdf.
+#' @param font_family character. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{diagnose_report.data.frame}}.
@@ -1502,12 +1512,12 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #'   }
 #'   \item Target based Analysis
 #'   \itemize{
-#'     \item Gruoped Descriptive Statistics
+#'     \item Grouped Descriptive Statistics
 #'     \itemize{
-#'       \item Gruoped Numerical Variables
-#'       \item Gruoped Categorical Variables
+#'       \item Grouped Numerical Variables
+#'       \item Grouped Categorical Variables
 #'     }
-#'     \item Gruoped Relationship Between Variables
+#'     \item Grouped Relationship Between Variables
 #'     \itemize{
 #'       \item Grouped Correlation Coefficient
 #'       \item Grouped Correlation Plot of Numerical Variables
@@ -1529,7 +1539,7 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #' "html" create html file by rmarkdown::render().
 #' @param output_file name of generated file. default is NULL.
 #' @param output_dir name of directory to generate report file. default is tempdir().
-#' @param font_family charcter. font family name for figure in pdf.
+#' @param font_family character. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{eda_report.data.frame}}.
@@ -1555,20 +1565,20 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #'   tbl("TB_CARSEATS") %>% 
 #'   eda_report(US)
 #' 
-#' # create pdf file. file name is EDA.pdf
+#' # create pdf file. file name is EDA_TB_CARSEATS.pdf
 #' con_sqlite %>% 
 #'   tbl("TB_CARSEATS") %>% 
-#'   eda_report("US", output_file = "EDA.pdf")
+#'   eda_report("US", output_file = "EDA_TB_CARSEATS.pdf")
 #' 
 #' # create html file. file name is EDA_Report.html
 #' con_sqlite %>% 
 #'   tbl("TB_CARSEATS") %>% 
 #'   eda_report("US", output_format = "html")
 #' 
-#' # create html file. file name is EDA.html
+#' # create html file. file name is EDA_TB_CARSEATS.html
 #' con_sqlite %>% 
 #'   tbl("TB_CARSEATS") %>% 
-#'   eda_report(US, output_format = "html", output_file = "EDA.html")
+#'   eda_report(US, output_format = "html", output_file = "EDA_TB_CARSEATS.html")
 #'
 #' ## target variable is numerical variable
 #' # reporting the EDA information, and collect size is 350
@@ -1618,7 +1628,7 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 eda_report.tbl_dbi <- function(.data, target = NULL,  output_format = c("pdf", "html"), 
   output_file = NULL, font_family = NULL, output_dir = tempdir(), in_database = FALSE, 
   collect_size = Inf, ...) {
-  tryCatch(vars <- tidyselect::vars_select(colnames(.data), !!! rlang::enquo(target)),
+  tryCatch(vars <- tidyselect::vars_select(colnames(.data), !! rlang::enquo(target)),
     error = function(e) {
       pram <- as.character(substitute(target))
       stop(sprintf("Column %s is unknown", pram))

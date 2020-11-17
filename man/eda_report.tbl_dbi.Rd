@@ -27,7 +27,7 @@
 
 \item{output_file}{name of generated file. default is NULL.}
 
-\item{font_family}{charcter. font family name for figure in pdf.}
+\item{font_family}{character. font family name for figure in pdf.}
 
 \item{output_dir}{name of directory to generate report file. default is tempdir().}
 
@@ -80,12 +80,12 @@ The EDA process will report the following information:
   }
   \item Target based Analysis
   \itemize{
-    \item Gruoped Descriptive Statistics
+    \item Grouped Descriptive Statistics
     \itemize{
-      \item Gruoped Numerical Variables
-      \item Gruoped Categorical Variables
+      \item Grouped Numerical Variables
+      \item Grouped Categorical Variables
     }
-    \item Gruoped Relationship Between Variables
+    \item Grouped Relationship Between Variables
     \itemize{
       \item Grouped Correlation Coefficient
       \item Grouped Correlation Plot of Numerical Variables
@@ -118,20 +118,20 @@ con_sqlite \%>\%
   tbl("TB_CARSEATS") \%>\% 
   eda_report(US)
 
-# create pdf file. file name is EDA.pdf
+# create pdf file. file name is EDA_TB_CARSEATS.pdf
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
-  eda_report("US", output_file = "EDA.pdf")
+  eda_report("US", output_file = "EDA_TB_CARSEATS.pdf")
 
 # create html file. file name is EDA_Report.html
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
   eda_report("US", output_format = "html")
 
-# create html file. file name is EDA.html
+# create html file. file name is EDA_TB_CARSEATS.html
 con_sqlite \%>\% 
   tbl("TB_CARSEATS") \%>\% 
-  eda_report(US, output_format = "html", output_file = "EDA.html")
+  eda_report(US, output_format = "html", output_file = "EDA_TB_CARSEATS.html")
 
 ## target variable is numerical variable
 # reporting the EDA information, and collect size is 350

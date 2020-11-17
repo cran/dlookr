@@ -42,7 +42,7 @@ target_by <- function(.data, target, ...) {
 #' # If the target variable is a categorical variable
 #' categ <- target_by(carseats, US)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' cat_num <- relate(categ, Sales)
 #' cat_num
 #' summary(cat_num)
@@ -58,7 +58,7 @@ target_by <- function(.data, target, ...) {
 #' # If the target variable is a categorical variable
 #' num <- target_by(carseats, Sales)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' num_num <- relate(num, Price)
 #' num_num
 #' summary(num_num)
@@ -75,7 +75,7 @@ target_by <- function(.data, target, ...) {
 #' @importFrom rlang enquo
 #' @export
 target_by.data.frame <- function(.data, target, ...) {
-  tryCatch(vars <- tidyselect::vars_select(names(.data), !!! rlang::enquo(target)),
+  tryCatch(vars <- tidyselect::vars_select(names(.data), !! rlang::enquo(target)),
     error = function(e) {
       pram <- as.character(substitute(target))
       stop(sprintf("Column %s is unknown", pram))
@@ -95,6 +95,11 @@ target_by_impl <- function(.data, target) {
   target_by <- grouped_df(.data, target)
 
   attr(target_by , "type_y") <- is(.data[, target][[1]])[1]
+
+  if (attr(target_by, "type_y") == "character") {
+    warning("The target variable was assigned a character type.")
+  }
+
   class(target_by) <- append("target_df", class(target_by))
 
   target_by
@@ -114,12 +119,12 @@ target_by_impl <- function(.data, target) {
 #'   \itemize{
 #'     \item predictor: categorical variable
 #'     \itemize{
-#'       \item contegency table
+#'       \item contingency table
 #'       \item c("xtabs", "table") class
 #'     }
 #'     \item predictor: numerical variable
 #'     \itemize{
-#'       \item descriptive statistic for each levles and total observation.
+#'       \item descriptive statistic for each levels and total observation.
 #'     }
 #'   }
 #'   \item target variable: numerical variable
@@ -140,7 +145,7 @@ target_by_impl <- function(.data, target) {
 #'
 #' \itemize{
 #' \item mean : arithmetic average
-#' \item sd : standard devation
+#' \item sd : standard deviation
 #' \item se_mean : standrd error mean. sd/sqrt(n)
 #' \item IQR : interqurtle range (Q3-Q1)
 #' \item skewness : skewness
@@ -177,7 +182,7 @@ target_by_impl <- function(.data, target) {
 #' # If the target variable is a categorical variable
 #' categ <- target_by(carseats, US)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' cat_num <- relate(categ, Sales)
 #' cat_num
 #' summary(cat_num)
@@ -193,7 +198,7 @@ target_by_impl <- function(.data, target) {
 #' # If the target variable is a categorical variable
 #' num <- target_by(carseats, Sales)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' num_num <- relate(num, Price)
 #' num_num
 #' summary(num_num)
@@ -213,7 +218,7 @@ relate <- function(.data, predictor) {
 #' @method relate target_df
 #' @export
 relate.target_df <- function(.data, predictor) {
-  tryCatch(vars <- tidyselect::vars_select(names(.data), !!! rlang::enquo(predictor)),
+  tryCatch(vars <- tidyselect::vars_select(names(.data), !! rlang::enquo(predictor)),
     error = function(e) {
       pram <- as.character(substitute(predictor))
       stop(sprintf("Column %s is unknown", pram))
@@ -341,13 +346,13 @@ relate_impl <- function(.data, predictor) {
   
   type_x <- is(.data[, predictor][[1]])[1]
 
-  if (type_y %in% c("ordered", "factor") &&
+  if (type_y %in% c("ordered", "factor", "character") &&
       type_x %in% c("numeric", "integer")) {
     suppressWarnings(
       relate <- relate_cat_by_num_impl(.data, predictor)
     )
-  } else if (type_y %in% c("ordered", "factor") &&
-             type_x %in% c("ordered", "factor")) {
+  } else if (type_y %in% c("ordered", "factor", "character") &&
+             type_x %in% c("ordered", "factor", "character")) {
     suppressWarnings(
       relate <- relate_cat_by_cat_impl(.data, predictor)
     )  
@@ -357,7 +362,7 @@ relate_impl <- function(.data, predictor) {
       relate <- relate_num_by_num_impl(.data, predictor)
     )  
   } else if (type_y %in% c("numeric", "integer") &&
-             type_x %in% c("ordered", "factor")) {
+             type_x %in% c("ordered", "factor", "character")) {
     suppressWarnings(
       relate <- relate_num_by_cat_impl(.data, predictor)
     )  
@@ -373,8 +378,8 @@ relate_impl <- function(.data, predictor) {
 #' @param x an object of class "relate", usually, a result of a call to relate().
 #' @param ... further arguments passed to or from other methods.
 #' @details
-#' print.relate tries to be smart about formatting four kinds of relate.
-#' summary.relate tries to be smart about formatting four kinds of relate.
+#' print.relate() tries to be smart about formatting four kinds of relate.
+#' summary.relate() tries to be smart about formatting four kinds of relate.
 #'
 #' @seealso \code{\link{plot.relate}}.
 #' @examples
@@ -390,7 +395,7 @@ relate_impl <- function(.data, predictor) {
 #' # Print bins class object
 #' bin
 #'
-#' # Summarise bins class object
+#' # Summarize bins class object
 #' summary(bin)
 #' }
 #'
@@ -404,7 +409,7 @@ relate_impl <- function(.data, predictor) {
 #' # If the target variable is a categorical variable
 #' categ <- target_by(carseats, US)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' cat_num <- relate(categ, Sales)
 #' cat_num
 #' summary(cat_num)
@@ -420,7 +425,7 @@ relate_impl <- function(.data, predictor) {
 #' # If the target variable is a categorical variable
 #' num <- target_by(carseats, Sales)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' num_num <- relate(num, Price)
 #' num_num
 #' summary(num_num)
@@ -467,7 +472,7 @@ print.relate <- function(x, ...) {
 #' @param pal Color palette to paint hexabin. Use only when the target and predictor are numeric variables.
 #' Applied only when the number of observations is greater than hex_thres.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
-#' only applies when the model argument is TRUE, and is used for ... of the plot.lm () function.
+#' only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.
 #' @seealso \code{\link{relate}}, \code{\link{print.relate}}.
 #' @examples
 #' # Generate data for the example
@@ -478,7 +483,7 @@ print.relate <- function(x, ...) {
 #' # If the target variable is a categorical variable
 #' categ <- target_by(carseats, US)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' cat_num <- relate(categ, Sales)
 #' cat_num
 #' summary(cat_num)
@@ -523,6 +528,7 @@ plot.relate <- function(x, model = FALSE,
     ggplot(aes_string(x = xvar, color = yvar), data = attr(x, "raw")) +
       geom_density() +
       ggtitle(sprintf("%s's density plot by %s", yvar, xvar)) +
+      theme_bw() +
       theme(plot.title = element_text(hjust = 0.5))
   } else if (type == "crosstable") {
     oldClass(x) <- c("xtabs", "table")
@@ -555,6 +561,7 @@ plot.relate <- function(x, model = FALSE,
       fig1 <- fig1 +   
         stat_smooth(method = lm) +
         ggtitle(sprintf("%s's scatter plot by %s", yvar, xvar)) +
+        theme_bw() +
         theme(plot.title = element_text(hjust = 0.5))
 
       idx <- complete.cases(attr(x, "raw"))
@@ -580,6 +587,7 @@ plot.relate <- function(x, model = FALSE,
         ylim(min_x, max_x) +
         geom_abline(intercept = 0, slope = 1, color = "red", linetype = 2) +
         ggtitle(sprintf("Predicted vs Observed (%s)", yvar)) +
+        theme_bw() +
         theme(plot.title = element_text(hjust = 0.5))
 
       gridExtra::grid.arrange(fig1, fig2, ncol = 2)
@@ -600,6 +608,7 @@ plot.relate <- function(x, model = FALSE,
       ggplot(aes_string(x = xvar, y = yvar, fill = xvar), data = attr(x, "raw")) +
         geom_boxplot() +
         ggtitle(sprintf("%s's box plot by %s", yvar, xvar)) +
+        theme_bw() +
         theme(plot.title = element_text(hjust = 0.5))
     }
   }

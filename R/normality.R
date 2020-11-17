@@ -14,7 +14,7 @@ plot_normality <- function(.data, ...) {
 
 #' Performs the Shapiro-Wilk test of normality
 #'
-#' @description The normality() performs Shapiro-Wilk test of normality of numeric values.
+#' @description The normality() performs Shapiro-Wilk test of normality of numerical values.
 #'
 #' @details This function is useful when used with the \code{\link{group_by}}
 #' function of the dplyr package. If you want to test by level of the categorical
@@ -29,7 +29,7 @@ plot_normality <- function(.data, ...) {
 #' \item statistic : the value of the Shapiro-Wilk statistic.
 #' \item p_value : an approximate p-value for the test. This is said in
 #' Roystion(1995) to be adequate for p_value < 0.1.
-#' \item sample : the numer of samples to perform the test.
+#' \item sample : the number of samples to perform the test.
 #' The number of observations supported by the stats::shapiro.test function is 3 to 5000.
 #' }
 #'
@@ -41,7 +41,7 @@ plot_normality <- function(.data, ...) {
 #' These arguments are automatically quoted and evaluated in a context where column names
 #' represent column positions.
 #' They support unquoting and splicing.
-#' @param sample the numer of samples to perform the test.
+#' @param sample the number of samples to perform the test.
 #'
 #' See vignette("EDA") for an introduction to these concepts.
 #'
@@ -130,6 +130,8 @@ normality_impl <- function(df, vars, sample) {
   idx_numeric <- find_class(df[, vars], type = "numerical")
 
   num_normal <- function(x) {
+    x <- x[which(!is.infinite(x))]
+    
     result <- shapiro.test(x)
 
     tibble(statistic = result$statistic, p_value = result$p.value)
@@ -138,7 +140,7 @@ normality_impl <- function(df, vars, sample) {
   statistic <- lapply(vars[idx_numeric], function(x) num_normal(pull(df, x)))
 
   tibble(vars = vars[idx_numeric], statistic, sample = sample) %>%
-    tidyr::unnest() %>%
+    tidyr::unnest(cols = c(statistic)) %>%
     select(vars, statistic, p_value, sample)
 }
 
@@ -169,7 +171,10 @@ normality_group_impl <- function(df, vars, sample) {
 
     n_sample <- min(length(nums), n_sample)
     
-    tryCatch(result <- shapiro.test(sample(nums, n_sample)),
+    x <- sample(nums, n_sample)
+    x <- x[which(!is.infinite(x))]
+    
+    tryCatch(result <- shapiro.test(x),
              error = function(e) NULL,
              finally = NULL)
     
@@ -204,7 +209,7 @@ normality_group_impl <- function(df, vars, sample) {
   statistic <- lapply(vars[idx_numeric], function(x) call_normal(x))
 
   tibble(statistic) %>%
-    tidyr::unnest()
+    tidyr::unnest(cols = c(statistic))
 }
 
 
@@ -218,7 +223,7 @@ normality_group_impl <- function(df, vars, sample) {
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
 #' @section Distribution information:
-#' The plot derived from the numerical data vizualization is as follows.
+#' The plot derived from the numerical data visualization is as follows.
 #'
 #' \itemize{
 #' \item histogram by original data
@@ -256,7 +261,7 @@ normality_group_impl <- function(df, vars, sample) {
 #' plot_normality(carseats, -Income, -Price)
 #' plot_normality(carseats, 1)
 #'
-#' # Using dtplyr::grouped_dt
+#' # Using dplyr::grouped_df
 #' library(dplyr)
 #'
 #' gdata <- group_by(carseats, ShelveLoc, US)
@@ -315,8 +320,11 @@ plot_normality_impl <- function(df, vars) {
     on.exit(par(op))
 
     hist(x, col = "lightblue", las = 1, main = "origin")
-    qqnorm(x, main = "origin: Q-Q plot")
-    qqline(x)
+    
+    x2 <- x[which(!is.infinite(x))]
+    
+    qqnorm(x2, main = "origin: Q-Q plot")
+    qqline(x2)
 
     hist(log(x), col = "lightblue", las = 1, main = "log")
     hist(sqrt(x), col = "lightblue", las = 1, main = "sqrt")

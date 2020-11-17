@@ -30,12 +30,12 @@ target variable is not a binary class.}
 
 \item{output_dir}{name of directory to generate report file. default is tempdir().}
 
-\item{font_family}{charcter. font family name for figure in pdf.}
+\item{font_family}{character. font family name for figure in pdf.}
 
 \item{browse}{logical. choose whether to output the report results to the browser.}
 }
 \description{
-The transformation_report() report the information of transformate
+The transformation_report() report the information of transform
 numerical variables for object inheriting from data.frame.
 }
 \details{
@@ -97,12 +97,13 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 transformation_report(carseats)
 # create pdf file. file name is Transformation_Report.pdf
 transformation_report(carseats, US)
-# create pdf file. file name is Transformation.pdf
-transformation_report(carseats, "US", output_file = "Transformation.pdf")
+# create pdf file. file name is Transformation_carseats.pdf
+transformation_report(carseats, "US", output_file = "Transformation_carseats.pdf")
 # create html file. file name is Transformation_Report.html
 transformation_report(carseats, "US", output_format = "html")
-# create html file. file name is Transformation.html
-transformation_report(carseats, US, output_format = "html", output_file = "Transformation.html")
+# create html file. file name is Transformation_carseats
+transformation_report(carseats, US, output_format = "html", 
+                      output_file = "Transformation_carseats.html")
 }
 
 }

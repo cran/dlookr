@@ -25,27 +25,26 @@ eda_report(.data, ...)
 
 \item{target}{target variable.}
 
-\item{output_format}{report output type. Choose either "pdf" and "html".
+\item{output_format}{character. report output type. Choose either "pdf" and "html".
 "pdf" create pdf file by knitr::knit().
 "html" create html file by rmarkdown::render().}
 
-\item{output_file}{name of generated file. default is NULL.}
+\item{output_file}{character. name of generated file. default is NULL.}
 
-\item{output_dir}{name of directory to generate report file. default is tempdir().}
+\item{output_dir}{character. name of directory to generate report file. default is tempdir().}
 
-\item{font_family}{charcter. font family name for figure in pdf.}
+\item{font_family}{character. font family name for figure in pdf.}
 
 \item{browse}{logical. choose whether to output the report results to the browser.}
 }
 \description{
-The eda_report() report the information of Exploratory
+The eda_report() report the information of exploratory
 data analysis for object inheriting from data.frame.
 }
 \details{
-Generate generalized data EDA reports automatically.
-You can choose to output to pdf and html files.
-This is useful for EDA a data frame with a large number of variables
-than data with a small number of variables.
+Generate generalized EDA report automatically.
+You can choose to output as pdf and html files.
+This feature is useful for EDA of data with many variables, rather than data with fewer variables.
 For pdf output, Korean Gothic font must be installed in Korean operating system.
 }
 \section{Reported information}{
@@ -77,12 +76,12 @@ The EDA process will report the following information:
   }
   \item Target based Analysis
   \itemize{
-    \item Gruoped Descriptive Statistics
+    \item Grouped Descriptive Statistics
     \itemize{
-      \item Gruoped Numerical Variables
-      \item Gruoped Categorical Variables
+      \item Grouped Numerical Variables
+      \item Grouped Categorical Variables
     }
-    \item Gruoped Relationship Between Variables
+    \item Grouped Relationship Between Variables
     \itemize{
       \item Grouped Correlation Coefficient
       \item Grouped Correlation Plot of Numerical Variables
@@ -107,17 +106,17 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 # create pdf file. file name is EDA_Report.pdf
 eda_report(carseats, US)
 
-# create pdf file. file name is EDA.pdf
-eda_report(carseats, "US", output_file = "EDA.pdf")
+# create pdf file. file name is EDA_carseats.pdf
+eda_report(carseats, "US", output_file = "EDA_carseats.pdf")
 
-# create pdf file. file name is EDA.pdf and not browse
-eda_report(carseats, "US", output_dir = ".", output_file = "EDA.pdf", browse = FALSE)
+# create pdf file. file name is EDA_carseats.pdf and not browse
+# eda_report(carseats, "US", output_dir = ".", output_file = "EDA_carseats.pdf", browse = FALSE)
 
 # create html file. file name is EDA_Report.html
 eda_report(carseats, "US", output_format = "html")
 
-# create html file. file name is EDA.html
-eda_report(carseats, US, output_format = "html", output_file = "EDA.html")
+# create html file. file name is EDA_carseats.html
+eda_report(carseats, US, output_format = "html", output_file = "EDA_carseats.html")
 
 
 ## target variable is numerical variable

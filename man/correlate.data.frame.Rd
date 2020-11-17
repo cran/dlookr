@@ -7,7 +7,7 @@
 \usage{
 correlate(.data, ...)
 
-\method{correlate}{data.frame}(.data, ...)
+\method{correlate}{data.frame}(.data, ..., method = c("pearson", "kendall", "spearman"))
 }
 \arguments{
 \item{.data}{a data.frame or a \code{\link{tbl_df}}.}
@@ -21,9 +21,12 @@ represent column positions.
 They support unquoting and splicing.
 
 See vignette("EDA") for an introduction to these concepts.}
+
+\item{method}{a character string indicating which correlation coefficient (or covariance) is 
+to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.}
 }
 \description{
-The correlate() compute pearson's the correlation
+The correlate() compute Pearson's the correlation
 coefficient of the numerical data.
 }
 \details{
@@ -39,7 +42,7 @@ The information derived from the numerical data compute is as follows.
 \itemize{
 \item var1 : names of numerical variable
 \item var2 : name of the corresponding numeric variable
-\item coef_corr : pearson's correlation coefficient
+\item coef_corr : Pearson's correlation coefficient
 }
 }
 
@@ -57,7 +60,9 @@ correlate(carseats, Sales, Price)
 correlate(carseats, -Sales, -Price)
 correlate(carseats, "Sales", "Price")
 correlate(carseats, 1)
-
+# Non-parametric correlation coefficient by kendall method
+correlate(carseats, Sales, method = "kendall")
+ 
 # Using dplyr::grouped_dt
 library(dplyr)
 
@@ -81,6 +86,10 @@ carseats \%>\%
 # Positions values select variables
 carseats \%>\%
  correlate(-1, -2, -3, -5, -6)
+# Non-parametric correlation coefficient by spearman method
+carseats \%>\%
+ correlate(Sales, Price, method = "spearman")
+ 
 # ---------------------------------------------
 # Correlation coefficient
 # that eliminates redundant combination of variables
