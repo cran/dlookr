@@ -7,9 +7,10 @@
 \method{plot_outlier}{tbl_dbi}(
   .data,
   ...,
-  col = "lightblue",
+  col = "steelblue",
   in_database = FALSE,
-  collect_size = Inf
+  collect_size = Inf,
+  typographic = TRUE
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ table data is taken in R and operated in-memory. Not yet supported in_database =
 
 \item{collect_size}{a integer. The number of data samples from the DBMS to R. 
 Applies only if in_database = FALSE.}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 }
 \description{
 The plot_outlier() visualize outlier information
@@ -73,40 +77,46 @@ copy_to(con_sqlite, carseats, name = "TB_CARSEATS", overwrite = TRUE)
 
 # Using pipes ---------------------------------
 # Visualization of all numerical variables
-con_sqlite \%>\% 
-  tbl("TB_CARSEATS") \%>\% 
-  plot_outlier()
+# con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier()
   
 # Positive values select variables
-con_sqlite \%>\% 
-  tbl("TB_CARSEATS") \%>\% 
-  plot_outlier(Sales, Price)
+ con_sqlite \%>\% 
+   tbl("TB_CARSEATS") \%>\% 
+   plot_outlier(Sales, Price)
   
 # Negative values to drop variables, and In-memory mode and collect size is 200
-con_sqlite \%>\% 
-  tbl("TB_CARSEATS") \%>\% 
-  plot_outlier(-Sales, -Price, collect_size = 200)
+# con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier(-Sales, -Price, collect_size = 200)
   
 # Positions values select variables
-con_sqlite \%>\% 
-  tbl("TB_CARSEATS") \%>\% 
-  plot_outlier(6)
+# con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier(6)
   
 # Positions values select variables
-carseats \%>\%
-  plot_outlier(-1, -5)
+# con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier(-1, -5)
+  
+# Not allow the typographic elements
+#  con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier(-1, -5, typographic = FALSE)
 
 # Using pipes & dplyr -------------------------
 # Visualization of numerical variables with a ratio of
 # outliers greater than 1\%
-con_sqlite \%>\% 
-  tbl("TB_CARSEATS") \%>\% 
-  plot_outlier(con_sqlite \%>\% 
-                 tbl("TB_CARSEATS") \%>\% 
-                 diagnose_outlier() \%>\%
-                 filter(outliers_ratio > 1) \%>\%
-                 select(variables) \%>\%
-                 pull())
+# con_sqlite \%>\% 
+#   tbl("TB_CARSEATS") \%>\% 
+#   plot_outlier(con_sqlite \%>\% 
+#                  tbl("TB_CARSEATS") \%>\% 
+#                  diagnose_outlier() \%>\%
+#                  filter(outliers_ratio > 1) \%>\%
+#                  select(variables) \%>\%
+#                 pull())
       
 }
 \seealso{

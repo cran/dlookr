@@ -25,7 +25,7 @@ The "pretty" chooses a number of breaks not necessarily equal
 to nbins using base::pretty function.
 The "kmeans" uses stats::kmeans function to generate the breaks.
 The "bclust" uses e1071::bclust function to generate the breaks using bagged clustering.
-"kmeans" and "bclust" was implemented by classInt::classIntervals function.}
+"kmeans" and "bclust" was implemented by classInt::classIntervals() function.}
 
 \item{ordered}{logical. whether to build an ordered factor or not.}
 
@@ -99,17 +99,22 @@ bin
 bin <- binning(x, approxy.lab = FALSE)
 bin
 
+# extract binned results
+extract(bin)
+
 # -------------------------
 # Using pipes & dplyr
 # -------------------------
 library(dplyr)
 
 carseats \%>\%
- mutate(Income_bin = binning(carseats$Income)) \%>\%
+ mutate(Income_bin = binning(carseats$Income) \%>\% 
+                     extract()) \%>\%
  group_by(ShelveLoc, Income_bin) \%>\%
  summarise(freq = n()) \%>\%
  arrange(desc(freq)) \%>\%
  head(10)
+ 
 }
 \seealso{
 \code{\link{binning_by}}, \code{\link{print.bins}}, \code{\link{summary.bins}}.

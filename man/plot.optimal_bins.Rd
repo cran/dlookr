@@ -4,47 +4,58 @@
 \alias{plot.optimal_bins}
 \title{Visualize Distribution for an "optimal_bins" Object}
 \usage{
-\method{plot}{optimal_bins}(x, type = c("dist", "goodrate", "badrate", "WoE"), sub = "", ...)
+\method{plot}{optimal_bins}(
+  x,
+  type = c("all", "dist", "freq", "posrate", "WoE"),
+  typographic = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class "optimal_bins", usually, a result of a call to binning_by().}
 
-\item{type}{character. options for visualization. Distribution ("dist"), Good Rate ("goodrate"),
-Bad Rate ("badrate"), and Weight of Evidence ("WoE").}
+\item{type}{character. options for visualization. Distribution ("dist"), Relateive Frequency ("freq"),
+Positive Rate ("posrate"), and Weight of Evidence ("WoE"). and default "all" draw all plot.}
 
-\item{sub}{character. sub title for the chart (optional).}
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
-\item{...}{arguments to be passed to methods, such as graphical parameters (see par).
-only applies to the first graph that is implemented with the boxplot() function.}
+\item{...}{further arguments to be passed from or to other methods.}
 }
 \description{
-It generates plots for understand distribution, bad rate, and weight of evidence after
-running smbinning and saving its output.
+It generates plots for understand distribution, frequency, bad rate, and weight of evidence using optimal_bins.
 
 See vignette("transformation") for an introduction to these concepts.
 }
 \examples{
 # Generate data for the example
+library(dplyr)
+
 carseats <- ISLR::Carseats
 carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 
-# optimal binning
+# optimal binning using binning_by()
 bin <- binning_by(carseats, "US", "Advertising")
 bin
 
-# summary optimal_bins class
+# summary optimal_bins class.
 summary(bin)
 
-# information value
-attr(bin, "iv")
+# visualize all information for optimal_bins class
+plot(bin)
 
-# information value table
-attr(bin, "ivtable")
+# visualize WoE information for optimal_bins class
+plot(bin, type = "WoE")
 
-# visualize optimal_bins class
-plot(bin, sub = "bins of Advertising variable")
+# visualize all information with typographic
+plot(bin)
+
+# extract binned results
+extract(bin) \%>\% 
+  head(20)
+
 }
 \seealso{
-\code{\link{binning_by}}, \code{\link{plot.bins}}, \code{\link{smbinning.plot}}.
+\code{\link{binning_by}}, \code{\link{summary.optimal_bins}}
 }

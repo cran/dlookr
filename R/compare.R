@@ -63,7 +63,7 @@ compare_numeric <- function(.data, ...) {
 #' # Compare the all categorical variables
 #' all_var <- compare_category(carseats)
 #' 
-#' # Print compare_numeric class object
+#' # Print compare_numeric class objects
 #' all_var
 #' 
 #' # Compare the categorical variables that case of joint the US variable
@@ -73,7 +73,7 @@ compare_numeric <- function(.data, ...) {
 #' # Compare the two categorical variables
 #' two_var <- compare_category(carseats, ShelveLoc, Urban)
 #' 
-#' # Print compare_numeric class object
+#' # Print compare_numeric class objects
 #' two_var
 #' 
 #' # Filtering the case of US included NA 
@@ -84,7 +84,7 @@ compare_numeric <- function(.data, ...) {
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
-#' # Summary by returned object
+#' # Summary by returned objects
 #' stat
 #' 
 #' # component of table 
@@ -129,16 +129,16 @@ compare_numeric <- function(.data, ...) {
 #'   "[["("ShelveLoc vs Urban")
 #'
 #' # plot all pair of variables
-#' plot(all_var)
+#' # plot(all_var)
 #' 
 #' # plot a pair of variables
-#' plot(two_var)
+#' # plot(two_var)
 #' 
 #' # plot all pair of variables by prompt
-#' plot(all_var, prompt = TRUE)
+#' # plot(all_var, prompt = TRUE)
 #' 
 #' # plot a pair of variables
-#' plot(two_var, las = 1)
+#' # plot(two_var, las = 1)
 #' 
 #' @method compare_category data.frame
 #' @importFrom tidyselect vars_select
@@ -262,6 +262,9 @@ compare_category_impl <- function(df, vars) {
 #'
 #' library(dplyr)
 #' 
+#' carseats <- carseats %>% 
+#'   select(CompPrice, Sales, Price)
+#' 
 #' # Compare the all numerical variables
 #' all_var <- compare_numeric(carseats)
 #' 
@@ -288,7 +291,7 @@ compare_category_impl <- function(df, vars) {
 #' # Compare the two numerical variables
 #' two_var <- compare_numeric(carseats, Price, CompPrice)
 #' 
-#' # Print compare_numeric class object
+#' # Print compare_numeric class objects
 #' two_var
 #'   
 #' # Summary the all case : Return a invisible copy of an object.
@@ -305,15 +308,18 @@ compare_category_impl <- function(df, vars) {
 #' 
 #' # verbose is FALSE 
 #' summary(all_var, verbose = FALSE)
-#'
+#'   
 #' # plot all pair of variables
-#' plot(all_var)
+#' # plot(all_var)
 #' 
 #' # plot a pair of variables
-#' plot(two_var)
+#' # plot(two_var)
 #' 
 #' # plot all pair of variables by prompt
-#' plot(all_var, prompt = TRUE)
+#' # plot(all_var, prompt = TRUE)
+#' 
+#' # plot a pair of variables not focuses on typographic elements
+#' # plot(two_var, typographic = FALSE)
 #' 
 #' @method compare_numeric data.frame
 #' @importFrom tidyselect vars_select
@@ -327,7 +333,6 @@ compare_numeric.data.frame <- function(.data, ...) {
 
 
 #' @import tibble
-#' @importFrom broom glance
 #' @importFrom utils combn
 compare_numeric_impl <- function(df, vars) {
   if (length(vars) == 0) vars <- names(df)
@@ -368,7 +373,7 @@ compare_numeric_impl <- function(df, vars) {
     agg_lm <- df %>% 
       select(x, y) %>% 
       lm(lm_formula, data = .) %>% 
-      broom::glance()
+      get_tab_lm()
     
     tibble::as_tibble(data.frame(var1 = x, var2 = y, agg_lm, stringsAsFactors = FALSE))
   }
@@ -579,7 +584,7 @@ summary.compare_category <- function(object, method = c("all", "table", "relativ
     
     suppressWarnings(chisq[j, ] <- contingency[[j]] %>% 
                        chisq.test() %>% 
-                       broom::glance() %>% 
+                       get_tab_chisq() %>% 
                        select(-method))
 
     j <- j + 1
@@ -850,8 +855,15 @@ print.compare_numeric <- function(x, ...) {
 #' @param prompt logical. The default value is FALSE. If there are multiple visualizations to be output, if this argument value is TRUE, a prompt is output each time. 
 #' @param na.rm logical. Specifies whether to include NA when plotting mosaics plot. 
 #' The default is FALSE, so plot NA.  
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
-#' However, it does not support all parameters.
+#' However, it only support las parameter. las is numeric in {0,1}; the style of axis labels.
+#' \itemize{
+#'   \item 0 : always parallel to the axis [default],
+#'   \item 1 : always horizontal to the axis,
+#' }
+#'    
 #' @seealso \code{\link{compare_category}}, \code{\link{print.compare_category}}, \code{\link{summary.compare_category}}.
 #' @examples
 #' # Generate data for the example
@@ -862,13 +874,13 @@ print.compare_numeric <- function(x, ...) {
 #' # Compare the all categorical variables
 #' all_var <- compare_category(carseats)
 #' 
-#' # Print compare class object
+#' # Print compare class objects
 #' all_var
 #'   
 #' # Compare the two categorical variables
 #' two_var <- compare_category(carseats, ShelveLoc, Urban)
 #' 
-#' # Print compare class object
+#' # Print compare class objects
 #' two_var
 #' 
 #' # plot all pair of variables
@@ -878,50 +890,112 @@ print.compare_numeric <- function(x, ...) {
 #' plot(two_var)
 #' 
 #' # plot all pair of variables by prompt
-#' plot(all_var, prompt = TRUE)
+#' # plot(all_var, prompt = TRUE)
+#' 
+#' # plot a pair of variables without NA
+#' plot(two_var, na.rm = TRUE)
 #' 
 #' # plot a pair of variables
 #' plot(two_var, las = 1)
 #' 
+#' # plot a pair of variables not focuses on typographic elements
+#' plot(two_var, typographic = FALSE)
+#' 
 #' @method plot compare_category
 #' @export
-plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE, ...) {
-  variables <- attr(x, "variables")
+plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE, 
+                                  typographic = TRUE, ...) {
   combination <- attr(x, "combination")
   
   n <- nrow(combination)
   
+  arg_par <- list(...)
+  
+  las <- 0
+  if (length(arg_par) > 0 & any(names(arg_par) %in% "las")) {
+    las <- arg_par$las
+  } 
+  
   for (i in seq(n)) {
-    rnames <- unique(pull(x[[i]][, 1]))
-    cnames <- unique(pull(x[[i]][, 2]))
-      
     xvar <- combination[i, 1]
     yvar <- combination[i, 2]  
-      
-    value <- expand.grid(rnames, cnames)
-    names(value) <- c(xvar, yvar)
-      
-    suppressMessages(value <- value %>% 
-                       left_join(x[[i]] %>% select(1:3)) %>% 
-                       mutate(n = ifelse(is.na(n), 0, n)))
-      
-    tab <- matrix(value$n, nrow = length(rnames), ncol = length(cnames),
-                  dimnames = list(rnames, cnames))
-      
-    oldClass(tab) <- c("table")
-      
-    dimnames(tab)[[1]] <- ifelse(is.na(dimnames(tab)[[1]]), "NA", 
-                                 dimnames(tab)[[1]])
-    dimnames(tab)[[2]] <- ifelse(is.na(dimnames(tab)[[2]]), "NA", 
-                                   dimnames(tab)[[2]])
-      
+    
     if (prompt & n > 1) {
       invisible(readline(prompt="Hit <Return> to see next plot:"))
     }
+    
+    data <- x[[i]] %>% 
+      select(a = xvar, b = yvar, n) 
+    
+    if (na.rm) {
+      data <- data %>% 
+        filter(!is.na(a) & !is.na(b))
+    }
+    
+    first <- data[1, 1] %>% pull %>% as.character
+    y <- data %>% 
+      filter(a %in% first) %>% 
+      select(b, n)
+    
+    y_lab <- y$b %>% rev() %>% as.character()
+    y <- y$n %>% rev()
+    
+    y_cumsum <- cumsum(y)
+    y_center <- y / 2
+    
+    y_pos <- numeric(length(y))
+    for (j in seq(y)) {
+      if (j == 1) {
+        y_pos[j] <- y_center[j]
+      } else {
+        y_pos[j] <- y_cumsum[j-1] + y_center[j]
+      }
+      y_pos[j] <- y_pos[j] / sum(y)
+    }
+    
+    suppressWarnings({
+      p <- data %>% 
+        group_by(a) %>% 
+        mutate(x_width = sum(n)) %>% 
+        ggplot(aes(x = factor(a), y = n)) +
+        geom_col(aes(width = x_width, fill = factor(b)),
+                 color = "white", size = 2, 
+                 position = position_fill(reverse = FALSE)) +
+        facet_grid(~ a, space = "free", scales = "free", switch = "x") +
+        scale_x_discrete(name = xvar) +
+        scale_y_continuous(name = yvar, breaks = y_pos, labels = y_lab) +
+        labs(title = sprintf("Mosaics plot by '%s' vs '%s'", xvar, yvar)) +
+        theme(legend.position = "none",
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank(),
+              strip.background = element_blank(),
+              panel.spacing = unit(0, "pt")) 
+    })
+    
+    if (typographic) {
+      p <- p +
+        theme_typographic() +
+        scale_fill_ipsum(na.value = "grey80") +
+        theme(legend.position = "none",
+              panel.grid.major.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_text(size = 12),
+              axis.title.x = element_text(size = 12),
+              axis.title.y = element_text(size = 12),
+              panel.spacing = unit(0, "pt"))
+      if (las == 0) {
+        p <-  p +
+          theme(axis.text.y = element_text(angle = 90, hjust = 0.5))
+      }  
       
-    plot(tab, col = RColorBrewer::brewer.pal(8, "Dark2"),
-         xlab = xvar, ylab = yvar,
-         main = sprintf("Mosaics plot by '%s' vs '%s'", xvar, yvar), ...)
+    } else {
+      if (las == 0) {
+        p <-  p +
+          theme(axis.text.y = element_text(angle = 90, hjust = 0.5))
+      }  
+    }
+    
+    suppressWarnings(print(p))
   } 
 }
 
@@ -932,7 +1006,10 @@ plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE, ...) {
 #' Visualize scatter plot included box plots by attribute of compare_numeric class.
 #'
 #' @param x an object of class "compare_numeric", usually, a result of a call to compare_numeric().
-#' @param prompt logical. The default value is FALSE. If there are multiple visualizations to be output, if this argument value is TRUE, a prompt is output each time. 
+#' @param prompt logical. The default value is FALSE. If there are multiple visualizations to be output, 
+#' if this argument value is TRUE, a prompt is output each time. 
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' However, it does not support.
 #' @seealso \code{\link{compare_numeric}}, \code{\link{print.compare_numeric}}, \code{\link{summary.compare_numeric}}.
@@ -942,6 +1019,11 @@ plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE, ...) {
 #' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 #' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 #'
+#' # Reduced variables
+#' library(dplyr)
+#' carseats <- carseats %>% 
+#'   select(CompPrice, Sales, Price)
+#'   
 #' # Compare the all numerical variables
 #' all_var <- compare_numeric(carseats)
 #' 
@@ -961,32 +1043,172 @@ plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE, ...) {
 #' plot(two_var)
 #' 
 #' # plot all pair of variables by prompt
-#' plot(all_var, prompt = TRUE)
+#' # plot(all_var, prompt = TRUE)
 #' 
-#' @importFrom car scatterplot
+#' # plot a pair of variables not focuses on typographic elements
+#' plot(two_var, typographic = FALSE)
+#' 
+#' @importFrom gridExtra grid.arrange
+#' @importFrom grid textGrob gpar
+#' @import ggplot2
 #' @method plot compare_numeric
 #' @export
-plot.compare_numeric <- function(x, prompt = FALSE, ...) {
-  variables <- attr(x, "variables")
+plot.compare_numeric <- function(x, prompt = FALSE, typographic = TRUE, ...) {
   combination <- attr(x, "combination")
   
   n <- nrow(combination)
   
   df <- attr(x, "raw")
-    
+  
   for (i in seq(n)) {
     xvar <- combination[i, 1]
     yvar <- combination[i, 2]  
-      
+    
     datas <- df[ , c(xvar, yvar)]
-    str_formula <- formula(sprintf("%s ~ %s", xvar, yvar))
-      
+    
     if (prompt & n > 1) {
       invisible(readline(prompt="Hit <Return> to see next plot:"))
     }
+    
+    blank <- ggplot() + geom_blank(aes(1, 1)) +
+      theme(
+        plot.background = element_blank(), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(), 
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.line = element_blank()
+      )
+    
+    p_scatter <- datas %>% 
+      ggplot(aes_string(x = xvar, y = yvar)) +
+      geom_point(color = "#FF9900") +
+      stat_minmax_ellipse(geom = "polygon", alpha = 0.3, fill = "steelblue", color = "steelblue") + 
+      stat_minmax_ellipse(level = 0.5, geom = "polygon", alpha = 0.5, 
+                   fill = "steelblue", color = "steelblue") + 
+      stat_smooth(method = "lm", formula = y ~ x) 
+    
+    box_bottom <- datas %>% 
+      ggplot(aes_string(x = xvar)) + 
+      geom_boxplot(size = 0.3, fill = "steelblue", alpha = 0.3) +
+      ylab("") +
+      theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(), 
+        axis.text.y = element_text(color = "transparent"),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background = element_rect(fill = "transparent", color = NA))
+    
+    box_left <- datas %>% 
+      ggplot(aes_string(x = yvar)) + 
+      geom_boxplot(size = 0.3, fill = "steelblue", alpha = 0.3) + 
+      ylab("") +
+      coord_flip() +
+      theme(
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(), 
+        axis.text.x = element_text(color = "transparent"),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background = element_rect(fill = "transparent", color = NA))
+    
+    title <- sprintf("Scatterplots with %s and %s", xvar, yvar)
+    
+    if (typographic) {
+      p_scatter <- p_scatter +
+        theme_typographic() +
+        theme(
+          axis.title.x = element_text(size = 11),
+          axis.title.y = element_text(size = 13)
+        )
       
-    car::scatterplot(str_formula, data = datas, ellipse = TRUE,
-                     col = "orange", pch = 16,
-                     main = sprintf("Scatterplots with %s and %s", xvar, yvar))
+      box_bottom <- box_bottom  +
+        theme_typographic() +
+        theme(axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_text(color = "transparent"),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_blank(),
+              plot.margin = margin(0, 30, 0, 30))
+      
+      box_left <- box_left  +
+        theme_typographic() +
+        theme(axis.title.x = element_text(color = "transparent"),
+              axis.text.x = element_text(color = "transparent"),
+              axis.title.y = element_blank(),
+              axis.text.y = element_blank(),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_blank(),              
+              plot.margin = margin(30, 0, 30, 0))
+      
+      fontfamily <- get_font_family()
+      
+      title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, fontsize = 18, font = 2),
+                              x = unit(0.075, "npc"), just = "left")
+    }
+    
+    suppressWarnings(gridExtra::grid.arrange(box_left, p_scatter, blank, box_bottom, ncol = 2, nrow = 2,
+                            widths = c(1, 25), heights=c(20, 1), top = title))
   } 
 }
+
+StatMinMaxEllipse <- ggproto("StatClipEllipse", Stat,
+                             required_aes = c("x", "y"),
+                             compute_group = function(data, scales, type = "t", level = 0.95,
+                                                      segments = 51, na.rm = FALSE) {
+                               min_x <- min(data$x)
+                               max_x <- max(data$x)
+                               min_y <- min(data$y)
+                               max_y <- max(data$y)
+                               
+                               xx <- ggplot2:::calculate_ellipse(data = data, vars = c("x", "y"), type = type,
+                                                                 level = level, segments = segments)
+                               xx %>% mutate(x=pmax(x, min_x)) %>% 
+                                 mutate(x=pmin(x, max_x)) %>% 
+                                 mutate(y=pmax(y, min_y)) %>% 
+                                 mutate(y=pmin(y, max_y)) 
+                             }
+)
+
+stat_minmax_ellipse <- function(mapping = NULL, data = NULL,
+                                geom = "path", position = "identity",
+                                ...,
+                                type = "t",
+                                level = 0.95,
+                                segments = 51,
+                                na.rm = FALSE,
+                                show.legend = NA,
+                                inherit.aes = TRUE) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = StatMinMaxEllipse,
+    geom = geom,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      type = type,
+      level = level,
+      segments = segments,
+      na.rm = na.rm,
+      ...
+    )
+  )
+}
+
+

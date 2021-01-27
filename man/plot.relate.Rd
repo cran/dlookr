@@ -8,7 +8,8 @@
   x,
   model = FALSE,
   hex_thres = 1000,
-  pal = RColorBrewer::brewer.pal(7, "YlOrRd"),
+  pal = c("#FFFFB2", "#FED976", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C", "#B10026"),
+  typographic = TRUE,
   ...
 )
 }
@@ -26,6 +27,9 @@ The default value is 1000.}
 
 \item{pal}{Color palette to paint hexabin. Use only when the target and predictor are numeric variables.
 Applied only when the number of observations is greater than hex_thres.}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
 only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.}
@@ -46,12 +50,14 @@ categ <- target_by(carseats, US)
 cat_num <- relate(categ, Sales)
 cat_num
 summary(cat_num)
+
 plot(cat_num)
 
 # If the variable of interest is a categorical variable
 cat_cat <- relate(categ, ShelveLoc)
 cat_cat
 summary(cat_cat)
+
 plot(cat_cat)
 
 ##---------------------------------------------------
@@ -62,6 +68,7 @@ num <- target_by(carseats, Sales)
 num_num <- relate(num, Price)
 num_num
 summary(num_num)
+
 plot(num_num)
 plot(num_num, hex_thres = 400)
 
@@ -69,7 +76,12 @@ plot(num_num, hex_thres = 400)
 num_cat <- relate(num, ShelveLoc)
 num_cat
 summary(num_cat)
+
 plot(num_cat)
+
+# Not allow typographic
+plot(num_cat, typographic = FALSE)
+ 
 }
 \seealso{
 \code{\link{relate}}, \code{\link{print.relate}}.

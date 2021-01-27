@@ -1,3 +1,59 @@
+dlookr 0.4.0
+----------------------------------------------------------------
+* eda_report() fixed error when data have a only 1 complated numeric variable (@EvanLuff, #27).
+
+* eda_report() fixed error when transform numeric variables that include minus values (@Roberto Passera).
+
+* eda_report() change the correlation plot and normality test(log+1: include 0, log+a/Box-Cox: include minus).
+
+* plot_correlate() change the correlation plot that support 2 case plots(number of variabe >=20, <20).
+
+* transform(), summary.transform(), plot.transform() supports Box-Cox transform. (@lucazav, #21).
+
+* transform(), summary.transform(), plot.transform() supports Yeo-Johnson transform. (@zhjx19, #21).
+
+* plot_normality() supports log+1, log+a, 1/x, x^2, x^3, Box-Cox, Yeo-Johnson transform. (@lucazav, #21).
+
+* Add a new function entropy() to compute Shannon's entropy.
+
+* Add a new function get_percentile() to compute percentile position.
+
+* Add a new function get_transform() to transform numeric variable.
+
+* plot_na_pareto() changed the legend that show the all levels and display the more informations.
+
+* plot.optimal_bins() changed the plot from smbinning package to own code using ggplot2.
+
+* Add a new function plot_bar_category() to visualizes the distribution of categorical data by level or relationship to specific numerical data by level.
+
+* Add a new function plot_qq_numeric() to visualizes the Q-Q plot of numeric data or relationship to specific categorical data.
+
+* Add a new function plot_box_numeric() to visualizes the box plot of numeric data or relationship to specific categorical data.
+
+* Add a new function plot_outlier.target_df() to visualizes the information of outliers by target variable.
+
+* Add a new function overview() to describe overview of data.
+
+* Add a new function summary.overview() to summarizes the data information from the overview class object created with overview().
+
+* Add a new function plot.overview() to visualizes the data information from the overview class object created with overview().
+
+* Add a new function kld() to computes the Kullback-Leibler divergence between two probability distributions.
+
+* Add a new function jsd() to computes the Jensen-Shannon divergence between two probability distributions.
+
+* Add a new function performance_bin(), summary.performance_bin(), plot.performance_bin() to diagnose the binned variable for binomial classification model.
+
+* Add a new function summary.optimal_bins() to summarise the binned variable for optimal binning.
+
+* plot.bins(), plot.compare_category(), plot.compare_numeric(), plot_outlier(), 
+plot_normality() changed the look & feel that draw the viz from high-level graphic function to ggplot2.
+
+* plot.optimal_bins(), plot_na_hclust(), plot_na_pareto(), plot_na_intersect(), plot.relate(), plot_bar_category(), plot_qq_numeric(), plot_box_numeric() append argemt typographic thst is whether to apply focuses on typographic elements.
+
+* modified visualization of report by diagnose_report(), eda_report(), transformation_report().
+
+
 dlookr 0.3.14
 ----------------------------------------------------------------
 * correlate() add the non-parametric correlation coefficient, like "spearman" and "kendall" (@Roberto Passera)

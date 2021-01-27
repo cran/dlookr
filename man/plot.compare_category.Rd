@@ -4,7 +4,7 @@
 \alias{plot.compare_category}
 \title{Visualize Information for an "compare_category" Object}
 \usage{
-\method{plot}{compare_category}(x, prompt = FALSE, na.rm = FALSE, ...)
+\method{plot}{compare_category}(x, prompt = FALSE, na.rm = FALSE, typographic = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "compare_category", usually, a result of a call to compare_category().}
@@ -14,8 +14,15 @@
 \item{na.rm}{logical. Specifies whether to include NA when plotting mosaics plot. 
 The default is FALSE, so plot NA.}
 
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
-However, it does not support all parameters.}
+However, it only support las parameter. las is numeric in {0,1}; the style of axis labels.
+\itemize{
+  \item 0 : always parallel to the axis [default],
+  \item 1 : always horizontal to the axis,
+}}
 }
 \description{
 Visualize mosaics plot by attribute of compare_category class.
@@ -29,13 +36,13 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 # Compare the all categorical variables
 all_var <- compare_category(carseats)
 
-# Print compare class object
+# Print compare class objects
 all_var
   
 # Compare the two categorical variables
 two_var <- compare_category(carseats, ShelveLoc, Urban)
 
-# Print compare class object
+# Print compare class objects
 two_var
 
 # plot all pair of variables
@@ -45,10 +52,16 @@ plot(all_var)
 plot(two_var)
 
 # plot all pair of variables by prompt
-plot(all_var, prompt = TRUE)
+# plot(all_var, prompt = TRUE)
+
+# plot a pair of variables without NA
+plot(two_var, na.rm = TRUE)
 
 # plot a pair of variables
 plot(two_var, las = 1)
+
+# plot a pair of variables not focuses on typographic elements
+plot(two_var, typographic = FALSE)
 
 }
 \seealso{

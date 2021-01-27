@@ -62,7 +62,7 @@ library(stringr)
 # Compare the all categorical variables
 all_var <- compare_category(carseats)
 
-# Print compare_numeric class object
+# Print compare_numeric class objects
 all_var
 
 # Compare the categorical variables that case of joint the US variable
@@ -72,7 +72,7 @@ all_var \%>\%
 # Compare the two categorical variables
 two_var <- compare_category(carseats, ShelveLoc, Urban)
 
-# Print compare_numeric class object
+# Print compare_numeric class objects
 two_var
 
 # Filtering the case of US included NA 
@@ -83,7 +83,7 @@ two_var \%>\%
 # Summary the all case : Return a invisible copy of an object.
 stat <- summary(all_var)
 
-# Summary by returned object
+# Summary by returned objects
 stat
 
 # component of table 
@@ -128,16 +128,16 @@ summary(all_var, "table", na.rm = TRUE, verbose = FALSE) \%>\%
   "[["("ShelveLoc vs Urban")
 
 # plot all pair of variables
-plot(all_var)
+# plot(all_var)
 
 # plot a pair of variables
-plot(two_var)
+# plot(two_var)
 
 # plot all pair of variables by prompt
-plot(all_var, prompt = TRUE)
+# plot(all_var, prompt = TRUE)
 
 # plot a pair of variables
-plot(two_var, las = 1)
+# plot(two_var, las = 1)
 
 }
 \seealso{

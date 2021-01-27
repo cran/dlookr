@@ -315,17 +315,17 @@ plot_correlate(carseats)
 `plot_correlate()` can also specify multiple variables, like the `correlate()` function.
 The following is a visualization of the correlation matrix including several selected variables.
 
-```{r plot_correlate2, fig.align='center', fig.width = 6, fig.height = 4}
+```{r plot_correlate2, fig.align='center', fig.width = 5, fig.height = 3}
 # Select columns by name
 plot_correlate(carseats, Sales, Price)
 ```
 
 The `plot_correlate()` function also supports the `group_by()` function syntax in the `dplyr` package.
 
-```{r plot_correlate3, fig.align='center', fig.width = 6, fig.height = 4, warning=FALSE}
+```{r plot_correlate3, fig.align='center', fig.width = 5, fig.height = 3, warning=FALSE}
 carseats %>%
   filter(ShelveLoc == "Good") %>%
-  group_by(Urban, US) %>%
+  group_by(Urban) %>%
   plot_correlate(Sales)
 ```
 
@@ -488,62 +488,62 @@ The EDA report is an automated report to assist in the EDA process. Design the d
 
 * The cover of the report is shown in the following figure.
 
-```{r eda_title_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="EDA report cover"}
+```{r eda_title_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="EDA report cover"}
 knitr::include_graphics('img/eda_title_pdf.png')
 ```
 
 * The report's agenda is shown in the following figure.
 
-```{r eda_agenda_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="EDA Report Contents"}
+```{r eda_agenda_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="EDA Report Contents"}
 knitr::include_graphics('img/eda_agenda_pdf.png')
 ```
 
 * Much information is represented in tables in the report. An example of the table is shown in the following figure.
 
-```{r eda_intro_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Example EDA report table"}
+```{r eda_intro_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="Example EDA report table"}
 knitr::include_graphics('img/eda_intro_pdf.png')
 ```
 
 * In the EDA report, the normality test content includes visualization results. The result is shown in the following figure.
 
-```{r eda_normality_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Normality test information in EDA reports"}
+```{r eda_normality_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="Normality test information in EDA reports"}
 knitr::include_graphics('img/eda_normality_pdf.png')
 ```
 
-* Correlation information in EDA reports includes visualization results. The result is shown in the following figure.
+#* Correlation information in EDA reports includes visualization results. The result is shown in the following #figure.
 
-```{r eda_correlation_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Correlation information in EDA reports"}
+```{r eda_correlation_pdf, echo=FALSE, eval=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="Correlation information in EDA reports"}
 knitr::include_graphics('img/eda_correlation_pdf.png')
 ```
 
 * In EDA reports, information on linear relationships includes tables and visualization results. The result is shown in the following figure.
 
-```{r eda_lm_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Linear relationship information in EDA reports"}
+```{r eda_lm_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="Linear relationship information in EDA reports"}
 knitr::include_graphics('img/eda_lm_pdf.png')
 ```
 
 * In EDA reports, ANOVA information includes tables and visualization results. The result is shown in the following figure.
 
-```{r eda_anova_pdf, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="Information about ANOVA in EDA reports"}
+```{r eda_anova_pdf, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="Information about ANOVA in EDA reports"}
 knitr::include_graphics('img/eda_anova_pdf.png')
 ```
 
 #### Contents of html file
 * The title and contents of the report are shown in the following figure.
 
-```{r eda_egenda_html, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="EDA report titles and table of contents"}
+```{r eda_egenda_html, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="EDA report titles and table of contents"}
 knitr::include_graphics('img/eda_agenda_html.png')
 ```
 
 * Much information is represented in tables in the report. An example of a table in the html file is shown in the following figure.
 
-```{r eda_table_html, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="EDA report table example (Web)"}
+```{r eda_table_html, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="EDA report table example (Web)"}
 knitr::include_graphics('img/eda_table_html.png')
 ```
 
 * In EDA reports, normality test information includes visualization results. The result of the html file is shown in the following figure.
 
-```{r eda_normality_html, echo=FALSE, out.width='70%', fig.align='center', fig.pos="!h", fig.cap="EDA Report Normality Test Information (Web)"}
+```{r eda_normality_html, echo=FALSE, out.width='60%', fig.align='center', fig.pos="!h", fig.cap="EDA Report Normality Test Information (Web)"}
 knitr::include_graphics('img/eda_normality_html.png')
 ```
 
@@ -653,15 +653,10 @@ con_sqlite %>%
 ```
 
 ### Normalization visualization of numerical column in the DBMS
-```{r plot_normality_dbi, fig.align='center', fig.width = 6, fig.height = 4}
-# Plot 'Sales' variable by 'ShelveLoc' and 'US'
-con_sqlite %>% 
-  tbl("TB_CARSEATS") %>% 
-  group_by(ShelveLoc, US) %>%
-  plot_normality(Sales)
-
+```{r plot_normality_dbi, fig.align='center', fig.width = 6, fig.height = 4, eval=FALSE}
 # extract only those with 'ShelveLoc' variable level is "Good",
 # and plot 'Income' by 'US'
+# the result is same as a data.frame, but not display here. reference above in document.
 con_sqlite %>% 
   tbl("TB_CARSEATS") %>% 
   filter(ShelveLoc == "Good") %>%
@@ -706,14 +701,15 @@ con_sqlite %>%
 ```
 
 ### Visualize correlation plot of numerical columns in the DBMS
-```{r plot_correlation_dbi, fig.align='center', fig.width = 6, fig.height = 4}
+```{r plot_correlation_dbi, fig.align='center', fig.width = 6, fig.height = 4, warning=FALSE, eval=FALSE}
 # Extract only those with 'ShelveLoc' variable level is "Good",
 # and visualize correlation plot of 'Sales' variable by 'Urban'
 # and 'US' variables.
+# the result is same as a data.frame, but not display here. reference above in document.
 con_sqlite %>% 
   tbl("TB_CARSEATS") %>% 
   filter(ShelveLoc == "Good") %>%
-  group_by(Urban, US) %>%
+  group_by(Urban) %>%
   plot_correlate(Sales)
 ```
 
@@ -730,7 +726,8 @@ cat_num
 summary(cat_num)
 ```
 
-```{r plot_target_by_dbi, fig.align='center', fig.align='center', fig.width = 6, fig.height = 4}
+```{r plot_target_by_dbi, fig.align='center', fig.align='center', fig.width = 6, fig.height = 4, eval=FALSE}
+# the result is same as a data.frame, but not display here. reference above in document.
 plot(cat_num)
 ```
 

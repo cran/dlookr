@@ -16,21 +16,34 @@ options(warn = -1)
 ```
 
 ```{r environment, echo=FALSE, warning=FALSE, message=FALSE}
-library(xtable)
-library(magrittr)
 library(dlookr)
+library(magrittr)
 library(dplyr)
 library(ggplot2)
+library(grid)
 library(gridExtra)
-library(moments)
-library(mice)
 library(knitr)
 library(kableExtra)
+
+if (!requireNamespace("mice", quietly = TRUE)) {
+  stop("Package 'mice' needed for this function to work. Please install it.", 
+       call. = FALSE)
+}
+
+if (!requireNamespace("rpart", quietly = TRUE)) {
+  stop("Package 'rpart' needed for this function to work. Please install it.", 
+       call. = FALSE)
+}
+
+if (!requireNamespace("DMwR", quietly = TRUE)) {
+  stop("Package 'DMwR' needed for this function to work. Please install it.", 
+       call. = FALSE)
+}
 ```
 
 ```{r init, echo=FALSE, warning=FALSE, message=FALSE}
-library(smbinning)
-library(xtable)
+#library(smbinning)
+#library(xtable)
 
 edaData <- as.data.frame(get("edaData", .dlookrEnv))
 targetVariable <- get("targetVariable", .dlookrEnv)
@@ -377,7 +390,7 @@ if (!is.null(targetVariable)) {
   if (n_levles == 2) {
     # Optimal Binning for Scoring Modeling
     results <- lapply(var_numeric, function(x)
-      binning_by(df = edaData, y = targetVariable, x = x, p = 0.05))
+      binning_by(.data = edaData, y = targetVariable, x = x, p = 0.05))
     
     # could also use tapply here
     for (i in 1:length(var_numeric)) {
@@ -397,7 +410,9 @@ if (!is.null(targetVariable)) {
       
       cat("\n")
 
-      tab <- attr(result, "ivtable")
+      tab <- attr(result, "performance") %>% 
+        select(-CntCumPos, -CntCumNeg, -RateCumPos, -RateCumNeg)
+      
       kable(tab, digits = 2, format = "html",
         format.args = list(big.mark = ",")) %>% 
         kable_styling(full_width = FALSE, font_size = 10, position = "left") %>% 

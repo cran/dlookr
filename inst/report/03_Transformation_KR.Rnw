@@ -3,8 +3,24 @@
 <<init, echo=FALSE, warning=FALSE, message=FALSE>>=
 options(warn = -1)
 
-library(mice)
-library(smbinning)
+if (!requireNamespace("mice", quietly = TRUE)) {
+  stop("Package 'mice' needed for this function to work. Please install it.", 
+       call. = FALSE)
+} else {
+  library(mice)
+}
+
+if (!requireNamespace("rpart", quietly = TRUE)) {
+  stop("Package 'rpart' needed for this function to work. Please install it.", 
+       call. = FALSE)
+}
+
+if (!requireNamespace("DMwR", quietly = TRUE)) {
+  stop("Package 'DMwR' needed for this function to work. Please install it.", 
+       call. = FALSE)
+}
+
+library(grid)
 library(knitr)
 library(kableExtra)
 
@@ -441,7 +457,7 @@ if (!is.null(targetVariable)) {
   if (n_levles == 2) {
     # Optimal Binning for Scoring Modeling
     results <- lapply(varname, function(x)
-      binning_by(df = edaData, y = targetVariable, x = x, p = 0.05))
+      binning_by(.data = edaData, y = targetVariable, x = x, p = 0.05))
 
     # could also use tapply here
     for (i in 1:length(varname)) {
@@ -460,10 +476,9 @@ if (!is.null(targetVariable)) {
         next
       }
 
-      tab <- attr(result, "ivtable")
-      tab$Cutpoint <- gsub("<", "$<$", tab$Cutpoint)
-      tab$Cutpoint <- gsub(">", "$>$", tab$Cutpoint)
-      tab$Cutpoint
+      tab <- attr(result, "performance") %>% 
+        select(-CntCumPos, -CntCumNeg, -RateCumPos, -RateCumNeg) %>% 
+        mutate(Bin = sub("\\[", "{[}", Bin))
 
       kable(tab, booktabs = TRUE, 
             label = paste0("optimal", i), escape = FALSE) %>%
@@ -475,7 +490,7 @@ if (!is.null(targetVariable)) {
       cat("\\bloodp{", i, "}{",
         change_under(varname[i]), "}\n", sep = "")
 
-      cairo_pdf(paste("./figure/binns", i, ".pdf", sep = ""))
+      cairo_pdf(paste("./figure/binns", i, ".pdf", sep = ""), width = 7, height = 5)
       plot(result)
       dev.off()
     }

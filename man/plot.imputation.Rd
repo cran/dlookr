@@ -4,11 +4,14 @@
 \alias{plot.imputation}
 \title{Visualize Information for an "imputation" Object}
 \usage{
-\method{plot}{imputation}(x, ...)
+\method{plot}{imputation}(x, typographic = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "imputation", usually, a result of a call to imputate_na()
 or imputate_outlier().}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
 only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.}
@@ -26,16 +29,18 @@ carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 
 # Impute missing values -----------------------------
-# If the variable of interest is a numerical variable
+# If the variable of interest is a numerical variables
 income <- imputate_na(carseats, Income, US, method = "rpart")
 income
 summary(income)
+
 plot(income)
 
-# If the variable of interest is a categorical variable
+# If the variable of interest is a categorical variables
 urban <- imputate_na(carseats, Urban, US, method = "mice")
 urban
 summary(urban)
+
 plot(urban)
 
 # Impute outliers ----------------------------------
@@ -43,6 +48,7 @@ plot(urban)
 price <- imputate_outlier(carseats, Price, method = "capping")
 price
 summary(price)
+
 plot(price)
 }
 }

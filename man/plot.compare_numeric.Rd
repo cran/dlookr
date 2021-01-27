@@ -4,12 +4,16 @@
 \alias{plot.compare_numeric}
 \title{Visualize Information for an "compare_numeric" Object}
 \usage{
-\method{plot}{compare_numeric}(x, prompt = FALSE, ...)
+\method{plot}{compare_numeric}(x, prompt = FALSE, typographic = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "compare_numeric", usually, a result of a call to compare_numeric().}
 
-\item{prompt}{logical. The default value is FALSE. If there are multiple visualizations to be output, if this argument value is TRUE, a prompt is output each time.}
+\item{prompt}{logical. The default value is FALSE. If there are multiple visualizations to be output, 
+if this argument value is TRUE, a prompt is output each time.}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
 However, it does not support.}
@@ -23,6 +27,11 @@ carseats <- ISLR::Carseats
 carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 
+# Reduced variables
+library(dplyr)
+carseats <- carseats \%>\% 
+  select(CompPrice, Sales, Price)
+  
 # Compare the all numerical variables
 all_var <- compare_numeric(carseats)
 
@@ -42,7 +51,10 @@ plot(all_var)
 plot(two_var)
 
 # plot all pair of variables by prompt
-plot(all_var, prompt = TRUE)
+# plot(all_var, prompt = TRUE)
+
+# plot a pair of variables not focuses on typographic elements
+plot(two_var, typographic = FALSE)
 
 }
 \seealso{

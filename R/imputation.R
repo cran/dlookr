@@ -5,7 +5,7 @@
 #' statistical methods.
 #'
 #' @details
-#' imputate_na () creates an imputation class.
+#' imputate_na() creates an imputation class.
 #' The `imputation` class includes missing value position, imputed value,
 #' and method of missing value imputation, etc.
 #' The `imputation` class compares the imputed value with the original value
@@ -30,20 +30,20 @@
 #' \item var_type : the data type of predictor to replace missing value.
 #' \item method : method of missing value imputation.
 #' \itemize{
-#'   \item predictor is numerical variable
+#'   \item predictor is numerical variable.
 #'   \itemize{
-#'     \item "mean" : arithmetic mean
-#'     \item "median" : median
-#'     \item "mode" : mode
-#'     \item "knn" : K-nearest neighbors
-#'     \item "rpart" : Recursive Partitioning and Regression Trees
-#'     \item "mice" : Multivariate Imputation by Chained Equations
+#'     \item "mean" : arithmetic mean.
+#'     \item "median" : median.
+#'     \item "mode" : mode.
+#'     \item "knn" : K-nearest neighbors.
+#'     \item "rpart" : Recursive Partitioning and Regression Trees.
+#'     \item "mice" : Multivariate Imputation by Chained Equations.
 #'   }
-#'   \item predictor is categorical variable
+#'   \item predictor is categorical variable.
 #'   \itemize{
-#'     \item "mode" : mode
-#'     \item "rpart" : Recursive Partitioning and Regression Trees
-#'     \item "mice" : Multivariate Imputation by Chained Equations
+#'     \item "mode" : mode.
+#'     \item "rpart" : Recursive Partitioning and Regression Trees.
+#'     \item "mice" : Multivariate Imputation by Chained Equations.
 #'   }
 #' }
 #' \item na_pos : position of missing value in predictor.
@@ -88,13 +88,15 @@
 #' income <- imputate_na(carseats, Income, US, method = "rpart")
 #' income
 #' summary(income)
-#' plot(income)
+#' 
+#' # plot(income)
 #'
 #' # If the variable of interest is a categorical variable
 #' urban <- imputate_na(carseats, Urban, US, method = "mice")
 #' urban
 #' summary(urban)
-#' plot(urban)
+#' 
+#' # plot(urban)
 #' }
 #' @export
 #'
@@ -105,7 +107,6 @@ imputate_na <- function(.data, xvar, yvar, method, seed, print_flag, no_attrs) {
 #' @method imputate_na data.frame
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang enquo
-#' @import mice
 #' @export
 imputate_na.data.frame <- function(.data, xvar, yvar = NULL,
   method = c("mean", "median", "mode", "rpart", "knn", "mice"), seed = NULL,
@@ -130,9 +131,6 @@ imputate_na.data.frame <- function(.data, xvar, yvar = NULL,
 
 #' @import tibble
 #' @import dplyr
-#' @importFrom mice mice
-#' @importFrom DMwR knnImputation
-#' @importFrom rpart rpart
 #' @importFrom stats predict
 #' @importFrom methods is
 imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL, 
@@ -198,7 +196,13 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
       return(rep(NA, length(data)))
     }
     
-    impute <- knnImputation(df[, complete_order])
+    if (requireNamespace("DMwR", quietly = TRUE)) {
+      impute <- DMwR::knnImputation(df[, complete_order])
+    } else {
+      stop("Package 'DMwR' needed for this function to work. Please install it.", 
+           call. = FALSE)
+    }
+  
     pred <- impute[, x]
 
     ifelse(is.na(data), pred, data)
@@ -220,9 +224,14 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
       return(rep(NA, length(data)))
     }
     
-    model <- rpart::rpart(sprintf("%s ~ .", x),
-      data = df[!is.na(pull(df, x)), setdiff(intersect(names(df), complete_flag), y)],
-      method = method, na.action = na.omit)
+    if (requireNamespace("rpart", quietly = TRUE)) {
+      model <- rpart::rpart(sprintf("%s ~ .", x),
+                            data = df[!is.na(pull(df, x)), setdiff(intersect(names(df), complete_flag), y)],
+                            method = method, na.action = na.omit)
+    } else {
+      stop("Package 'rpart' needed for this function to work. Please install it.", 
+           call. = FALSE)
+    }
 
     pred <- predict(model, df[is.na(pull(df, x)), !names(df) %in% y],
       type = pred_type)
@@ -233,7 +242,7 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
 
   get_mice <- function(x, y, seed = NULL, print_flag = TRUE) {
     if (is.null(seed))
-      seed <- sample(seq(1e5), size = 1)
+      seed <<- sample(seq(1e5), size = 1)
 
     if (!na_flag) {
       data <- pull(df, x)
@@ -350,10 +359,10 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
 #' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 #' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 #'
-#' # Replace the outliers of the Price variable with median
+#' # Replace the outliers of the Price variable with median.
 #' imputate_outlier(carseats, Price, method = "median")
 #'
-#' # Replace the outliers of the Price variable with capping
+#' # Replace the outliers of the Price variable with capping.
 #' imputate_outlier(carseats, Price, method = "capping")
 #'
 #' ## using dplyr -------------------------------------
@@ -366,11 +375,12 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
 #'   summarise(orig = mean(Price, na.rm = TRUE),
 #'     imputation = mean(Price_imp, na.rm = TRUE))
 #'
-#' # If the variable of interest is a numerical variable
+#' # If the variable of interest is a numerical variables
 #' price <- imputate_outlier(carseats, Price)
 #' price
 #' summary(price)
-#' plot(price)
+#' 
+#' # plot(price)
 #' @export
 imputate_outlier <- function(.data, xvar, method, no_attrs) {
   UseMethod("imputate_outlier")
@@ -394,8 +404,8 @@ imputate_outlier.data.frame <- function(.data, xvar,
 }
 
 #' @import dplyr
-#' @importFrom grDevices boxplot.stats
 #' @importFrom methods is
+#' @importFrom grDevices boxplot.stats
 imputate_outlier_impl <- function(df, xvar, method, no_attrs = FALSE) {
   if (!is(pull(df, xvar))[1] %in% c("integer", "numeric")) {
     stop(sprintf("Categorical variable(%s) not support imputate_outlier()",
@@ -479,7 +489,7 @@ imputate_outlier_impl <- function(df, xvar, method, no_attrs = FALSE) {
 #' imputate_outlier().
 #' @param ... further arguments passed to or from other methods.
 #' @details
-#' summary.imputation tries to be smart about formatting two kinds of imputation.
+#' summary.imputation() tries to be smart about formatting two kinds of imputation.
 #'
 #' @seealso \code{\link{imputate_na}}, \code{\link{imputate_outlier}}, \code{\link{summary.imputation}}.
 #' @examples
@@ -490,24 +500,26 @@ imputate_outlier_impl <- function(df, xvar, method, no_attrs = FALSE) {
 #' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 #'
 #' # Impute missing values -----------------------------
-#' # If the variable of interest is a numerical variable
+#' # If the variable of interest is a numerical variables
 #' income <- imputate_na(carseats, Income, US, method = "rpart")
 #' income
 #' summary(income)
 #' plot(income)
 #'
-#' # If the variable of interest is a categorical variable
+#' # If the variable of interest is a categorical variables
 #' urban <- imputate_na(carseats, Urban, US, method = "mice")
 #' urban
 #' summary(urban)
-#' plot(urban)
+#' 
+#' # plot(urban)
 #'
 #' # Impute outliers ----------------------------------
 #' # If the variable of interest is a numerical variable
 #' price <- imputate_outlier(carseats, Price, method = "capping")
 #' price
 #' summary(price)
-#' plot(price)
+#' 
+#' # plot(price)
 #' }
 #' @method summary imputation
 #' @importFrom tidyr gather
@@ -602,6 +614,8 @@ summary.imputation <- function(object, ...) {
 #'
 #' @param x an object of class "imputation", usually, a result of a call to imputate_na()
 #' or imputate_outlier().
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.
 #' @seealso \code{\link{imputate_na}}, \code{\link{imputate_outlier}}, \code{\link{summary.imputation}}.
@@ -613,16 +627,18 @@ summary.imputation <- function(object, ...) {
 #' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 #'
 #' # Impute missing values -----------------------------
-#' # If the variable of interest is a numerical variable
+#' # If the variable of interest is a numerical variables
 #' income <- imputate_na(carseats, Income, US, method = "rpart")
 #' income
 #' summary(income)
+#' 
 #' plot(income)
 #'
-#' # If the variable of interest is a categorical variable
+#' # If the variable of interest is a categorical variables
 #' urban <- imputate_na(carseats, Urban, US, method = "mice")
 #' urban
 #' summary(urban)
+#' 
 #' plot(urban)
 #'
 #' # Impute outliers ----------------------------------
@@ -630,48 +646,74 @@ summary.imputation <- function(object, ...) {
 #' price <- imputate_outlier(carseats, Price, method = "capping")
 #' price
 #' summary(price)
+#' 
 #' plot(price)
 #' }
 #' @method plot imputation
 #' @import ggplot2
+#' @import hrbrthemes
 #' @importFrom tidyr gather
 #' @export
-plot.imputation <- function(x, ...) {
+plot.imputation <- function(x, typographic = TRUE, ...) {
   type <- attr(x, "type")
   var_type <- attr(x, "var_type")
   method <- attr(x, "method")
-
+  
   original <- x
-
+  
   if (type == "missing values") {
     na_pos <- attr(x, "na_pos")
     seed <- attr(x, "seed")
-
+    
     original[na_pos] <- NA
   } else if (type == "outliers") {
     outlier_pos <- attr(x, "outlier_pos")
     outliers <- attr(x, "outliers")
-
+    
     original[outlier_pos] <- outliers
   }
-
+  
   if (method == "mice") {
     method <- sprintf("%s (seed = %s)", method, seed)
   }
-
+  
   if (var_type == "numerical") {
-    suppressWarnings({data.frame(original = original, imputation = x) %>%
-        tidyr::gather() %>%
-        ggplot(aes(x = value, color = key)) +
-        geom_density(na.rm = TRUE) +
-        ggtitle(sprintf("imputation method : %s", method)) +
-        theme(plot.title = element_text(hjust = 0.5))})
+    suppressWarnings({p <- data.frame(original = original, imputation = x) %>%
+      tidyr::gather() %>%
+      ggplot(aes(x = value, color = key)) +
+      geom_density(na.rm = TRUE) +
+      labs(title = sprintf("imputation method : %s", method))})
+    
+    if (typographic) {
+      p <- p +
+        theme_typographic() +
+        scale_color_ipsum() +
+        theme(
+          axis.title.x = element_text(size = 13),
+          axis.title.y = element_text(size = 13)
+        )
+    }
+    
+    suppressWarnings(p)
   } else if (var_type == "categorical") {
-    suppressWarnings({data.frame(original = original, imputation = x) %>%
-        tidyr::gather() %>%
-        ggplot(aes(x = value, fill = key)) +
-        geom_bar(position = "dodge") +
-        ggtitle(sprintf("imputation method : %s", method)) +
-        theme(plot.title = element_text(hjust = 0.5))})
+    suppressWarnings({p <- data.frame(original = original, imputation = x) %>%
+      tidyr::gather() %>%
+      ggplot(aes(x = value, fill = key)) +
+      geom_bar(position = "dodge") +
+      labs(title = sprintf("imputation method : %s", method),
+            x = "level", y = "frequency")})
+    
+    if (typographic) {
+      p <- p +
+        theme_typographic() +
+        scale_fill_ipsum() +
+        theme(
+          axis.title.x = element_text(size = 13),
+          axis.title.y = element_text(size = 13)
+        )  
+    }
+    
+    suppressWarnings(p)
   }
 }
+

@@ -73,6 +73,9 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 
 library(dplyr)
 
+carseats <- carseats \%>\% 
+  select(CompPrice, Sales, Price)
+
 # Compare the all numerical variables
 all_var <- compare_numeric(carseats)
 
@@ -99,7 +102,7 @@ all_var \%>\%
 # Compare the two numerical variables
 two_var <- compare_numeric(carseats, Price, CompPrice)
 
-# Print compare_numeric class object
+# Print compare_numeric class objects
 two_var
   
 # Summary the all case : Return a invisible copy of an object.
@@ -116,15 +119,18 @@ summary(all_var, thres_rs = 0.05)
 
 # verbose is FALSE 
 summary(all_var, verbose = FALSE)
-
+  
 # plot all pair of variables
-plot(all_var)
+# plot(all_var)
 
 # plot a pair of variables
-plot(two_var)
+# plot(two_var)
 
 # plot all pair of variables by prompt
-plot(all_var, prompt = TRUE)
+# plot(all_var, prompt = TRUE)
+
+# plot a pair of variables not focuses on typographic elements
+# plot(two_var, typographic = FALSE)
 
 }
 \seealso{

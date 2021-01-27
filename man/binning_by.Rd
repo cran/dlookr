@@ -4,19 +4,16 @@
 \alias{binning_by}
 \title{Optimal Binning for Scoring Modeling}
 \usage{
-binning_by(df, y, x, p = 0.05, ordered = TRUE, labels = NULL)
+binning_by(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL)
 }
 \arguments{
-\item{df}{a data frame.}
+\item{.data}{a data frame.}
 
 \item{y}{character. name of binary response variable(0, 1). 
 The variable must contain only the integers 0 and 1 as element. 
-However, in the case of factor having two levels, it is performed while type conversion is performed in the calculation process.
-It does not support that the variable name is "default" 
-and that the dot is included in the variable name.}
+However, in the case of factor having two levels, it is performed while type conversion is performed in the calculation process.}
 
-\item{x}{character. name of continuous characteristic variable. At least 5 different values.
-Inf is not allowed. It does not support that the variable name that the dot is included in the variable name.}
+\item{x}{character. name of continuous characteristic variable. At least 5 different values. and Inf is not allowed.}
 
 \item{p}{numeric. percentage of records per bin. Default 5\% (0.05).
 This parameter only accepts values greater that 0.00 (0\%) and lower than 0.50 (50\%).}
@@ -34,9 +31,9 @@ Attributes of "optimal_bins" class is as follows.
 \item breaks : numeric. the number of intervals into which x is to be cut.
 \item levels : character. levels of binned value.
 \item raw : numeric. raw data, x argument value.
-\item ivtable : data.frame. information value table
-\item iv : numeric. information value
-\item target : integer. binary response variable
+\item ivtable : data.frame. information value table.
+\item iv : numeric. information value.
+\item target : integer. binary response variable.
 }
 }
 \description{
@@ -68,18 +65,39 @@ See vignette("transformation") for an introduction to these concepts.
 
 \examples{
 # Generate data for the example
+library(dplyr)
+
 carseats <- ISLR::Carseats
 carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
 carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 
-# optimal binning
+# optimal binning using character
 bin <- binning_by(carseats, "US", "Advertising")
+
+# optimal binning using name
+bin <- binning_by(carseats, US, Advertising)
 bin
+
+# performance table
+attr(bin, "performance")
+
 # summary optimal_bins class
 summary(bin)
-# visualize optimal_bins class
-plot(bin, sub = "bins of Advertising variable")
+
+# visualize all information for optimal_bins class
+# plot(bin)
+
+# visualize WoE information for optimal_bins class
+# plot(bin, type = "WoE")
+
+# visualize all information without typographic
+# plot(bin, typographic = FALSE)
+
+# extract binned results
+# extract(bin) \%>\% 
+#   head(20)
+
 }
 \seealso{
-\code{\link{binning}}, \code{\link{smbinning}}.
+\code{\link{binning}}, \code{\link{plot.optimal_bins}}.
 }

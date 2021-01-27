@@ -4,10 +4,13 @@
 \alias{plot.bins}
 \title{Visualize Distribution for a "bins" object}
 \usage{
-\method{plot}{bins}(x, ...)
+\method{plot}{bins}(x, typographic = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "bins", usually, a result of a call to binning().}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).}
 }
@@ -25,15 +28,20 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 # Binning the carat variable. default type argument is "quantile"
 bin <- binning(carseats$Income, nbins = 5)
 plot(bin)
-# Using another type argument
+
+# Using another type arguments
 bin <- binning(carseats$Income, nbins = 5, type = "equal")
 plot(bin)
-bin <- binning(carseats$Income, nbins = 5, type = "pretty")
-plot(bin)
-bin <- binning(carseats$Income, nbins = 5, type = "kmeans")
-plot(bin)
+
+#bin <- binning(carseats$Income, nbins = 5, type = "pretty")
+#plot(bin)
+
+#bin <- binning(carseats$Income, nbins = 5, type = "kmeans")
+#plot(bin)
+
 bin <- binning(carseats$Income, nbins = 5, type = "bclust")
 plot(bin)
+
 }
 \seealso{
 \code{\link{binning}}, \code{\link{print.bins}}, \code{\link{summary.bins}}.

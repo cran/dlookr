@@ -31,6 +31,8 @@
 #'       \item "1/x" : 1 / x transformation
 #'       \item "x^2" : x square transformation
 #'       \item "x^3" : x^3 square transformation
+#'       \item "Box-Cox" : Box-Box transformation
+#'       \item "Yeo-Johnson" : Yeo-Johnson transformation
 #'     }
 #'   }
 #' }
@@ -51,20 +53,25 @@
 #' advertising_log <- transform(carseats$Advertising, method = "log")
 #' advertising_log
 #' summary(advertising_log)
-#' plot(advertising_log)
+#' 
+#' # plot(advertising_log)
 #'
+#' # plot(advertising_log, typographic = FALSE)
+#' 
 #' # Using dplyr ----------------------------------
 #' library(dplyr)
 #'
 #' carseats %>%
 #'   mutate(Advertising_log = transform(Advertising, method = "log+1")) %>%
 #'   lm(Sales ~ Advertising_log, data = .)
+#'   
 #' @export
 #' @import tibble
-#' @importFrom methods is
 #' @importFrom stats sd
+#' @importFrom methods is
+#'  
 transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
-  "1/x", "x^2", "x^3")) {
+  "1/x", "x^2", "x^3", "Box-Cox", "Yeo-Johnson")) {
   method <- match.arg(method)
 
   if (!is(x)[1] %in% c("integer", "numeric")) {
@@ -78,6 +85,19 @@ transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
   get_minmax <- function(x) {
     (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
   }
+  
+  get_boxcox <- function(x) {
+    forecast::BoxCox(x, lambda = "auto")
+  }  
+  
+  get_yjohnson <- function(x) {
+    lambda <- forecast::BoxCox.lambda(x)
+    lambda <- rep(lambda, length(x))
+    
+    ifelse(x >= 0, ifelse(lambda != 0, ((x + 1) ^ lambda - 1) / lambda, log(x + 1)),
+                   ifelse(lambda != 2, -((-1 * x + 1) ^ (2 - lambda) - 1) / (2 - lambda),
+                          -1 * log(x + 1)))
+  }    
 
   if (method == "zscore")
     result <- get_zscore(x)
@@ -95,7 +115,17 @@ transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
     result <- x^2
   else if (method == "x^3")
     result <- x^3
-
+  else if (method == "Box-Cox") 
+    result <- get_boxcox(x)
+  else if (method == "Yeo-Johnson")  {
+    if (!requireNamespace("forecast", quietly = TRUE)) {
+      stop("Package \"forecast\" needed for this function to work. Please install it.",
+           call. = FALSE)
+    }
+    
+    result <- get_yjohnson(x)
+  }
+    
   attr(result, "method") <- method
   attr(result, "origin") <- x
 
@@ -123,13 +153,18 @@ transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
 #' advertising_minmax <- transform(carseats$Advertising, method = "minmax")
 #' advertising_minmax
 #' summary(advertising_minmax)
-#' plot(advertising_minmax)
+#' 
+#' # plot(advertising_minmax)
 #'
 #' # Resolving Skewness  --------------------------
 #' advertising_log <- transform(carseats$Advertising, method = "log")
 #' advertising_log
 #' summary(advertising_log)
-#' plot(advertising_log)
+#' 
+#' # plot(advertising_log)
+#' 
+#' # plot(advertising_log, typographic = FALSE)
+#' 
 #' @method summary transform
 #' @importFrom tidyr gather
 #' @export
@@ -151,7 +186,8 @@ summary.transform <- function(object, ...) {
 
   if (method %in% c("zscore", "minmax")) {
     cat(sprintf("* Standardization with %s\n\n", method))
-  } else if (method %in% c("log", "log+1", "sqrt", "1/x", "x^2", "x^3")) {
+  } else if (method %in% c("log", "log+1", "sqrt", "1/x", "x^2", "x^3", 
+                           "Box-Cox", "Yeo-Johnson")) {
     cat(sprintf("* Resolving Skewness with %s\n\n", method))
   }
 
@@ -169,6 +205,8 @@ summary.transform <- function(object, ...) {
 #' The transformation of a numerical variable is a density plot.
 #'
 #' @param x an object of class "transform", usually, a result of a call to transform().
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' @seealso \code{\link{transform}}, \code{\link{summary.transform}}.
 #' @examples
@@ -181,19 +219,24 @@ summary.transform <- function(object, ...) {
 #' advertising_minmax <- transform(carseats$Advertising, method = "minmax")
 #' advertising_minmax
 #' summary(advertising_minmax)
+#' 
 #' plot(advertising_minmax)
 #'
 #' # Resolving Skewness  --------------------------
 #' advertising_log <- transform(carseats$Advertising, method = "log")
 #' advertising_log
 #' summary(advertising_log)
+#' 
 #' plot(advertising_log)
+#' 
+#' plot(advertising_log, typographic = FALSE)
 #' @method plot transform
 #' @import ggplot2
+#' @import hrbrthemes
 #' @importFrom tidyr gather
 #' @importFrom gridExtra grid.arrange
 #' @export
-plot.transform <- function(x, ...) {
+plot.transform <- function(x, typographic = TRUE, ...) {
   origin <- attr(x, "origin")
   method <- attr(x, "method")
 
@@ -204,18 +247,29 @@ plot.transform <- function(x, ...) {
   fig1 <- df %>%
     filter(key == "original") %>%
     ggplot(aes(x = value)) +
-    geom_density(na.rm = TRUE) +
+    geom_density(fill = "#69b3a2", color = "black", alpha = 0.7, na.rm = TRUE) +
     ggtitle("Original Data") +
     theme(plot.title = element_text(hjust = 0.5))
 
   fig2 <- df %>%
     filter(key == "transformation") %>%
     ggplot(aes(x = value)) +
-    geom_density(na.rm = TRUE) +
-    ggtitle(sprintf("Transformation Data with '%s'", method))+
+    geom_density(fill = "#69b3a2", color = "black", alpha = 0.7, na.rm = TRUE) +
+    ggtitle(sprintf("Transformation with '%s'", method))+
     theme(plot.title = element_text(hjust = 0.5))
 
-  gridExtra::grid.arrange(fig1, fig2, ncol = 2)
+  if (typographic) {
+    fig1 <- fig1 +
+      theme_typographic() +
+      theme(axis.title.x = element_text(size = 13),
+            axis.title.y = element_text(size = 13))
+    
+    fig2 <- fig2 +
+      theme_typographic() +
+      theme(axis.title.x = element_text(size = 13),
+            axis.title.y = element_text(size = 13))
+  }  
+  suppressWarnings(gridExtra::grid.arrange(fig1, fig2, ncol = 2))
 }
 
 
@@ -282,7 +336,7 @@ plot.transform <- function(x, ...) {
 #' @param browse logical. choose whether to output the report results to the browser.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Generate data for the example
 #' carseats <- ISLR::Carseats
 #' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
@@ -291,12 +345,16 @@ plot.transform <- function(x, ...) {
 #' # reporting the Binning information -------------------------
 #' # create pdf file. file name is Transformation_Report.pdf & No target variable
 #' transformation_report(carseats)
+#' 
 #' # create pdf file. file name is Transformation_Report.pdf
 #' transformation_report(carseats, US)
+#' 
 #' # create pdf file. file name is Transformation_carseats.pdf
 #' transformation_report(carseats, "US", output_file = "Transformation_carseats.pdf")
+#' 
 #' # create html file. file name is Transformation_Report.html
 #' transformation_report(carseats, "US", output_format = "html")
+#' 
 #' # create html file. file name is Transformation_carseats
 #' transformation_report(carseats, US, output_format = "html", 
 #'                       output_file = "Transformation_carseats.html")
@@ -306,7 +364,6 @@ plot.transform <- function(x, ...) {
 #' @importFrom rmarkdown render
 #' @importFrom grDevices cairo_pdf
 #' @importFrom gridExtra grid.arrange
-#' @importFrom xtable xtable
 #' @importFrom knitr kable
 #' @importFrom prettydoc html_pretty
 #' @importFrom kableExtra kable_styling
@@ -315,7 +372,7 @@ plot.transform <- function(x, ...) {
 #' @export
 transformation_report <- function(.data, target = NULL, output_format = c("pdf", "html"),
   output_file = NULL, output_dir = tempdir(), font_family = NULL, browse = TRUE) {
-  tryCatch(vars <- tidyselect::vars_select(names(.data), !!! rlang::enquo(target)),
+  tryCatch(vars <- tidyselect::vars_select(names(.data), !! rlang::enquo(target)),
     error = function(e) {
       pram <- as.character(substitute(target))
       stop(sprintf("Column %s is unknown", pram))

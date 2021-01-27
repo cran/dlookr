@@ -32,20 +32,20 @@ Attributes of imputation class is as follows.
 \item var_type : the data type of predictor to replace missing value.
 \item method : method of missing value imputation.
 \itemize{
-  \item predictor is numerical variable
+  \item predictor is numerical variable.
   \itemize{
-    \item "mean" : arithmetic mean
-    \item "median" : median
-    \item "mode" : mode
-    \item "knn" : K-nearest neighbors
-    \item "rpart" : Recursive Partitioning and Regression Trees
-    \item "mice" : Multivariate Imputation by Chained Equations
+    \item "mean" : arithmetic mean.
+    \item "median" : median.
+    \item "mode" : mode.
+    \item "knn" : K-nearest neighbors.
+    \item "rpart" : Recursive Partitioning and Regression Trees.
+    \item "mice" : Multivariate Imputation by Chained Equations.
   }
-  \item predictor is categorical variable
+  \item predictor is categorical variable.
   \itemize{
-    \item "mode" : mode
-    \item "rpart" : Recursive Partitioning and Regression Trees
-    \item "mice" : Multivariate Imputation by Chained Equations
+    \item "mode" : mode.
+    \item "rpart" : Recursive Partitioning and Regression Trees.
+    \item "mice" : Multivariate Imputation by Chained Equations.
   }
 }
 \item na_pos : position of missing value in predictor.
@@ -60,7 +60,7 @@ Missing values are imputed with some representative values and
 statistical methods.
 }
 \details{
-imputate_na () creates an imputation class.
+imputate_na() creates an imputation class.
 The `imputation` class includes missing value position, imputed value,
 and method of missing value imputation, etc.
 The `imputation` class compares the imputed value with the original value
@@ -103,13 +103,15 @@ carseats \%>\%
 income <- imputate_na(carseats, Income, US, method = "rpart")
 income
 summary(income)
-plot(income)
+
+# plot(income)
 
 # If the variable of interest is a categorical variable
 urban <- imputate_na(carseats, Urban, US, method = "mice")
 urban
 summary(urban)
-plot(urban)
+
+# plot(urban)
 }
 }
 \seealso{

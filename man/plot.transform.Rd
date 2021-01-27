@@ -4,10 +4,13 @@
 \alias{plot.transform}
 \title{Visualize Information for an "transform" Object}
 \usage{
-\method{plot}{transform}(x, ...)
+\method{plot}{transform}(x, typographic = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "transform", usually, a result of a call to transform().}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).}
 }
@@ -25,13 +28,17 @@ carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
 advertising_minmax <- transform(carseats$Advertising, method = "minmax")
 advertising_minmax
 summary(advertising_minmax)
+
 plot(advertising_minmax)
 
 # Resolving Skewness  --------------------------
 advertising_log <- transform(carseats$Advertising, method = "log")
 advertising_log
 summary(advertising_log)
+
 plot(advertising_log)
+
+plot(advertising_log, typographic = FALSE)
 }
 \seealso{
 \code{\link{transform}}, \code{\link{summary.transform}}.

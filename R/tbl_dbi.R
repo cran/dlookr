@@ -598,6 +598,8 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
 #' @param collect_size a integer. The number of data samples from the DBMS to R. 
 #' Applies only if in_database = FALSE.
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' 
 #' @seealso \code{\link{plot_outlier.data.frame}}, \code{\link{diagnose_outlier.tbl_dbi}}.
 #' @export
@@ -617,43 +619,49 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' 
 #' # Using pipes ---------------------------------
 #' # Visualization of all numerical variables
-#' con_sqlite %>% 
-#'   tbl("TB_CARSEATS") %>% 
-#'   plot_outlier()
+#' # con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier()
 #'   
 #' # Positive values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_CARSEATS") %>% 
-#'   plot_outlier(Sales, Price)
+#'  con_sqlite %>% 
+#'    tbl("TB_CARSEATS") %>% 
+#'    plot_outlier(Sales, Price)
 #'   
 #' # Negative values to drop variables, and In-memory mode and collect size is 200
-#' con_sqlite %>% 
-#'   tbl("TB_CARSEATS") %>% 
-#'   plot_outlier(-Sales, -Price, collect_size = 200)
+#' # con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier(-Sales, -Price, collect_size = 200)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_CARSEATS") %>% 
-#'   plot_outlier(6)
+#' # con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier(6)
 #'   
 #' # Positions values select variables
-#' carseats %>%
-#'   plot_outlier(-1, -5)
+#' # con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier(-1, -5)
+#'   
+#' # Not allow the typographic elements
+#' #  con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier(-1, -5, typographic = FALSE)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Visualization of numerical variables with a ratio of
 #' # outliers greater than 1%
-#' con_sqlite %>% 
-#'   tbl("TB_CARSEATS") %>% 
-#'   plot_outlier(con_sqlite %>% 
-#'                  tbl("TB_CARSEATS") %>% 
-#'                  diagnose_outlier() %>%
-#'                  filter(outliers_ratio > 1) %>%
-#'                  select(variables) %>%
-#'                  pull())
+#' # con_sqlite %>% 
+#' #   tbl("TB_CARSEATS") %>% 
+#' #   plot_outlier(con_sqlite %>% 
+#' #                  tbl("TB_CARSEATS") %>% 
+#' #                  diagnose_outlier() %>%
+#' #                  filter(outliers_ratio > 1) %>%
+#' #                  select(variables) %>%
+#' #                 pull())
 #'       
-plot_outlier.tbl_dbi <- function(.data, ..., col = "lightblue", 
-  in_database = FALSE, collect_size = Inf) {
+plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue", 
+  in_database = FALSE, collect_size = Inf, typographic = TRUE) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   if (in_database) {
@@ -661,7 +669,7 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "lightblue",
   } else {
     .data %>% 
       dplyr::collect(n = collect_size) %>%
-      plot_outlier_impl(vars, col)
+      plot_outlier_impl(vars, col, typographic)
   }
 }
 
@@ -806,6 +814,19 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' Since the plot is drawn for each variable, if you specify more than
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
+#' The argument values that left and right can have are as follows.:
+#' 
+#' \itemize{
+#'   \item "log" : log transformation. log(x)
+#'   \item "log+1" : log transformation. log(x + 1). Used for values that contain 0.
+#'   \item "sqrt" : square root transformation.
+#'   \item "1/x" : 1 / x transformation
+#'   \item "x^2" : x square transformation
+#'   \item "x^3" : x^3 square transformation
+#'   \item "Box-Cox" : Box-Box transformation
+#'   \item "Yeo-Johnson" : Yeo-Johnson transformation
+#' }
+#'
 #' @section Distribution information:
 #' The plot derived from the numerical data visualization is as follows.
 #'
@@ -825,14 +846,20 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' These arguments are automatically quoted and evaluated in a context where column names
 #' represent column positions.
 #' They support unquoting and splicing.
+#' 
+#' See vignette("EDA") for an introduction to these concepts.
 #' @param in_database Specifies whether to perform in-database operations. 
 #' If TRUE, most operations are performed in the DBMS. if FALSE, 
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
 #' @param collect_size a integer. The number of data samples from the DBMS to R. 
 #' Applies only if in_database = FALSE.
+#' @param left character. Specifies the data transformation method to draw the histogram in the 
+#' lower left corner. The default is "log".
+#' @param right character. Specifies the data transformation method to draw the histogram in the 
+#' lower right corner. The default is "sqrt".
+#' @param col a color to be used to fill the bars. The default is "steelblue".
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' 
-#' See vignette("EDA") for an introduction to these concepts.
-#'
 #' @seealso \code{\link{plot_normality.data.frame}}, \code{\link{plot_outlier.tbl_dbi}}.
 #' @export
 #' @examples
@@ -866,12 +893,23 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #'   tbl("TB_CARSEATS") %>% 
 #'   plot_normality(1)
 #'
+#' # Not allow the typographic elements
+#' con_sqlite %>% 
+#'   tbl("TB_CARSEATS") %>% 
+#'   plot_normality(1, typographic = FALSE)
+#'   
 #' # Using pipes & dplyr -------------------------
 #' # Plot 'Sales' variable by 'ShelveLoc' and 'US'
 #' con_sqlite %>% 
 #'   tbl("TB_CARSEATS") %>% 
 #'   group_by(ShelveLoc, US) %>%
 #'   plot_normality(Sales)
+#'
+#' # Plot using left and right arguments
+#' con_sqlite %>% 
+#'   tbl("TB_CARSEATS") %>% 
+#'   group_by(ShelveLoc, US) %>%
+#'   plot_normality(Sales, left = "Box-Cox", right = "log")
 #'
 #' # extract only those with 'ShelveLoc' variable level is "Good",
 #' # and plot 'Income' by 'US'
@@ -882,8 +920,16 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #'   plot_normality(Income)
 #' }
 #' 
-plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf) {
+plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf, 
+                                   left = c("log", "sqrt", "log+1", "1/x", "x^2", 
+                                            "x^3", "Box-Cox", "Yeo-Johnson"),
+                                   right = c("sqrt", "log", "log+1", "1/x", "x^2", 
+                                             "x^3", "Box-Cox", "Yeo-Johnson"),
+                                   col = "steelblue", typographic = TRUE) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
+  
+  left <- match.arg(left)
+  right <- match.arg(right)
   
   if (in_database) {
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
@@ -891,11 +937,11 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
     if (class(.data$ops)[1] != "op_group_by") {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_normality_impl(vars)
+        plot_normality_impl(vars, left, right, col, typographic)
     } else {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_normality_group_impl(vars)
+        plot_normality_group_impl(vars, left, right, col, typographic)
     }
   }
 }
@@ -1312,7 +1358,7 @@ describe.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf
 #' # If the target variable is a categorical variable
 #' categ <- target_by(con_sqlite %>% tbl("TB_CARSEATS") , US)
 #'
-#' # If the variable of interest is a numarical variable
+#' # If the variable of interest is a numerical variable
 #' cat_num <- relate(categ, Sales)
 #' cat_num
 #' summary(cat_num)
@@ -1329,7 +1375,7 @@ describe.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf
 #' # and In-memory mode and collect size is 350
 #' num <- target_by(con_sqlite %>% tbl("TB_CARSEATS"), Sales, collect_size = 350)
 #'
-#' # If the variable of interest is a numarical column
+#' # If the variable of interest is a numerical column
 #' num_num <- relate(num, Price)
 #' num_num
 #' summary(num_num)
