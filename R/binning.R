@@ -40,7 +40,8 @@
 #' \item levels : levels of binned value.
 #' \item raw : raw data, numeric vector corresponding to x argument.
 #' }
-#' @seealso \code{\link{binning_by}}, \code{\link{print.bins}}, \code{\link{summary.bins}}.
+#' @seealso \code{\link{binning_by}}, \code{\link{print.bins}}, \code{\link{summary.bins}},
+#'  \code{\link{plot.bins}}.
 #' @export
 #' @examples
 #' # Generate data for the example
@@ -62,12 +63,12 @@
 #' # Using another type argument
 #' bin <- binning(carseats$Income, nbins = 5, type = "equal")
 #' bin
-#' bin <- binning(carseats$Income, nbins = 5, type = "pretty")
-#' bin
-#' bin <- binning(carseats$Income, nbins = 5, type = "kmeans")
-#' bin
-#' bin <- binning(carseats$Income, nbins = 5, type = "bclust")
-#' bin
+#' # bin <- binning(carseats$Income, nbins = 5, type = "pretty")
+#' # bin
+#' # bin <- binning(carseats$Income, nbins = 5, type = "kmeans")
+#' # bin
+#' # bin <- binning(carseats$Income, nbins = 5, type = "bclust")
+#' # bin
 #' 
 #' x <- sample(1:1000, size = 50) * 12345679
 #' bin <- binning(x)
@@ -83,6 +84,7 @@
 #' # -------------------------
 #' library(dplyr)
 #'
+#' # Compare binned frequency by ShelveLoc
 #' carseats %>%
 #'  mutate(Income_bin = binning(carseats$Income) %>% 
 #'                      extract()) %>%
@@ -90,6 +92,14 @@
 #'  summarise(freq = n()) %>%
 #'  arrange(desc(freq)) %>%
 #'  head(10)
+#'  
+#'  # Compare binned frequency by ShelveLoc using Viz
+#'  carseats %>%
+#'    mutate(Income_bin = binning(carseats$Income) %>% 
+#'            extract()) %>%
+#'    target_by(ShelveLoc) %>% 
+#'    relate(Income_bin) %>% 
+#'    plot()
 #'  
 #' @importFrom grDevices nclass.Sturges
 #' @importFrom stats na.omit quantile
@@ -101,52 +111,52 @@ binning <- function(x, nbins,
     stop("x is categorical value")
   if (!is.numeric(x))
     stop("x is not numeric value")
-
+  
   if (missing(nbins))
     nbins <- nclass.Sturges(x)
   if (nbins < 2)
     stop("nbins less than 2")
-
+  
   nuniq <- length(unique(x))
   if (nuniq == 1)
     stop("There is only one unique value of the x.")
-
+  
   type <- match.arg(type)
-
+  
   if (nbins > nuniq) {
     msg <- "nbins is greater than the number of unique values for x.
     So we assign 'nbins' the number of unique values of x."
     warning(msg)
-
+    
     nbins <- nuniq
   }
-
+  
   if (nbins == nuniq) {
     msg <- "The type argument is replaced by equal because nbins has the
     same number of unique values for x."
     warning(msg)
-
+    
     nbins <- nuniq
-
+    
     sorted <- sort(unique(x))
     interval <- diff(sorted)
-
+    
     breaks <- c(min(sorted) - interval[1] / 2,
-      sorted[1:(nbins - 1)] + interval / 2,
-      max(sorted) + interval[length(interval)] / 2)
-
+                sorted[1:(nbins - 1)] + interval / 2,
+                max(sorted) + interval[length(interval)] / 2)
+    
     type <- "equal"
   } else if (type == "quantile") {
     breaks <- quantile(x, probs = seq(0, 1, by = 1 / nbins),
-      na.rm = TRUE, type = 8)
+                       na.rm = TRUE, type = 8)
     breaks <- unique(breaks)
     breaks[1] <- min(x, na.rm = TRUE)
     breaks[length(breaks)] <- max(x, na.rm = TRUE)
-
+    
     names(breaks) <- NULL
   } else if (type == "equal") {
     breaks <- seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE),
-      length.out = (nbins + 1))
+                  length.out = (nbins + 1))
   } else if (type == "pretty") {
     breaks <- pretty(x = x, n = nbins)
   } else {
@@ -164,7 +174,7 @@ binning <- function(x, nbins,
     
     breaks <- ci$brks
   }
-
+  
   breaks <- unique(breaks)
   fct <- cut(x, breaks = breaks, labels = labels, include.lowest = TRUE)
   
@@ -175,7 +185,9 @@ binning <- function(x, nbins,
       sapply(c) %>% 
       as.numeric() %>% 
       unique()
+    
     pretty.lab[1] <- min(x, na.rm = TRUE)
+    pretty.lab[length(pretty.lab)] <- max(x, na.rm = TRUE)
     
     if (approxy.lab) {
       if (!all(pretty.lab == breaks)) {
@@ -193,17 +205,17 @@ binning <- function(x, nbins,
       }    
     } 
   }
-
+  
   if (ordered == TRUE)
     fct <- ordered(fct)
-
+  
   results <- fct
   attr(results, "type") <- type
   attr(results, "breaks") <- breaks
   attr(results, "levels") <- levels(fct)
   attr(results, "raw") <- x
   class(results) <- append("bins", class(results))
-
+  
   results
 }
 
@@ -250,8 +262,8 @@ binning <- function(x, nbins,
 summary.bins <- function(object, ...) {
   tab <- table(object, exclude = NULL)
   data.frame(levels = names(tab),
-    freq = as.numeric(tab),
-    rate = as.numeric(tab) / length(object))
+             freq = as.numeric(tab),
+             rate = as.numeric(tab) / length(object))
 }
 
 #' @param x an object of class "bins" and "optimal_bins",
@@ -263,7 +275,7 @@ summary.bins <- function(object, ...) {
 print.bins <- function(x, ...) {
   cat("binned type: ", attr(x, "type"), "\n", sep = "")
   cat("number of bins: ", length(levels(x)), "\n", sep = "")
-
+  
   print(table(x, exclude = NULL))
 }
 
@@ -495,7 +507,7 @@ binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
     stop("x must be number of unique values greater then 4.")
   
   ctree <- partykit::ctree(formula(paste(y, "~", x)), data = .data, na.action = na.exclude,
-                 control = partykit::ctree_control(minbucket = ceiling(round(p * nrow(.data)))))
+                           control = partykit::ctree_control(minbucket = ceiling(round(p * nrow(.data)))))
   
   bins <- width(ctree)
   if (bins < 2) {
@@ -713,7 +725,8 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         
         if (type %in% c("all")) {
           p_freq <- p_freq +
-            theme(plot.margin = margin(10, 10, 10, 10))
+            theme(legend.position = "none",
+                  plot.margin = margin(10, 10, 10, 10))
         } 
       }
     }
@@ -739,7 +752,8 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         
         if (type %in% c("all")) {
           p_badrate <- p_badrate +
-            theme(plot.margin = margin(10, 10, 10, 10))
+            theme(legend.position = "none",
+                  plot.margin = margin(10, 10, 10, 10))
         } 
       }
     }
@@ -764,12 +778,25 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         
         if (type %in% c("all")) {
           p_woe <- p_woe +
-            theme(plot.margin = margin(10, 10, 10, 10))
+            theme(legend.position = "none",
+                  plot.margin = margin(10, 10, 10, 10))
         }  
       }
     }
     
     if (type %in% c("all")) {
+      p_dist <- p_dist +
+        theme(plot.title = element_text(size = 15))
+      
+      p_freq <- p_freq +
+        theme(plot.title = element_text(size = 15))
+      
+      p_badrate <- p_badrate +
+        theme(plot.title = element_text(size = 15))
+      
+      p_woe <- p_woe +
+        theme(plot.title = element_text(size = 15))  
+      
       suppressWarnings(gridExtra::grid.arrange(p_dist, p_freq, p_badrate, p_woe, nrow = 2, ncol = 2)) 
     } else if (type %in% c("dist")) {
       suppressWarnings(p_dist)
@@ -964,7 +991,7 @@ performance_bin <- function (y, x, na.rm = FALSE) {
       filter(!is.na(Bin)) 
   }
   
-  tab_metric <- .data %>% 
+  suppressWarnings(tab_metric <- .data %>% 
     filter(!is.na(y)) %>% 
     mutate(Bin =  factor(Bin)) %>% 
     group_by(Bin) %>% 
@@ -984,7 +1011,7 @@ performance_bin <- function (y, x, na.rm = FALSE) {
                   CntPos = sum(ifelse(y == 1, 1, 0), na.rm = TRUE),
                   CntNeg = sum(ifelse(y == 0, 1, 0), na.rm = TRUE),
                   .groups = 'drop')
-    ) 
+    )) 
   
   tab_metric <- tab_metric %>% 
     mutate(RatePos = CntPos / (sum(CntPos) / 2),
@@ -1011,6 +1038,10 @@ performance_bin <- function (y, x, na.rm = FALSE) {
            AUC = ifelse(Bin %in% "Total", 0, AUC),
            AUC = ifelse(Bin %in% "Total", sum(AUC), AUC)) %>% 
     select(-REV) 
+  
+  # case when using old group_by() of dplyr
+  # dplyr package version is less than 0.8.0
+  tab_metric <- tab_metric[, !names(tab_metric) %in% ".groups"]
   
   # Information Value
   IV <- tab_metric %>% 
@@ -1274,14 +1305,14 @@ plot.performance_bin <- function(x, typographic = TRUE, ...) {
   
   if (!typographic) {
     suppressWarnings({p +
-      scale_fill_discrete(labels = c("Negative", "Positive"))}) 
+        scale_fill_discrete(labels = c("Negative", "Positive"))}) 
   } else {
     suppressWarnings({p +
-      theme_typographic() +
-      scale_fill_ipsum(labels = c("Negative", "Positive")) +
-      theme(
-        axis.title.y = element_text(size = 13),
-        axis.title.y.right = element_text(size = 13)
-      )})
+        theme_typographic() +
+        scale_fill_ipsum(labels = c("Negative", "Positive")) +
+        theme(
+          axis.title.y = element_text(size = 13),
+          axis.title.y.right = element_text(size = 13)
+        )})
   }
 }
