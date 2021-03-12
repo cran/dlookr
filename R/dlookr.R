@@ -100,7 +100,7 @@ if (getRversion() >= "2.15.1") {
       font_path <- get_ttf_paths()
       font_files <- list.files(font_path, pattern = "\\.ttf$", full.names = TRUE, 
                                recursive = TRUE, ignore.case = TRUE) 
-      grep(pattern, font_files, ignore.case = TRUE, value = TRUE)
+      grep(pattern, font_files, value = TRUE)
     }
     
     if (nrow(font_tab) > 0) {
@@ -139,9 +139,20 @@ if (getRversion() >= "2.15.1") {
     }
   }
   
-  load_fonts()
-  flag <- import_arial_narrow()
+  sucess <- TRUE
+  result <- try(load_fonts())
   
-  if (flag)
-    load_fonts()
+  if (class(result) == "try-error") {
+    sucess <- FALSE
+  }
+  
+  flag <- try(import_arial_narrow())
+  
+  if (class(flag) == "try-error") {
+    sucess <- FALSE
+  } else {
+    if (flag) {
+      try(load_fonts())
+    }    
+  }
 }
