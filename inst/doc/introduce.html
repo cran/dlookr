@@ -12,7 +12,7 @@
 
 <meta name="author" content="Choonghyun Ryu" />
 
-<meta name="date" content="2021-03-12" />
+<meta name="date" content="2021-03-19" />
 
 <title>Introduce dlookr</title>
 
@@ -238,7 +238,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduce dlookr</h1>
 <h4 class="author">Choonghyun Ryu</h4>
-<h4 class="date">2021-03-12</h4>
+<h4 class="date">2021-03-19</h4>
 
 
 
@@ -329,7 +329,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <tr class="even">
 <td align="left">diagnose data quality of numerical variables</td>
 <td align="left">descriptive statistics, number of zero, minus, outliers</td>
-<td align="left"><code>diagnose_category()</code></td>
+<td align="left"><code>diagnose_numeric()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="odd">
@@ -804,7 +804,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="center"></td>
 </tr>
 <tr class="odd">
-<td align="left">outliers</td>
+<td align="left">skewed variable</td>
 <td align="left">find the numerical variable that skewed variable that inherits the data.frame</td>
 <td align="left"><code>find_skewness()</code></td>
 <td align="center"></td>
@@ -929,6 +929,51 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="left"><code>plot.performance_bin()</code></td>
 <td align="center"></td>
 </tr>
+<tr class="even">
+<td align="left">visualize</td>
+<td align="left">extract bins from “bins” and “optimal_bins” objects</td>
+<td align="left"><code>extract.bins()</code></td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="diagnose-binned-variable" class="section level4">
+<h4>Diagnose Binned Variable</h4>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="38%" />
+<col width="19%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Types</th>
+<th align="left">Descriptions</th>
+<th align="left">Functions</th>
+<th align="center">Support DBI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">diagnosis</td>
+<td align="left">performs diagnose performance that calculates metrics to evaluate the performance of binned variable for binomial classification model.</td>
+<td align="left"><code>performance_bin()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">summaries</td>
+<td align="left">summary method for “performance_bin”. summary metrics to evaluate the performance of binomial classification model.</td>
+<td align="left"><code>summary.performance_bin()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">visualize</td>
+<td align="left">visualize for understand frequency, WoE by bins using performance_bin and something else.</td>
+<td align="left"><code>plot.performance_bin()</code></td>
+<td align="center"></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -959,13 +1004,13 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <tr class="even">
 <td align="left">summaries</td>
 <td align="left">compares the distribution of data before and after data transformation</td>
-<td align="left"><code>summary.bins()</code></td>
+<td align="left"><code>summary.transform()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">visualize</td>
 <td align="left">visualize two kinds of plot by attribute of ‘transform’ class. The transformation of a numerical variable is a density plot.</td>
-<td align="left"><code>plot.transform</code></td>
+<td align="left"><code>plot.transform()</code></td>
 <td align="center"></td>
 </tr>
 </tbody>
@@ -990,15 +1035,132 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">eporting the information of transformation into pdf file</td>
-<td align="left">reporting the information of transformation</td>
+<td align="left">reporting the information of transformation into pdf</td>
+<td align="left">reporting the information of transformation.</td>
 <td align="left"><code>transformation_report()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
-<td align="left">eporting the information of transformation into html file</td>
-<td align="left">eporting the information of transformation</td>
+<td align="left">reporting the information of transformation into html</td>
+<td align="left">reporting the information of transformation.</td>
 <td align="left"><code>transformation_report()</code></td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="miscellaneous" class="section level3">
+<h3>Miscellaneous</h3>
+<div id="statistics" class="section level4">
+<h4>Statistics</h4>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="38%" />
+<col width="19%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Types</th>
+<th align="left">Descriptions</th>
+<th align="left">Functions</th>
+<th align="center">Support DBI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">statistics</td>
+<td align="left">calculate the entropy.</td>
+<td align="left"><code>entropy()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">statistics</td>
+<td align="left">calculate the skewness of the data.</td>
+<td align="left"><code>skewness()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">statistics</td>
+<td align="left">calculate the kurtosis of the data.</td>
+<td align="left"><code>kurtosis()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">statistics</td>
+<td align="left">calculate the Jensen-Shannon divergence between two probability distributions.</td>
+<td align="left"><code>jsd()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">statistics</td>
+<td align="left">calculate the Kullback-Leibler divergence between two probability distributions.</td>
+<td align="left"><code>kld()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">statistics</td>
+<td align="left">finding percentile of numerical variable.</td>
+<td align="left"><code>get_percentile()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">statistics</td>
+<td align="left">transform a numeric vector using several methods like “log”, “sqrt”, “log+1”, “log+a”, “1/x”, “x^2”, “x^3”, “Box-Cox”, “Yeo-Johnson”</td>
+<td align="left"><code>get_transform()</code></td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="programming" class="section level4">
+<h4>Programming</h4>
+<table>
+<colgroup>
+<col width="19%" />
+<col width="38%" />
+<col width="19%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Types</th>
+<th align="left">Descriptions</th>
+<th align="left">Functions</th>
+<th align="center">Support DBI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">programming</td>
+<td align="left">extracts variable information having a certain class from an object inheriting data.frame.</td>
+<td align="left"><code>find_class()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">programming</td>
+<td align="left">gets class of variables in data.frame or tbl_df.</td>
+<td align="left"><code>get_class()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">programming</td>
+<td align="left">retrieves the column information of the DBMS table through the tbl_bdi object of dplyr.</td>
+<td align="left"><code>get_column_info()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">programming</td>
+<td align="left">finding Users Machine’s OS.</td>
+<td align="left"><code>get_os()</code></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">programming</td>
+<td align="left">import Liberation Sans Narrow fonts.</td>
+<td align="left"><code>import_liberation()</code></td>
 <td align="center"></td>
 </tr>
 </tbody>
