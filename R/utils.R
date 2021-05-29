@@ -20,7 +20,8 @@
 #' get_class(ggplot2::diamonds)
 #'
 #' library(dplyr)
-#' get_class(ggplot2::diamonds) %>%
+#' ggplot2::diamonds %>%
+#'   get_class() %>% 
 #'   filter(class %in% c("integer", "numeric"))
 #' }
 #' @export
@@ -62,10 +63,10 @@ get_class <- function(df) {
 #' find_class(iris, "categorical", index = FALSE)
 #'
 #' # tbl_df
-#' find_class(ISLR::Carseats, "numerical")
-#' find_class(ISLR::Carseats, "numerical", index = FALSE)
-#' find_class(ISLR::Carseats, "categorical")
-#' find_class(ISLR::Carseats, "categorical", index = FALSE)
+#' find_class(ggplot2::diamonds, "numerical")
+#' find_class(ggplot2::diamonds, "numerical", index = FALSE)
+#' find_class(ggplot2::diamonds, "categorical")
+#' find_class(ggplot2::diamonds, "categorical", index = FALSE)
 #'
 #' # type is "categorical2"
 #' iris2 <- data.frame(iris, char = "chars",
@@ -112,25 +113,20 @@ find_class <- function(df, type = c("numerical", "categorical", "categorical2"),
 #' @param rate logical. If TRUE, returns the percentage of missing values
 #' in the individual variable.
 #' @return Information on variables including missing values.
-#' @seealso \code{\link{imputate_na}}, \code{\link{find_na}}.
+#' @seealso \code{\link{imputate_na}}, \code{\link{find_outliers}}.
 #' @examples
 #' \dontrun{
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
+#' find_na(jobchange)
 #'
-#' find_na(carseats)
+#' find_na(jobchange, index = FALSE)
 #'
-#' find_na(carseats, index = FALSE)
-#'
-#' find_na(carseats, rate = TRUE)
+#' find_na(jobchange, rate = TRUE)
 #'
 #' ## using dplyr -------------------------------------
 #' library(dplyr)
 #'
 #' # Perform simple data quality diagnosis of variables with missing values.
-#' carseats %>%
+#' jobchange %>%
 #'   select(find_na(.)) %>%
 #'   diagnose()
 #' }
@@ -172,22 +168,17 @@ find_na <- function(.data, index = TRUE, rate = FALSE) {
 #' @seealso \code{\link{find_na}}, \code{\link{imputate_outlier}}.
 #' @examples
 #' \dontrun{
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
+#' find_outliers(heartfailure)
 #'
-#' find_outliers(carseats)
+#' find_outliers(heartfailure, index = FALSE)
 #'
-#' find_outliers(carseats, index = FALSE)
-#'
-#' find_outliers(carseats, rate = TRUE)
+#' find_outliers(heartfailure, rate = TRUE)
 #'
 #' ## using dplyr -------------------------------------
 #' library(dplyr)
 #'
 #' # Perform simple data quality diagnosis of variables with outliers.
-#' carseats %>%
+#' heartfailure %>%
 #'   select(find_outliers(.)) %>%
 #'   diagnose()
 #' }
@@ -238,26 +229,21 @@ find_outliers <- function(.data, index = TRUE, rate = FALSE) {
 #' @seealso \code{\link{find_na}}, \code{\link{find_outliers}}.
 #' @examples
 #' \dontrun{
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
+#' find_skewness(heartfailure)
 #'
-#' find_skewness(carseats)
+#' find_skewness(heartfailure, index = FALSE)
 #'
-#' find_skewness(carseats, index = FALSE)
+#' find_skewness(heartfailure, thres = 0.1)
 #'
-#' find_skewness(carseats, thres = 0.1)
+#' find_skewness(heartfailure, value = TRUE)
 #'
-#' find_skewness(carseats, value = TRUE)
-#'
-#' find_skewness(carseats, value = TRUE, thres = 0.1)
+#' find_skewness(heartfailure, value = TRUE, thres = 0.1)
 #'
 #' ## using dplyr -------------------------------------
 #' library(dplyr)
 #'
-#' # Perform simple data quality diagnosis of variables with outliers.
-#' carseats %>%
+#' # Perform simple data quality diagnosis of skewed variables
+#' heartfailure %>%
 #'   select(find_skewness(.)) %>%
 #'   diagnose()
 #' }

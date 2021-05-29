@@ -1,3 +1,61 @@
+CHANGES IN R VERSION 0.4.5:
+
+  NEW FEATURES:
+  
+    * Add a new function diagnose_sparese() checks cases that do not occur in 
+      observations for all possible combinations of levels of categorical 
+      variables. (thanks HyoJin Song, #35)
+    
+  BUG FIXES:
+
+    * Fixed an error that is in plot.univar_category(), if the number of 
+      categories is more than 10, no output after 10.
+      
+    * Fixed a bug where the bar color of NA was not displayed in 
+      plot.optimal_bins(). (#39)
+      
+    * Fixed an error occurs when there are no observations corresponding to 
+      levels (may occur depending on data characteristics when the binning 
+      type is "equal") in plot.bins().  
+      
+    * Fixed a miss typo in plot_outlier(). (thanks @jmanacup, #41)
+
+    * Fixed an error in the describe() for data containing variables 
+      with 3 or fewer complete cases. (thanks @davidfgeorge, #42)
+    
+  MINOR CHANGES:
+    
+    * Added datasets that are 'heartfailure' and 'jobchange'. 
+    
+    * Changed the manpages are diagnose(), diagnose_category(), 
+      diagnose_numeric(), diagnose_outlier(), plot_outlier(),
+      plot_outlier.target_df(), diagnose_report(), univar_category.data.frame(),
+      summary.univar_category(), plot.univar_category(),
+      univar_numeric.data.frame(), summary.univar_numeric(), 
+      plot.univar_numeric(), plot_bar_category(), plot_qq_numeric(),
+      plot_box_numeric(), plot_na_hclust(), plot_na_pareto(), 
+      plot_na_intersect(), imputate_na(), summary.imputation(), plot.imputation(),
+      normality(), plot_normality(), transform(), summary.transform(),
+      plot.transform(), transformation_report(), compare_category(), 
+      compare_numeric(), summary.compare_category(), summary.compare_numeric(),
+      plot.compare_category(), plot.compare_numeric(), get_column_info(), 
+      diagnose.tbl_dbi(), diagnose_category.tbl_dbi(), diagnose_numeric.tbl_dbi(),
+      diagnose_outlier.tbl_dbi(), plot_outlier.tbl_dbi(), normality.tbl_dbi(), 
+      plot_normality.tbl_dbi(), correlate.tbl_dbi(), plot_correlate.tbl_dbi(), 
+      describe.tbl_dbi(), target_by.tbl_dbi(), diagnose_report.tbl_dbi(),
+      eda_report.tbl_dbi(), target_by.data.frame(), relate(), print.relate(), 
+      plot.relate(), binning(), summary.bins(), plot.bins(), binning_by(), 
+      summary.optimal_bins(), plot.optimal_bins(), plot.optimal_bins(),
+      extract.bins(), performance_bin(), summary.performance_bin(),
+      plot.performance_bin(), get_class(), find_na(), find_outliers(), 
+      find_skewness(), correlate.data.frame(), plot_correlate.data.frame(),
+      overview(), summary.overview(), plot.overview(), eda_report.data.frame(),
+      describe.data.frame().
+      
+    * Changed default type of diagnose_category() from "rank" to "n". 
+    
+    
+      
 CHANGES IN R VERSION 0.4.4:
       
   BUG FIXES:

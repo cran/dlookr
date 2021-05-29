@@ -48,44 +48,39 @@ univar_numeric <- function(.data, ...) {
 #' @seealso \code{\link{summary.univar_category}}, \code{\link{print.univar_category}}, \code{\link{plot.univar_category}}.
 #' @export
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#'
 #' library(dplyr)
 #' 
 #' # Calculates the all categorical variables
-#' all_var <- univar_category(carseats)
+#' all_var <- univar_category(heartfailure)
 #' 
 #' # Print univar_category class object
 #' all_var
 #' 
-#' # Calculates the only Urban variable
+#' # Calculates the only smoking variable
 #' all_var %>% 
-#'   "["(names(all_var) %in% "Urban")
-#'   
-#' urban <- univar_category(carseats, Urban)
-#'   
-#' # Print univar_category class object
-#' urban
+#'   "["(names(all_var) %in% "smoking")
 #' 
-#' # Filtering the case of Urban included NA 
-#' urban %>%
+#' smoking <- univar_category(heartfailure, smoking)
+#' 
+#' # Print univar_category class object
+#' smoking
+#' 
+#' # Filtering the case of smoking included NA 
+#' smoking %>%
 #'   "[["(1) %>% 
-#'   filter(!is.na(Urban))
-#'   
+#'   filter(!is.na(smoking))
+#' 
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
 #' # Summary by returned object
 #' stat
-#'
+#' 
 #' # plot all variables
 #' # plot(all_var)
 #' 
-#' # plot urban
-#' # plot(urban)
+#' # plot smoking
+#' # plot(smoking)
 #' 
 #' # plot all variables by prompt
 #' # plot(all_var, prompt = TRUE)
@@ -182,26 +177,21 @@ univar_category_impl <- function(df, vars) {
 #' @seealso \code{\link{summary.univar_numeric}}, \code{\link{print.univar_numeric}}, \code{\link{plot.univar_numeric}}.
 #' @export
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#' 
 #' # Calculates the all categorical variables
-#' all_var <- univar_numeric(carseats)
+#' all_var <- univar_numeric(heartfailure)
 #' 
 #' # Print univar_numeric class object
 #' all_var
 #' 
-#' # Calculates the Price, CompPrice variable
-#' univar_numeric(carseats, Price, CompPrice)
-#'   
+#' # Calculates the platelets, sodium variable
+#' univar_numeric(heartfailure, platelets, sodium)
+#' 
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
 #' # Summary by returned object
 #' stat
-#'
+#' 
 #' # Statistics of numerical variables normalized by Min-Max method
 #' summary(all_var, stand = "minmax")
 #' 
@@ -297,44 +287,33 @@ univar_numeric_impl <- function(df, vars) {
 #' 
 #' @seealso \code{\link{plot.univar_category}}.
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#'
 #' library(dplyr)
 #' 
-#' # Calculates the all categorical variavels
-#' all_var <- univar_category(carseats)
+#' # Calculates the all categorical variables
+#' all_var <- univar_category(heartfailure)
 #' 
 #' # Print univar_category class object
 #' all_var
 #' 
-#' # Calculates the only Urban variable
+#' # Calculates the only smoking variable
 #' all_var %>% 
-#'   "["(names(all_var) %in% "Urban")
-#'   
-#' urban <- univar_category(carseats, Urban)
-#'   
-#' # Print univar_category class object
-#' urban
+#'   "["(names(all_var) %in% "smoking")
 #' 
-#' # Filtering the case of Urban included NA 
-#' urban %>%
+#' smoking <- univar_category(heartfailure, smoking)
+#' 
+#' # Print univar_category class object
+#' smoking
+#' 
+#' # Filtering the case of smoking included NA 
+#' smoking %>%
 #'   "[["(1) %>% 
-#'   filter(!is.na(Urban))
-#'   
+#'   filter(!is.na(smoking))
+#' 
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
 #' # Summary by returned object
 #' stat
-#'   
-#' # Summary chi-squared test by returned object exclude NA
-#' summary(urban)
-#' 
-#' # Summary chi-squared test by returned object include NA
-#' summary(urban, na.rm = FALSE)
 #' 
 #' @importFrom stats chisq.test
 #' @importFrom purrr map_dfr
@@ -403,28 +382,21 @@ summary.univar_category <- function(object, na.rm = TRUE, ...) {
 #' 
 #' @seealso \code{\link{plot.univar_numeric}}.
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#'
-#' library(dplyr)
-#' 
-#' # Calculates the all categorical variavels
-#' all_var <- univar_numeric(carseats)
+#' # Calculates the all categorical variables
+#' all_var <- univar_numeric(heartfailure)
 #' 
 #' # Print univar_numeric class object
 #' all_var
 #' 
-#' # Calculates the Price, CompPrice variable
-#' univar_numeric(carseats, Price, CompPrice)
-#'   
+#' # Calculates the platelets, sodium variable
+#' univar_numeric(heartfailure, platelets, sodium)
+#' 
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
 #' # Summary by returned object
 #' stat
-#'
+#' 
 #' # Statistics of numerical variables normalized by Min-Max method
 #' summary(all_var, stand = "minmax")
 #' 
@@ -522,39 +494,24 @@ print.univar_numeric <- function(x, ...) {
 #' However, it does not support all parameters.
 #' @seealso \code{\link{univar_category}}, \code{\link{print.univar_category}}, \code{\link{summary.univar_category}}.
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#'
 #' library(dplyr)
 #' 
 #' # Calculates the all categorical variables
-#' all_var <- univar_category(carseats)
+#' all_var <- univar_category(heartfailure)
 #' 
 #' # Print univar_category class object
 #' all_var
 #' 
-#' # Calculates the only Urban variable
-#' urban <- univar_category(carseats, Urban)
-#'   
+#' smoking <- univar_category(heartfailure, smoking)
+#' 
 #' # Print univar_category class object
-#' urban
-#'
+#' smoking
+#' 
 #' # plot all variables
 #' plot(all_var)
 #' 
-#' # plot urban
-#' plot(urban)
-#'
-#' # plot all variables by na.rm = FALSE
-#' plot(all_var, na.rm = FALSE)
-#'  
-#' # plot all variables by prompt
-#' # plot(all_var, prompt = TRUE)
-#' 
-#' # not allow the typographic elements
-#' plot(all_var, typographic = FALSE)
+#' # plot smoking
+#' plot(smoking)
 #' 
 #' @method plot univar_category
 #' @import ggplot2
@@ -590,13 +547,24 @@ plot.univar_category <- function(x, na.rm = TRUE, prompt = FALSE, typographic = 
       theme(plot.title = element_text(hjust = 0.5))
     
     if (typographic) {
-      obj <- obj +
-        theme_typographic() +
-        scale_fill_ipsum() +
-        theme(legend.position = "None",
-              axis.title.x = element_text(size = 13),
-              axis.title.y = element_text(size = 13)
-        )  
+      n_level <- nrow(df) 
+      if (n_level <= 9) {
+        obj <- obj +
+          theme_typographic() +
+          scale_fill_ipsum() +
+          theme(legend.position = "None",
+                axis.title.x = element_text(size = 13),
+                axis.title.y = element_text(size = 13)
+          )      
+      } else {
+        obj <- obj +
+          theme_typographic() +
+          scale_fill_manual(values = rep("#d18975", n_level)) + 
+          theme(legend.position = "None",
+                axis.title.x = element_text(size = 13),
+                axis.title.y = element_text(size = 13)
+          )   
+      }
     }
     
     suppressWarnings(print(obj))
@@ -629,17 +597,15 @@ plot.univar_category <- function(x, na.rm = TRUE, prompt = FALSE, typographic = 
 #' However, it does not support.
 #' @seealso \code{\link{univar_numeric}}, \code{\link{print.univar_numeric}}, \code{\link{summary.univar_numeric}}.
 #' @examples
-#' # Generate data for the example
-#' carseats <- ISLR::Carseats
-#' carseats[sample(seq(NROW(carseats)), 20), "Income"] <- NA
-#' carseats[sample(seq(NROW(carseats)), 5), "Urban"] <- NA
-#' 
 #' # Calculates the all categorical variables
-#' all_var <- univar_numeric(carseats)
+#' all_var <- univar_numeric(heartfailure)
 #' 
 #' # Print univar_numeric class object
 #' all_var
-#'   
+#' 
+#' # Calculates the platelets, sodium variable
+#' univar_numeric(heartfailure, platelets, sodium)
+#' 
 #' # Summary the all case : Return a invisible copy of an object.
 #' stat <- summary(all_var)
 #' 
@@ -657,9 +623,6 @@ plot.univar_category <- function(x, na.rm = TRUE, prompt = FALSE, typographic = 
 #' 
 #' # one plot with all robust standardized variables 
 #' plot(all_var, viz = "boxplot")
-#' 
-#' # not allow the typographic elements
-#' # plot(all_var, typographic = FALSE)
 #' 
 #' # one plot with all standardized variables by Z-score method 
 #' # plot(all_var, viz = "boxplot", stand = "zscore")
