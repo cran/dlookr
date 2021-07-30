@@ -11,7 +11,7 @@ plot_box_numeric(.data, ...)
 \method{plot_box_numeric}{data.frame}(
   .data,
   ...,
-  title = "Box plot by numerical variables",
+  title = "Distribution by numerical variables",
   each = FALSE,
   typographic = TRUE
 )
@@ -19,7 +19,7 @@ plot_box_numeric(.data, ...)
 \method{plot_box_numeric}{grouped_df}(
   .data,
   ...,
-  title = "Box plot by numerical variables",
+  title = "Distribution by numerical variables",
   each = FALSE,
   typographic = TRUE
 )
@@ -49,7 +49,7 @@ The plot_box_numeric() to visualizes the box plot of numeric data or
 relationship to specific categorical data.
 }
 \details{
-The The box plot helps determine whether the distribution of a numeric variable. 
+The box plot helps determine whether the distribution of a numeric variable. 
 plot_box_numeric() shows box plots of several numeric variables 
 on one screen. This function can also display a box plot for each level of a specific 
 categorical variable.

@@ -42,6 +42,8 @@ get_class <- function(df) {
 #' "numerical" searches for "numeric" and "integer" classes,
 #' "categorical" searches for "factor" and "ordered" classes.
 #' "categorical2" adds "character" class to "categorical".
+#' "date_categorical" adds result of "categorical2" and "Date", "POSIXct".
+#' "date_categorical2" adds result of "categorical" and "Date", "POSIXct".
 #' @param index logical. If TRUE is return numeric vector that is variables index.
 #' and if FALSE is return character vector that is variables name.
 #' default is TRUE.
@@ -76,7 +78,8 @@ get_class <- function(df) {
 #' }
 #' @importFrom methods is
 #' @export
-find_class <- function(df, type = c("numerical", "categorical", "categorical2"),
+find_class <- function(df, type = c("numerical", "categorical", "categorical2",
+                                    "date_categorical", "date_categorical2"), 
                        index = TRUE) {
   if (!is.data.frame(df)) {
     stop("The argument 'df' is not an object inheriting from data.frame.")
@@ -92,6 +95,11 @@ find_class <- function(df, type = c("numerical", "categorical", "categorical2"),
     idx <- which(clist %in% c("factor", "ordered", "labelled"))
   } else if (type == "categorical2") {
     idx <- which(clist %in% c("factor", "ordered", "labelled", "character"))
+  } else if (type == "date_categorical") {
+    idx <- which(clist %in% c("factor", "ordered", "labelled", "Date", "POSIXct"))
+  } else if (type == "date_categorical2") {
+    idx <- which(clist %in% c("factor", "ordered", "labelled", "character",
+                              "Date", "POSIXct"))
   }
 
   if (!index) idx <- names(df)[idx]
@@ -526,4 +534,211 @@ imputation_knn <- function (data, k = 10)
   data
 }
 
+
+#' @import dplyr
+#' @importFrom tibble rownames_to_column as_tibble
+#' @importFrom purrr map_df
+num_summarise <- function (.data, 
+                           statistics = c("mean", "sd", "se_mean", "IQR", 
+                                          "skewness", "kurtosis", "quantiles"), 
+                           quantiles = c(0, .01, .05, 0.1, 0.2, 0.25, 0.3, 0.4, 
+                                         0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 
+                                         0.99, 1)) {
+  if (missing(statistics)) 
+    statistics <- c("mean", "sd", "se_mean", "IQR", "skewness", 
+                    "kurtosis", "quantiles")
+  
+  stats <- c("mean", "sd", "se_mean", "IQR", "skewness", 
+             "kurtosis", "quantiles")
+  
+  if (missing(quantiles)) 
+    quantiles <- c(0, .01, .05, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 
+                   0.75, 0.8, 0.9, 0.95, 0.99, 1)
+  
+  statistics <- base::intersect(statistics, stats)
+  
+  n <- function(x, ...) {
+    apply(as.matrix(x), 2, function(x) sum(!is.na(x)))
+  }
+  
+  na <- function(x, ...) {
+    apply(as.matrix(x), 2, function(x) sum(is.na(x)))
+  }
+  
+  mean <- function(x, ...) {
+    colMeans(as.matrix(x), na.rm = TRUE)
+  }
+  
+  sd <- function(x, ...) {
+    apply(as.matrix(x), 2, stats::sd, na.rm = TRUE)
+  }
+  
+  IQR <- function(x, ...) {
+    apply(as.matrix(x), 2, stats::IQR, na.rm = TRUE)
+  }
+  
+  se_mean <- function(x, ...) {
+    x <- as.matrix(x)
+    
+    n <- colSums(!is.na(x))
+    sd(x) / sqrt(n)
+  }
+  
+  # modified e1071::skewness
+  skewness <- function(x, ...) {
+    if (is.vector(x))  {
+      if (any(ina <- is.na(x))) {
+        x <- x[!ina]
+      }
+      
+      n <- length(x)
+      if (n < 3) 
+        return(NA)
+      
+      residual <- x - mean(x)
+      y <- sqrt(n) * sum(residual ^ 3) / (sum(residual ^ 2) ^ (3 / 2))
+      
+      return(y * sqrt(n * (n - 1)) / (n - 2))
+    }
+    
+    apply(x, 2, skewness)
+  }
+  
+  # modified e1071::kurtosis  
+  kurtosis <- function(x, ...) {
+    if (is.vector(x)) {
+      if (any(ina <- is.na(x))) {
+        x <- x[!ina]
+      }
+      
+      n <- length(x)
+      if (n < 4) 
+        return(NA)
+      
+      residual <- x - mean(x)
+      r <- n * sum(residual ^ 4) / (sum(residual ^ 2) ^ 2)
+      
+      return(((n + 1) * (r - 3) + 6) * (n - 1)/((n - 2) * (n - 3)))
+    }
+    
+    apply(x, 2, kurtosis)
+  }
+  
+  .data <- as.data.frame(.data)
+  
+  if ("quantiles" %in% statistics & length(quantiles) >= 1) {
+    df_quantiles <- .data %>% 
+      apply(2, quantile, probs = quantiles, na.rm = TRUE) 
+    
+    if (length(quantiles) > 1) 
+      df_quantiles <- df_quantiles %>% 
+        t()
+    
+    df_quantiles <- df_quantiles %>% 
+      tibble::as_tibble()
+    
+    names(df_quantiles) <- paste0("p", quantiles * 100) %>% 
+      ifelse(nchar(.) < 3, sub("p", "p0", .), .)
+  } else {
+    df_quantiles <- NULL
+  }
+  
+  statistics <- c("n", "na", setdiff(statistics, "quantiles"))
+  
+  df_stats <- statistics %>% 
+    sapply(
+      function(x) {
+        do.call(x, list(.data))
+      }  
+    ) 
+  
+  if (is.vector(df_stats)) 
+    df_stats <- as.numeric(df_stats) %>% 
+    t() %>% 
+    as.data.frame()
+  
+  names(df_stats) <- statistics
+  
+  bind_cols(data.frame(variable = names(.data)), 
+            df_stats %>% as.data.frame(), 
+            df_quantiles) %>% 
+    mutate_at(vars(matches("^n")), as.integer) %>% 
+    tibble::as_tibble()
+}
+
+
+# reference : https://github.com/r-lib/testthat/blob/717b02164def5c1f027d3a20b889dae35428b6d7/R/colour-text.r
+set_color <- function(x, fg = "black") {
+  term <- Sys.getenv()["TERM"]
+  colour_terms <- c("xterm-color", "xterm-256color", "screen", "screen-256color")
+  
+  if(!any(term %in% colour_terms, na.rm = TRUE)) {
+    return(x)
+  }
+  
+  .fg_colours <- c(
+    "black" = "0;30",
+    "blue" = "0;34",
+    "green" = "0;32",
+    "cyan" = "0;36",
+    "red" = "0;31",
+    "purple" = "0;35",
+    "brown" = "0;33",
+    "light gray" = "0;37",
+    "dark gray" = "1;30",
+    "light blue" = "1;34",
+    "light green" = "1;32",
+    "light cyan" = "1;36",
+    "light red" = "1;31",
+    "light purple" = "1;35",
+    "yellow" = "1;33",
+    "white" = "1;37"
+  )
+  
+  start <- col <- paste0("\033[", .fg_colours[tolower(fg)], "m")
+  end <- "\033[0m"
+  
+  paste0(start, x, end)
+}
+
+
+cat_rule <- function(left = "", right = "", width = 80, char = "\u2500",
+                     prefix = 2, postfix = 2, space = 1, col = NULL) {
+  length_left <- nchar(left, type = "width")
+  length_right <- nchar(right, type = "width")
+  
+  str_prefix <- paste(rep(char, prefix), collapse = "")
+  str_postfix <- paste(rep(char, postfix), collapse = "")
+  
+  str_collapse <- paste(rep(" ", space), collapse = "")
+  
+  if (length_left & length_right) {
+    str_line <- paste(rep(char, (width - length_left - length_right - 
+                                   prefix - postfix - 4 * space)), collapse = "")
+    str <- paste(str_prefix, left, str_line, right, str_postfix, 
+                 collapse = str_collapse)
+  } else if (!length_right & length_left) {
+    str <- paste(str_prefix, left,
+                 paste(rep(char, (width - length_left - prefix - 2 * space)), 
+                       collapse = ""), collapse = str_collapse)
+  } else if (!length_left & length_right) {
+    str <- paste(paste(rep(char, (width - length_right - prefix - 2 * space)), 
+                       collapse = ""), right, str_postfix, collapse = str_collapse)
+  } else {
+    str <- paste(rep(char, width), collapse = "")
+  }
+  
+  if (!is.null(col)) {
+    cat(set_color(str, fg = col), "\n")
+  } else {
+    cat(str, "\n")
+  }
+}
+
+
+cat_bullet <- function(x, bullet = "\u2022") {
+  str <- paste(bullet, x, collapse = "\n")
+  
+  cat(str, "\n")
+}
 
