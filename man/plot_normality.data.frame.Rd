@@ -16,7 +16,8 @@ plot_normality(.data, ...)
   right = c("sqrt", "log", "log+1", "log+a", "1/x", "x^2", "x^3", "Box-Cox",
     "Yeo-Johnson"),
   col = "steelblue",
-  typographic = TRUE
+  typographic = TRUE,
+  base_family = NULL
 )
 
 \method{plot_normality}{grouped_df}(
@@ -27,7 +28,8 @@ plot_normality(.data, ...)
   right = c("sqrt", "log", "log+1", "log+a", "1/x", "x^2", "x^3", "Box-Cox",
     "Yeo-Johnson"),
   col = "steelblue",
-  typographic = TRUE
+  typographic = TRUE,
+  base_family = NULL
 )
 }
 \arguments{
@@ -54,6 +56,9 @@ lower right corner. The default is "sqrt".}
 
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 }
 \description{
 The plot_normality() visualize distribution information
@@ -88,6 +93,10 @@ The plot derived from the numerical data visualization is as follows.
   \item histogram by log transfer data
   \item histogram by square root transfer data
 }
+
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 
 \examples{
@@ -98,8 +107,8 @@ plot_normality(heartfailure2)
 
 # Select the variable to plot
 plot_normality(heartfailure2, platelets, sodium)
-plot_normality(heartfailure2, -platelets, -sodium, col = "gray")
-plot_normality(heartfailure2, 1)
+# plot_normality(heartfailure2, -platelets, -sodium, col = "gray")
+# plot_normality(heartfailure2, 1)
 
 # Change the method of transformation
 plot_normality(heartfailure2, platelets, right = "1/x")
@@ -109,8 +118,8 @@ if (requireNamespace("forecast", quietly = TRUE)) {
 } else {
   cat("If you want to use this feature, you need to install the rpart package.\n")
 }
-# Not allow typographic elements
-plot_normality(heartfailure2, platelets, typographic = FALSE)
+# # Not allow typographic elements
+# plot_normality(heartfailure2, platelets, typographic = FALSE)
 
 # Using dplyr::grouped_df
 library(dplyr)
@@ -125,8 +134,8 @@ heartfailure2 \%>\%
  plot_normality()
 
 # Positive values select variables
-heartfailure2 \%>\%
-plot_normality(platelets, sodium)
+# heartfailure2 \%>\%
+# plot_normality(platelets, sodium)
 
 # Positions values select variables
 # heartfailure2 \%>\%
@@ -134,9 +143,9 @@ plot_normality(platelets, sodium)
 
 # Using pipes & dplyr -------------------------
 # Plot 'creatinine' variable by 'sex' and 'smoking'
-heartfailure2 \%>\%
- group_by(sex, smoking) \%>\%
- plot_normality(creatinine)
+# heartfailure2 \%>\%
+#  group_by(sex, smoking) \%>\%
+#  plot_normality(creatinine)
 
 # extract only those with 'sex' variable level is "Male",
 # and plot 'platelets' by 'smoking'

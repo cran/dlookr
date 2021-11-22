@@ -1,3 +1,90 @@
+CHANGES IN R VERSION 0.5.2:
+  BUG FIXES:
+
+    * Fixed an error in plot_hist_numeric() when variable names contain spaces. 
+      
+    * Fixed an error that occurred in compare_numeric() when using 
+      a tibble object as an argument. 
+      
+    * Fixed an error that occurred in eda_paged_report() and eda_web_report() 
+      when using a tibble object as an argument. 
+      
+    * Fixed an error that occurred when generating outliers information 
+      in diagnose_paged_report() in case of a tibble object.
+      
+    * Fixed an error where the base_family argument was not applied to the plot 
+      in the Outlier section in diagnose_web_report().   
+      
+    * Remove unnecessary formula output when executing binning_by(). 
+    
+    * Fixed an issue that the correlation visualization was not plot in the EDA 
+      report in "Grouped Correlation" sction in eda_web_report(). (#55)
+      
+    * Fixed the logic has been modified so that an error does not occur even 
+      when the independent variable x has only one unique value 
+      in compare_numeric().   
+    
+    * Fixed an error in the visualization where the number of levels of a 
+      categorical variable was 1 combined with this variable in the 
+      "Compare Categorical Variables" section of the report in eda_web_report(),
+      eda_paged_report().
+
+  MAJOR CHANGES:
+
+    * Changed the way fonts are imported into the R environment to insert fonts 
+      into the plot. For this method, the extrafont package was changed to the 
+      showtext package. (#48, #53)
+
+      The reason is that the extrafont package uses the Rttf2pt1 package, 
+      because Winston Chang, the author of the Rttf2pt1 package, says:
+
+      "ttf2pt1 has not been maintained since 2003, and it is getting 
+      increasingly difficult to make it compile without significant warnings on 
+      modern compilers, which in turn is making it difficult to maintain 
+      this package on CRAN. It is possible that in the future, 
+      I will not have time to keep this package on CRAN."
+
+    * Added the ability to specify the font family in the report function. 
+      This feature is useful for visualization by users using non-ASCII characters.
+      - diagnose_paged_report(), diagnose_web_report()
+      - eda_paged_report(), eda_web_report()
+      - transformation_paged_report(), transformation_web_report()      
+      
+    * Added the ability to specify the font family in the visualization function. 
+      This feature is useful for visualization by users using non-ASCII characters.
+      - plot_outlier.data.frame(), plot_outlier.target_df(), plot_outlier.tbl_dbi()
+      - plot_hist_numeric.data.frame(), plot_hist_numeric.grouped_df(),
+      - plot_na_intersect(), plot_na_pareto(), plot_na_hclust()
+      - plot.compare_category(), plot.compare_numeric()
+      - plot.overview(), plot.relate()
+      - plot.univar_category(), plot.univar_numeric()
+      - plot_bar_category.data.frame(), plot_bar_category.grouped_df()
+      - plot_qq_numeric.data.frame(), plot_qq_numeric.grouped_df()
+      - plot_box_numeric.data.frame(), plot_box_numeric.grouped_df()
+      - plot_hist_numeric.data.frame(), plot_hist_numeric.grouped_df()
+      - plot_correlate.data.frame(), plot_correlate.grouped_df(),
+        plot_correlate.tbl_dbi() 
+      - plot_normality.data.frame(), plot_normality.grouped_df(), 
+        plot_normality.tbl_dbi()
+      - plot.bins(), plot.optimal_bins(), plot.performance_bin()
+      - plot.imputation()
+      - plot.transform()
+      
+    * Added the ability to specify the font family in the reporting function. 
+      This feature is useful for visualization by users using non-ASCII characters.
+      - diagnose_web_report(), diagnose_paged_report()
+      
+  MINOR CHANGES:
+    
+    * Reduce the font size of subtitle in paged reports (diagnose_paged_report(),
+      eda_paged_report(), transformation_paged_report()).
+      
+  DEFUNCT:
+  
+    * defuncted import_liberation()
+
+      
+      
 CHANGES IN R VERSION 0.5.1:
   
   BUG FIXES:
@@ -15,10 +102,7 @@ CHANGES IN R VERSION 0.5.1:
       
     * Fixed an error that is in diagnose_paged_report(), diagnose_web_report(), 
       when there are only one variable that include missing values. (#50)
-      
-  MINOR CHANGES:
     
-
 
 CHANGES IN R VERSION 0.5.0:
 

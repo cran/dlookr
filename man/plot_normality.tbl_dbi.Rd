@@ -12,7 +12,8 @@
   left = c("log", "sqrt", "log+1", "1/x", "x^2", "x^3", "Box-Cox", "Yeo-Johnson"),
   right = c("sqrt", "log", "log+1", "1/x", "x^2", "x^3", "Box-Cox", "Yeo-Johnson"),
   col = "steelblue",
-  typographic = TRUE
+  typographic = TRUE,
+  base_family = NULL
 )
 }
 \arguments{
@@ -45,6 +46,9 @@ lower right corner. The default is "sqrt".}
 \item{col}{a color to be used to fill the bars. The default is "steelblue".}
 
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 }
 \description{
 The plot_normality() visualize distribution information
@@ -79,6 +83,10 @@ The plot derived from the numerical data visualization is as follows.
 \item histogram by log transfer data
 \item histogram by square root transfer data
 }
+
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 
 \examples{
@@ -103,27 +111,27 @@ con_sqlite \%>\%
   plot_normality(platelets, sodium, collect_size = 200)
 
 # Positions values select variables
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  plot_normality(1)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   plot_normality(1)
 
 # Not allow the typographic elements
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  plot_normality(1, typographic = FALSE)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   plot_normality(1, typographic = FALSE)
   
 # Using pipes & dplyr -------------------------
 # Plot 'sodium' variable by 'smoking' and 'death_event'
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  group_by(smoking, death_event) \%>\%
-  plot_normality(sodium)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   group_by(smoking, death_event) \%>\%
+#   plot_normality(sodium)
 
 # Plot using left and right arguments
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  group_by(smoking, death_event) \%>\%
-  plot_normality(sodium, left = "Box-Cox", right = "log")
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   group_by(smoking, death_event) \%>\%
+#   plot_normality(sodium, left = "Box-Cox", right = "log")
 
 # extract only those with 'smoking' variable level is "Yes",
 # and plot 'sodium' by 'death_event'

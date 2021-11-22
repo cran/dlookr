@@ -69,6 +69,10 @@ eda_paged_report <- function(.data, ...) {
 #'   }
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#' 
 #' @seealso \code{\link{diagnose_web_report.tbl_dbi}}.
 #'
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
@@ -92,6 +96,8 @@ eda_paged_report <- function(.data, ...) {
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
 #' @param is_tbl_dbi logical. whether .data is a tbl_dbi object.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods.
 #'
 #' @examples
@@ -127,7 +133,8 @@ diagnose_web_report.data.frame <- function(.data, output_file = NULL, output_dir
                             thres_uniq_num = 5, logo_img = NULL, 
                             create_date = Sys.time(),
                             theme = c("orange", "blue"), 
-                            sample_percent = 100, is_tbl_dbi = FALSE, ...) {
+                            sample_percent = 100, is_tbl_dbi = FALSE, 
+                            base_family = NULL, ...) {
   theme <- match.arg(theme)
   
   if (sample_percent > 100 | sample_percent <= 0) {
@@ -139,6 +146,7 @@ diagnose_web_report.data.frame <- function(.data, output_file = NULL, output_dir
   assign("thres_uniq_num", thres_uniq_num, .dlookrEnv) 
   assign("sample_percent", sample_percent, .dlookrEnv)  
   assign("author", author, .dlookrEnv)  
+  assign("base_family", base_family, .dlookrEnv)  
   
   path <- output_dir
   
@@ -298,6 +306,10 @@ diagnose_web_report.data.frame <- function(.data, output_file = NULL, output_dir
 #'   }
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#'
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param output_format report output type. Choose either "pdf" and "html".
 #' "pdf" create pdf file by rmarkdown::render() and pagedown::chrome_print(). so, 
@@ -334,6 +346,8 @@ diagnose_web_report.data.frame <- function(.data, output_file = NULL, output_dir
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
 #' @param is_tbl_dbi logical. whether .data is a tbl_dbi object.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{diagnose_paged_report.tbl_dbi}}.
@@ -379,7 +393,8 @@ diagnose_paged_report.data.frame <- function(.data, output_format = c("pdf", "ht
                            flag_content_missing = TRUE, cover_img = NULL, 
                            create_date = Sys.time(),
                            logo_img = NULL, theme = c("orange", "blue"),
-                           sample_percent = 100, is_tbl_dbi = FALSE, ...) {
+                           sample_percent = 100, is_tbl_dbi = FALSE, 
+                           base_family = NULL, ...) {
   output_format <- match.arg(output_format)
   theme <- match.arg(theme)
   
@@ -396,6 +411,7 @@ diagnose_paged_report.data.frame <- function(.data, output_format = c("pdf", "ht
   assign("thres_uniq_num", thres_uniq_num, .dlookrEnv) 
   assign("sample_percent", sample_percent, .dlookrEnv)  
   assign("author", author, .dlookrEnv)  
+  assign("base_family", base_family, .dlookrEnv)  
   
   path <- output_dir
   
@@ -593,6 +609,10 @@ diagnose_paged_report.data.frame <- function(.data, output_format = c("pdf", "ht
 #'   }
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param target character. target variable.
 #' @param output_file name of generated file. default is NULL.
@@ -611,6 +631,8 @@ diagnose_paged_report.data.frame <- function(.data, output_format = c("pdf", "ht
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
 #' @param is_tbl_dbi logical. whether .data is a tbl_dbi object.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods.
 #'
 #' @seealso \code{\link{eda_web_report.tbl_dbi}}.
@@ -645,7 +667,8 @@ eda_web_report.data.frame <- function(.data, target = NULL, output_file = NULL,
                        title = "EDA", subtitle = deparse(substitute(.data)), 
                        author = "dlookr", title_color = "gray", logo_img = NULL, 
                        create_date = Sys.time(), theme = c("orange", "blue"), 
-                       sample_percent = 100, is_tbl_dbi = FALSE, ...) {
+                       sample_percent = 100, is_tbl_dbi = FALSE, 
+                       base_family = NULL, ...) {
   theme <- match.arg(theme)
   
   tryCatch(vars <- tidyselect::vars_select(names(.data),
@@ -664,6 +687,7 @@ eda_web_report.data.frame <- function(.data, target = NULL, output_file = NULL,
   assign("targetVariable", vars, .dlookrEnv)
   assign("sample_percent", sample_percent, .dlookrEnv)  
   assign("author", author, .dlookrEnv)  
+  assign("base_family", base_family, .dlookrEnv) 
   
   path <- output_dir
   
@@ -828,6 +852,10 @@ eda_web_report.data.frame <- function(.data, target = NULL, output_file = NULL,
 #'   }
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param target character. target variable.
 #' @param output_format report output type. Choose either "pdf" and "html".
@@ -855,6 +883,8 @@ eda_web_report.data.frame <- function(.data, target = NULL, output_file = NULL,
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
 #' @param is_tbl_dbi logical. whether .data is a tbl_dbi object.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details) 
 #' @param ... arguments to be passed to methods.
 #' 
 #' @seealso \code{\link{eda_paged_report.tbl_dbi}}.
@@ -895,7 +925,8 @@ eda_paged_report.data.frame <- function(.data, target = NULL, output_format = c(
                              title_color = "black", subtitle_color = "blue",
                              cover_img = NULL, create_date = Sys.time(),
                              logo_img = NULL, theme = c("orange", "blue"),
-                             sample_percent = 100, is_tbl_dbi = FALSE, ...) {
+                             sample_percent = 100, is_tbl_dbi = FALSE, 
+                             base_family = NULL, ...) {
   output_format <- match.arg(output_format)
   theme <- match.arg(theme)
   
@@ -919,6 +950,7 @@ eda_paged_report.data.frame <- function(.data, target = NULL, output_format = c(
   assign("targetVariable", vars, .dlookrEnv)  
   assign("sample_percent", sample_percent, .dlookrEnv)  
   assign("author", author, .dlookrEnv)  
+  assign("base_family", base_family, .dlookrEnv) 
   
   path <- output_dir
   
@@ -1073,6 +1105,10 @@ eda_paged_report.data.frame <- function(.data, target = NULL, output_format = c(
 #'   \item Binning
 #'   \item Optimal Binning
 #' }
+#' 
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
 #'
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param target character. target variable.
@@ -1091,6 +1127,8 @@ eda_paged_report.data.frame <- function(.data, target = NULL, output_format = c(
 #' @param sample_percent numeric. Sample percent of data for performing EDA. 
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods.
 #'
 #' @examples
@@ -1117,7 +1155,7 @@ transformation_web_report <- function(.data, target = NULL, output_file = NULL,
                        title = "Transformation", subtitle = deparse(substitute(.data)), 
                        author = "dlookr", title_color = "gray", logo_img = NULL, 
                        create_date = Sys.time(), theme = c("orange", "blue"), 
-                       sample_percent = 100, ...) {
+                       sample_percent = 100, base_family = NULL, ...) {
   theme <- match.arg(theme)
   
   tryCatch(vars <- tidyselect::vars_select(names(.data),
@@ -1135,6 +1173,7 @@ transformation_web_report <- function(.data, target = NULL, output_file = NULL,
   assign("targetVariable", vars, .dlookrEnv)
   assign("sample_percent", sample_percent, .dlookrEnv)  
   assign("author", author, .dlookrEnv)  
+  assign("base_family", base_family, .dlookrEnv) 
   
   path <- output_dir
   
@@ -1273,6 +1312,10 @@ transformation_web_report <- function(.data, target = NULL, output_file = NULL,
 #'   \item Optimal Binning
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param target character. target variable.
 #' @param output_format report output type. Choose either "pdf" and "html".
@@ -1299,6 +1342,8 @@ transformation_web_report <- function(.data, target = NULL, output_file = NULL,
 #' @param sample_percent numeric. Sample percent of data for performing Diagnosis. 
 #' It has a value between (0, 100]. 100 means all data, and 5 means 5\% of sample data.
 #' This is useful for data with a large number of observations.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods.
 #' 
 #' @examples
@@ -1333,7 +1378,7 @@ transformation_paged_report <- function(.data, target = NULL,
                              title_color = "white", subtitle_color = "tomato1",
                              cover_img = NULL, create_date = Sys.time(),
                              logo_img = NULL, theme = c("orange", "blue"),
-                             sample_percent = 100, ...) {
+                             sample_percent = 100, base_family = NULL, ...) {
 
   output_format <- match.arg(output_format)
   theme <- match.arg(theme)
@@ -1357,7 +1402,8 @@ transformation_paged_report <- function(.data, target = NULL,
   assign("reportData", as.data.frame(.data), .dlookrEnv)
   assign("targetVariable", vars, .dlookrEnv)  
   assign("sample_percent", sample_percent, .dlookrEnv)  
-  assign("author", author, .dlookrEnv)  
+  assign("author", author, .dlookrEnv)
+  assign("base_family", base_family, .dlookrEnv) 
   
   path <- output_dir
   

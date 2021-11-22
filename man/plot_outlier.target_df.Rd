@@ -4,7 +4,7 @@
 \alias{plot_outlier.target_df}
 \title{Plot outlier information of target_df}
 \usage{
-\method{plot_outlier}{target_df}(.data, ..., typographic = TRUE)
+\method{plot_outlier}{target_df}(.data, ..., typographic = TRUE, base_family = NULL)
 }
 \arguments{
 \item{.data}{a target_df. reference \code{\link{target_by}}.}
@@ -18,7 +18,10 @@ These arguments are automatically quoted and evaluated in a context
 where column names represent column positions.
 They support unquoting and splicing.}
 
-\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 }
 \description{
@@ -29,6 +32,10 @@ for diagnosing the quality of the numerical data with target_df class.
 The scope of the diagnosis is the provide a outlier information.
 Since the plot is drawn for each variable, if you specify more than
 one variable in the ... argument, the specified number of plots are drawn.
+
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \section{Outlier diagnostic information}{
 
@@ -47,7 +54,7 @@ The plot derived from the numerical data diagnosis is as follows.
 categ <- target_by(heartfailure, death_event)
 
 plot_outlier(categ, sodium)
-plot_outlier(categ, sodium, typographic = FALSE)
+# plot_outlier(categ, sodium, typographic = FALSE)
 
 # death_eventing dplyr
 library(dplyr)

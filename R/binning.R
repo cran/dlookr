@@ -66,8 +66,8 @@
 #' x <- sample(1:1000, size = 50) * 12345679
 #' bin <- binning(x)
 #' bin
-#' bin <- binning(x, approxy.lab = FALSE)
-#' bin
+#' # bin <- binning(x, approxy.lab = FALSE)
+#' # bin
 #'
 #' # extract binned results
 #' extract(bin)
@@ -78,13 +78,13 @@
 #' library(dplyr)
 #'
 #' # Compare binned frequency by death_event
-#' heartfailure2 %>%
-#'  mutate(platelets_bin = binning(heartfailure2$platelets) %>% 
-#'                      extract()) %>%
-#'  group_by(death_event, platelets_bin) %>%
-#'  summarise(freq = n()) %>%
-#'  arrange(desc(freq)) %>%
-#'  head(10)
+#' # heartfailure2 %>%
+#' #  mutate(platelets_bin = binning(heartfailure2$platelets) %>% 
+#' #                      extract()) %>%
+#' #  group_by(death_event, platelets_bin) %>%
+#' #  summarise(freq = n()) %>%
+#' #  arrange(desc(freq)) %>%
+#' #  head(10)
 #'  
 #'  # Compare binned frequency by death_event using Viz
 #'  heartfailure2 %>%
@@ -284,9 +284,16 @@ print.bins <- function(x, ...) {
 #' Visualize two plots on a single screen.
 #' The plot at the top is a histogram representing the frequency of the level.
 #' The plot at the bottom is a bar chart representing the frequency of the level.
+#' 
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x an object of class "bins", usually, a result of a call to binning().
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' @seealso \code{\link{binning}}, \code{\link{print.bins}}, \code{\link{summary.bins}}.
 #' @examples
@@ -302,21 +309,21 @@ print.bins <- function(x, ...) {
 #' bin <- binning(heartfailure2$platelets, nbins = 5, type = "equal")
 #' plot(bin)
 #' 
-#' #bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
-#' #plot(bin)
+#' # bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
+#' # plot(bin)
 #' 
-#' #bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
-#' #plot(bin)
+#' # bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
+#' # plot(bin)
 #' 
-#' bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
-#' plot(bin)
+#' # bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
+#' # plot(bin)
 #' 
 #' @export
 #' @method plot bins
 #' @importFrom gridExtra grid.arrange
 #' @import hrbrthemes
 #' @import ggplot2
-plot.bins <- function(x, typographic = TRUE, ...) {
+plot.bins <- function(x, typographic = TRUE, base_family = NULL, ...) {
   brks <- attr(x, "breaks")
   type <- attr(x, "type")
   levels <- attr(x, "levels")
@@ -336,11 +343,12 @@ plot.bins <- function(x, typographic = TRUE, ...) {
               fill = "#69b3a2", alpha = 0.8, color = "black") +
     xlim(min(brks), max(brks)) +
     labs(title = sprintf("Density of original data using '%s' method", type),
-         y = "Density")
+         y = "Density") +
+    theme_grey(base_family = base_family)
   
   if (typographic) {
     p_top <- p_top +
-      theme_typographic() 
+      theme_typographic(base_family) 
   }
   
   data_bottom <- data.frame(bins = seq(levels), freq = as.integer(table(bins)) / length(bins))
@@ -353,11 +361,12 @@ plot.bins <- function(x, typographic = TRUE, ...) {
          x = "", y = "Relative Frequency") +
     scale_x_continuous(breaks = seq(levels), 
                        labels = levels,
-                       limits = c(0.5, length(levels) + 0.5))
+                       limits = c(0.5, length(levels) + 0.5)) +
+    theme_grey(base_family = base_family) 
   
   if (typographic) {
     p_bottom <- p_bottom +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(plot.margin = margin(5, 20, 10, 20))
   }
   
@@ -426,8 +435,8 @@ plot.bins <- function(x, typographic = TRUE, ...) {
 #' bin <- binning_by(heartfailure2, "death_event", "creatinine")
 #' 
 #' # optimal binning using name
-#' bin <- binning_by(heartfailure2, death_event, creatinine)
-#' bin
+#' # bin <- binning_by(heartfailure2, death_event, creatinine)
+#' # bin
 #' 
 #' # performance table
 #' attr(bin, "performance")
@@ -507,8 +516,13 @@ binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
   if (length(unique(.data[, x])) < 5) 
     stop("x must be number of unique values greater then 4.")
   
-  ctree <- partykit::ctree(formula(paste(y, "~", x)), data = .data, na.action = na.exclude,
-                           control = partykit::ctree_control(minbucket = ceiling(round(p * nrow(.data)))))
+  ctree <- partykit::ctree(
+    formula(paste("`", y,"`", " ~ ", "`", x, "`", sep = "")), 
+    data = .data, na.action = na.exclude,
+    control = partykit::ctree_control(
+      minbucket = ceiling(round(p * nrow(.data)))
+      )
+    )
   
   bins <- width(ctree)
   if (bins < 2) {
@@ -634,11 +648,17 @@ summary.optimal_bins <- function(object, ...) {
 #'
 #' See vignette("transformation") for an introduction to these concepts.
 #'
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x an object of class "optimal_bins", usually, a result of a call to binning_by().
 #' @param type character. options for visualization. Distribution ("dist"), Relateive Frequency ("freq"),
 #' Positive Rate ("posrate"), and Weight of Evidence ("WoE"). and default "all" draw all plot.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param rotate_angle integer. specifies the rotation angle of the x-axis label. 
 #' This is useful when the x-axis labels are long and overlap. 
 #' The default is 0 to not rotate the label.
@@ -674,7 +694,7 @@ summary.optimal_bins <- function(object, ...) {
 #' @export
 #' @method plot optimal_bins
 plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE"), 
-                              typographic = TRUE, 
+                              typographic = TRUE, base_family = NULL,
                               rotate_angle = 0, ...) {
   if (is.character(x)) {
     cat("binn is the optimal_bins object that can not be binned : \n",
@@ -690,12 +710,13 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         geom_boxplot(fill = "slategrey", color = "darkslategrey", width = 0.3) +
         coord_flip() +
         ggtitle("Distribution of target") +
+        theme_grey(base_family = base_family) + 
         theme(axis.text.x = element_text(angle = rotate_angle, 
                                          vjust = 0.5, hjust = 0.5)) 
       
       if (typographic) {
         p_dist <- p_dist +
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(axis.text.x = element_text(angle = rotate_angle, 
                                            vjust = 0.5, hjust = 0.5)) 
         
@@ -721,13 +742,14 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         xlab("") +
         ylab("") +
         ggtitle("Percentage of frequency") +
+        theme_grey(base_family = base_family) + 
         theme(legend.position = "none") +
         theme(axis.text.x = element_text(angle = rotate_angle, 
                                          vjust = 0.5, hjust = 0.5)) 
       
       if (typographic) {
         p_freq <- p_freq +
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(axis.text.x = element_text(angle = rotate_angle, 
                                            vjust = 0.5, hjust = 0.5)) 
         
@@ -752,13 +774,14 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         xlab("") +
         ylab("") +
         ggtitle("Percentage of positive") +
+        theme_grey(base_family = base_family) + 
         theme(legend.position = "none") +
         theme(axis.text.x = element_text(angle = rotate_angle, 
                                          vjust = 0.5, hjust = 0.5)) 
       
       if (typographic) {
         p_badrate <- p_badrate +
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(axis.text.x = element_text(angle = rotate_angle, 
                                            vjust = 0.5, hjust = 0.5)) 
         
@@ -782,13 +805,14 @@ plot.optimal_bins <- function(x, type = c("all", "dist", "freq", "posrate", "WoE
         xlab("") +
         ylab("") +
         ggtitle("Weight of Evidence") +
+        theme_grey(base_family = base_family) + 
         theme(legend.position = "none") +
         theme(axis.text.x = element_text(angle = rotate_angle, 
                                          vjust = 0.5, hjust = 0.5)) 
       
       if (typographic) {
         p_woe <- p_woe +
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(axis.text.x = element_text(angle = rotate_angle, 
                                            vjust = 0.5, hjust = 0.5)) 
         
@@ -950,9 +974,9 @@ extract.bins <- function(x) {
 #' # plot(perf)
 #' 
 #' # Diagnose performance binned variable without NA
-#' perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
-#' perf
-#' summary(perf)
+#' # perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
+#' # perf
+#' # summary(perf)
 #' 
 #' # plot(perf)
 #' 
@@ -1181,9 +1205,9 @@ performance_bin <- function (y, x, na.rm = FALSE) {
 #' # plot(perf)
 #' 
 #' # Diagnose performance binned variable without NA
-#' perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
-#' perf
-#' summary(perf)
+#' # perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
+#' # perf
+#' # summary(perf)
 #' 
 #' # plot(perf)
 #' 
@@ -1244,9 +1268,15 @@ summary.performance_bin <- function(object, ...) {
 #' @description
 #' It generates plots for understand frequency, WoE by bins using performance_bin.
 #'
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x an object of class "performance_bin", usually, a result of a call to performance_bin().
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... further arguments to be passed from or to other methods.
 #' @seealso \code{\link{performance_bin}}, \code{\link{summary.performance_bin}}, \code{\link{binning_by}}, 
 #' \code{\link{plot.optimal_bins}}.
@@ -1272,19 +1302,19 @@ summary.performance_bin <- function(object, ...) {
 #' plot(perf)
 #' 
 #' # Diagnose performance binned variable without NA
-#' perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
-#' perf
-#' summary(perf)
+#' # perf <- performance_bin(heartfailure2$death_event_2, heartfailure2$creatinine_bin, na.rm = TRUE) 
+#' # perf
+#' # summary(perf)
 #' 
 #' plot(perf)
-#' plot(perf, typographic = FALSE)
+#' # plot(perf, typographic = FALSE)
 #' 
 #' @import ggplot2
 #' @import hrbrthemes
 #' @import dplyr
 #' @export
 #' @method plot performance_bin
-plot.performance_bin <- function(x, typographic = TRUE, ...) {
+plot.performance_bin <- function(x, typographic = TRUE, base_family = NULL, ...) {
   scaleFactor <- 
     x %>% 
     filter(!Bin %in% "Total") %>% 
@@ -1313,14 +1343,15 @@ plot.performance_bin <- function(x, typographic = TRUE, ...) {
       name = "Bin frequency",
       # Add a second axis and specify its features
       sec.axis = sec_axis(~(. - scaleFactor$a) / scaleFactor$b, name = "WoE")
-    ) 
+    ) +
+    theme_grey(base_family = base_family) 
   
   if (!typographic) {
     suppressWarnings({p +
         scale_fill_discrete(labels = c("Negative", "Positive"))}) 
   } else {
     suppressWarnings({p +
-        theme_typographic() +
+        theme_typographic(base_family) +
         scale_fill_ipsum(labels = c("Negative", "Positive")) +
         theme(
           axis.title.y = element_text(size = 13),

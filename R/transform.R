@@ -45,9 +45,9 @@
 #' plot(creatinine_minmax)
 #'
 #' # Resolving Skewness  --------------------------
-#' creatinine_log <- transform(heartfailure$creatinine, method = "log")
-#' creatinine_log
-#' summary(creatinine_log)
+#' # creatinine_log <- transform(heartfailure$creatinine, method = "log")
+#' # creatinine_log
+#' # summary(creatinine_log)
 #' 
 #' # plot(creatinine_log)
 #'
@@ -153,9 +153,9 @@ transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
 #' # plot(creatinine_minmax)
 #'
 #' # Resolving Skewness  --------------------------
-#' creatinine_log <- transform(heartfailure$creatinine, method = "log")
-#' creatinine_log
-#' summary(creatinine_log)
+#' # creatinine_log <- transform(heartfailure$creatinine, method = "log")
+#' # creatinine_log
+#' # summary(creatinine_log)
 #' 
 #' # plot(creatinine_log)
 #' 
@@ -198,10 +198,16 @@ summary.transform <- function(object, ...) {
 #' @description
 #' Visualize two kinds of plot by attribute of `transform` class.
 #' The transformation of a numerical variable is a density plot.
-#'
+#' 
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x an object of class "transform", usually, a result of a call to transform().
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' @seealso \code{\link{transform}}, \code{\link{summary.transform}}.
 #' @examples
@@ -213,13 +219,13 @@ summary.transform <- function(object, ...) {
 #' plot(creatinine_minmax)
 #'
 #' # Resolving Skewness  --------------------------
-#' creatinine_log <- transform(heartfailure$creatinine, method = "log")
-#' creatinine_log
-#' summary(creatinine_log)
+#' # creatinine_log <- transform(heartfailure$creatinine, method = "log")
+#' # creatinine_log
+#' # summary(creatinine_log)
 #' 
-#' plot(creatinine_log)
+#' # plot(creatinine_log)
 #' 
-#' plot(creatinine_log, typographic = FALSE)
+#' # plot(creatinine_log, typographic = FALSE)
 #' 
 #' @method plot transform
 #' @import ggplot2
@@ -227,7 +233,7 @@ summary.transform <- function(object, ...) {
 #' @importFrom tidyr gather
 #' @importFrom gridExtra grid.arrange
 #' @export
-plot.transform <- function(x, typographic = TRUE, ...) {
+plot.transform <- function(x, typographic = TRUE, base_family = NULL, ...) {
   origin <- attr(x, "origin")
   method <- attr(x, "method")
 
@@ -240,23 +246,25 @@ plot.transform <- function(x, typographic = TRUE, ...) {
     ggplot(aes(x = value)) +
     geom_density(fill = "#69b3a2", color = "black", alpha = 0.7, na.rm = TRUE) +
     ggtitle("Original Data") +
+    theme_grey(base_family = base_family) + 
     theme(plot.title = element_text(hjust = 0.5))
 
   fig2 <- df %>%
     filter(key == "transformation") %>%
     ggplot(aes(x = value)) +
     geom_density(fill = "#69b3a2", color = "black", alpha = 0.7, na.rm = TRUE) +
-    ggtitle(sprintf("Transformation with '%s'", method))+
+    ggtitle(sprintf("Transformation with '%s'", method)) +
+    theme_grey(base_family = base_family) + 
     theme(plot.title = element_text(hjust = 0.5))
 
   if (typographic) {
     fig1 <- fig1 +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(axis.title.x = element_text(size = 13),
             axis.title.y = element_text(size = 13))
     
     fig2 <- fig2 +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(axis.title.x = element_text(size = 13),
             axis.title.y = element_text(size = 13))
   }  
@@ -333,18 +341,18 @@ plot.transform <- function(x, typographic = TRUE, ...) {
 #' transformation_report(heartfailure)
 #' 
 #' # create pdf file. file name is Transformation_Report.pdf
-#' transformation_report(heartfailure, death_event)
+#' # transformation_report(heartfailure, death_event)
 #' 
 #' # create pdf file. file name is Transformation_heartfailure.pdf
-#' transformation_report(heartfailure, "death_event", 
-#'                       output_file = "Transformation_heartfailure.pdf")
+#' # transformation_report(heartfailure, "death_event", 
+#' #                       output_file = "Transformation_heartfailure.pdf")
 #' 
 #' # create html file. file name is Transformation_Report.html
-#' transformation_report(heartfailure, "death_event", output_format = "html")
+#' # transformation_report(heartfailure, "death_event", output_format = "html")
 #' 
 #' # create html file. file name is Transformation_heartfailure.html
-#' transformation_report(heartfailure, death_event, output_format = "html", 
-#'                       output_file = "Transformation_heartfailure.html")
+#' # transformation_report(heartfailure, death_event, output_format = "html", 
+#' #                       output_file = "Transformation_heartfailure.html")
 #' }
 #'
 #' @importFrom knitr knit2pdf

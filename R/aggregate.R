@@ -14,6 +14,10 @@ plot_bar_category <- function(.data, ...) {
 #' As a visualization method, a bar graph can help you understand 
 #' the distribution of categorical data more easily than a frequency table.
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data a data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.
 #' @param \dots one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -32,6 +36,9 @@ plot_bar_category <- function(.data, ...) {
 #' The default is FALSE, which draws multiple plots on one screen.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
+#' 
 #' 
 #' @examples
 #' # Generate data for the example
@@ -87,10 +94,12 @@ plot_bar_category <- function(.data, ...) {
 #' @rdname plot_bar_category.data.frame 
 plot_bar_category.data.frame <- function(.data, ..., top = 10, add_character = TRUE,
                                          title = "Frequency by levels of category",
-                                         each = FALSE, typographic = TRUE) {
+                                         each = FALSE, typographic = TRUE,
+                                         base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_bar_category_impl(.data, vars, top, add_character, title, each, typographic)
+  plot_bar_category_impl(.data, vars, top, add_character, title, each, 
+                         typographic, base_family)
 }
 
 #' @import ggplot2
@@ -100,7 +109,8 @@ plot_bar_category.data.frame <- function(.data, ..., top = 10, add_character = T
 #' @importFrom gridExtra arrangeGrob grid.arrange
 #' @importFrom grid textGrob gpar
 #' @importFrom tibble is_tibble as_tibble
-plot_bar_category_impl <- function(df, vars, top, add_character, title, each, typographic) {
+plot_bar_category_impl <- function(df, vars, top, add_character, title, each, 
+                                   typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- tibble::as_tibble(df)
@@ -189,12 +199,13 @@ plot_bar_category_impl <- function(df, vars, top, add_character, title, each, ty
         scale_x_discrete(limits = reverse_x) + 
         coord_flip() +   
         labs(title = title, x = "", y = ylab) +     
+        theme_grey(base_family = base_family) +         
         theme(legend.position = "none",
               axis.title.y = element_blank())
       
       if (typographic) {
         p <- p + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12))
         
@@ -218,9 +229,11 @@ plot_bar_category_impl <- function(df, vars, top, add_character, title, each, ty
     n_row <- floor(sqrt(n))
     
     if (typographic) {
-      fontfamily <- get_font_family()
+      if (is.null(base_family)) {
+        base_family <- "Roboto Condensed"  
+      }
       
-      title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+      title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                      fontsize = 18, font = 2),
                               x = unit(0.075, "npc"), just = "left")
     }
@@ -239,13 +252,16 @@ plot_bar_category_impl <- function(df, vars, top, add_character, title, each, ty
 #' @export
 plot_bar_category.grouped_df <- function(.data, ..., top = 10, add_character = TRUE,
                                          title = "Frequency by levels of category",
-                                         each = FALSE, typographic = TRUE) {
+                                         each = FALSE, typographic = TRUE,
+                                         base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_bar_category_group_impl(.data, vars, top, add_character, title, each, typographic)
+  plot_bar_category_group_impl(.data, vars, top, add_character, title, each, 
+                               typographic, base_family)
 }
 
-plot_bar_category_group_impl <- function(df, vars, top, add_character, title, each, typographic) {
+plot_bar_category_group_impl <- function(df, vars, top, add_character, title, each, 
+                                         typographic, base_family) {
   if (utils::packageVersion("dplyr") >= "0.8.0") {
     group_key <- setdiff(attr(df, "groups") %>% names(), ".rows")
     n_levels <- attr(df, "group") %>% nrow() 
@@ -369,12 +385,13 @@ plot_bar_category_group_impl <- function(df, vars, top, add_character, title, ea
         scale_x_discrete(limits = reverse_x) + 
         coord_flip() +
         labs(title = title, x = "", y = ylab) +     
+        theme_grey(base_family = base_family) +         
         theme(legend.position = "none",
               axis.title.y = element_blank())
       
       if (typographic) {
         p <- p + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12))
         
@@ -401,16 +418,19 @@ plot_bar_category_group_impl <- function(df, vars, top, add_character, title, ea
     #                          right = group_key))
     
     if (typographic) {
-      fontfamily <- get_font_family()
+      if (is.null(base_family)) {
+        base_family <- "Roboto Condensed"     
+      }
       
-      title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+      title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                      fontsize = 18, font = 2),
                               x = unit(0.075, "npc"), just = "left")
     }
     
     suppressWarnings(gridExtra::grid.arrange(
-      gridExtra::arrangeGrob(grobs = plist, nrow = n_row),
-      top = title, right = group_key))
+      gridExtra::arrangeGrob(grobs = plist, nrow = n_row), top = title, 
+      right = grid::textGrob(group_key, rot = 270,
+                             gp = gpar(fontfamily = base_family))))
   }
 }
 
@@ -433,6 +453,10 @@ plot_qq_numeric <- function(.data, ...) {
 #' on one screen. This function can also display a Q-Q plot for each level of a specific 
 #' categorical variable.
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#'  
 #' @param .data data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.
 #' @param \dots one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -450,6 +474,8 @@ plot_qq_numeric <- function(.data, ...) {
 #' The default is FALSE, which draws multiple plots on one screen.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Visualization of all numerical variables
 #' # plot_qq_numeric(heartfailure)
@@ -489,13 +515,16 @@ plot_qq_numeric <- function(.data, ...) {
 #' 
 plot_qq_numeric.data.frame <- function(.data, ..., col_point = "steelblue", col_line = "black",
                                        title = "Q-Q plot by numerical variables",
-                                       each = FALSE, typographic = TRUE) {
+                                       each = FALSE, typographic = TRUE,
+                                       base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_qq_numeric_impl(.data, vars, col_point, col_line, title, each, typographic)
+  plot_qq_numeric_impl(.data, vars, col_point, col_line, title, each, 
+                       typographic, base_family)
 }
 
-plot_qq_numeric_impl <- function(df, vars, col_point, col_line, title, each, typographic) {
+plot_qq_numeric_impl <- function(df, vars, col_point, col_line, title, each, 
+                                 typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
@@ -520,16 +549,17 @@ plot_qq_numeric_impl <- function(df, vars, col_point, col_line, title, each, typ
       
       p_qq <- df %>% 
         mutate(variables = var) %>% 
-        ggplot(aes_string(sample = var)) +
+        ggplot(aes(sample = !!sym(var))) +
         stat_qq(col = col_point) + 
         stat_qq_line(col = col_line) +
         facet_wrap(~ variables) + 
-        labs(title = title, x = xlab, y = ylab) +        
+        labs(title = title, x = xlab, y = ylab) +      
+        theme_grey(base_family = base_family) +         
         theme(legend.position = "none")
       
       if (typographic) {
         p_qq <- p_qq + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12),
                 axis.title.y = element_text(size = 12))
@@ -554,9 +584,11 @@ plot_qq_numeric_impl <- function(df, vars, col_point, col_line, title, each, typ
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
@@ -576,10 +608,12 @@ plot_qq_numeric_impl <- function(df, vars, col_point, col_line, title, each, typ
 #' 
 plot_qq_numeric.grouped_df <- function(.data, ..., col_point = "steelblue", col_line = "black",
                                        title = "Q-Q plot by numerical variables",
-                                       each = FALSE, typographic = TRUE) {
+                                       each = FALSE, typographic = TRUE,
+                                       base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_qq_numeric_group_impl(.data, vars, col_point, col_line, title, each, typographic)
+  plot_qq_numeric_group_impl(.data, vars, col_point, col_line, title, each, 
+                             typographic, base_family)
 }
 
 #' @import ggplot2
@@ -588,7 +622,8 @@ plot_qq_numeric.grouped_df <- function(.data, ..., col_point = "steelblue", col_
 #' @importFrom purrr map
 #' @importFrom gridExtra grid.arrange
 #' @importFrom grid textGrob gpar
-plot_qq_numeric_group_impl <- function(df, vars, col_point, col_line, title, each, typographic) {
+plot_qq_numeric_group_impl <- function(df, vars, col_point, col_line, title, 
+                                       each, typographic, base_family) {
   if (utils::packageVersion("dplyr") >= "0.8.0") {
     group_key <- setdiff(attr(df, "groups") %>% names(), ".rows")
   } else {
@@ -622,16 +657,17 @@ plot_qq_numeric_group_impl <- function(df, vars, col_point, col_line, title, eac
       
       p_qq <- df %>% 
         mutate(variables = var) %>% 
-        ggplot(aes_string(sample = var)) +
+        ggplot(aes(sample = !!sym(var))) +
         stat_qq(col = col_point) + 
         stat_qq_line(col = col_line) +
         facet_grid(reformulate("variables", group_key)) + 
-        labs(title = title, x = xlab, y = ylab) +        
+        labs(title = title, x = xlab, y = ylab) +    
+        theme_grey(base_family = base_family) +         
         theme(legend.position = "none")
       
       if (typographic) {
         p_qq <- p_qq + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12),
                 axis.title.y = element_text(size = 12))
@@ -656,16 +692,19 @@ plot_qq_numeric_group_impl <- function(df, vars, col_point, col_line, title, eac
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
       
       suppressWarnings(gridExtra::grid.arrange(
-        gridExtra::arrangeGrob(grobs = plist, nrow = n_row), 
-        top = title, right = group_key))
+        gridExtra::arrangeGrob(grobs = plist, nrow = n_row), top = title, 
+        right = grid::textGrob(group_key, rot = 270,
+                               gp = gpar(fontfamily = base_family))))
     }
   }) # End of suppressWarnings()
 }
@@ -687,6 +726,10 @@ plot_box_numeric <- function(.data, ...) {
 #' plot_box_numeric() shows box plots of several numeric variables 
 #' on one screen. This function can also display a box plot for each level of a specific 
 #' categorical variable.
+#' 
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
 #'
 #' @param .data data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.
 #' @param \dots one or more unquoted expressions separated by commas.
@@ -703,6 +746,8 @@ plot_box_numeric <- function(.data, ...) {
 #' The default is FALSE, which draws multiple plots on one screen.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Visualization of all numerical variables
 #' # plot_box_numeric(heartfailure)
@@ -745,13 +790,14 @@ plot_box_numeric <- function(.data, ...) {
 #' 
 plot_box_numeric.data.frame <- function(.data, ..., 
                                         title = "Distribution by numerical variables",
-                                        each = FALSE, typographic = TRUE) {
+                                        each = FALSE, typographic = TRUE,
+                                        base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_box_numeric_impl(.data, vars, title, each, typographic)
+  plot_box_numeric_impl(.data, vars, title, each, typographic, base_family)
 }
 
-plot_box_numeric_impl <- function(df, vars, title, each, typographic) {
+plot_box_numeric_impl <- function(df, vars, title, each, typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
@@ -774,18 +820,19 @@ plot_box_numeric_impl <- function(df, vars, title, each, typographic) {
       
       p_box <- df %>% 
         mutate(variables = var) %>% 
-        ggplot(aes_string(y = var)) +
+        ggplot(aes(y = !!sym(var))) +
         geom_boxplot(fill = "steelblue", alpha = 0.8) +
         xlim(-0.7, 0.7) +
         coord_flip() + 
         labs(title = title, subtitle = var, x = xlab) +        
+        theme_grey(base_family = base_family) +         
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
       
       if (typographic) {
         p_box <- p_box + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_blank(),
                 axis.title.y = element_text(size = 12))
@@ -818,9 +865,11 @@ plot_box_numeric_impl <- function(df, vars, title, each, typographic) {
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
@@ -840,13 +889,14 @@ plot_box_numeric_impl <- function(df, vars, title, each, typographic) {
 #' 
 plot_box_numeric.grouped_df <- function(.data, ..., 
                                         title = "Distribution by numerical variables",
-                                        each = FALSE, typographic = TRUE) {
+                                        each = FALSE, typographic = TRUE,
+                                        base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_box_numeric_group_impl(.data, vars, title, each, typographic)
+  plot_box_numeric_group_impl(.data, vars, title, each, typographic, base_family)
 }
 
-plot_box_numeric_group_impl <- function(df, vars, title, each, typographic) {
+plot_box_numeric_group_impl <- function(df, vars, title, each, typographic, base_family) {
   if (utils::packageVersion("dplyr") >= "0.8.0") {
     group_key <- setdiff(attr(df, "groups") %>% names(), ".rows")
   } else {
@@ -880,12 +930,13 @@ plot_box_numeric_group_impl <- function(df, vars, title, each, typographic) {
       
       p_box <- df %>% 
         mutate(variables = var) %>% 
-        ggplot(aes_string(y = var, fill = group_key)) +
+        ggplot(aes(y = !!sym(var), fill = group_key)) +
         geom_boxplot(alpha = 0.7) + 
         xlim(-0.7, 0.7) +
         coord_flip() +
         facet_grid(reformulate("variables", group_key)) + 
         labs(title = title, x = xlab, y = ylab) +        
+        theme_grey(base_family = base_family) +         
         theme(legend.position = "none",
               axis.title.y = element_blank(),
               axis.text.y = element_blank(),
@@ -893,7 +944,7 @@ plot_box_numeric_group_impl <- function(df, vars, title, each, typographic) {
       
       if (typographic) {
         p_box <- p_box + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           scale_fill_ipsum() + 
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12),
@@ -923,16 +974,19 @@ plot_box_numeric_group_impl <- function(df, vars, title, each, typographic) {
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
       
       suppressWarnings(gridExtra::grid.arrange(
-        gridExtra::arrangeGrob(grobs = plist, nrow = n_row),
-        top = title, right = group_key))
+        gridExtra::arrangeGrob(grobs = plist, nrow = n_row), top = title, 
+        right = grid::textGrob(group_key, rot = 270,
+                               gp = gpar(fontfamily = base_family))))
     }
   }) # End of suppressWarnings()
 }
@@ -957,6 +1011,10 @@ plot_hist_numeric <- function(.data, ...) {
 #' categorical variable.
 #' The bin-width is set to the Freedman-Diaconis rule (2 * IQR(x) / length(x)^(1/3))
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.
 #' @param \dots one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -972,6 +1030,8 @@ plot_hist_numeric <- function(.data, ...) {
 #' The default is FALSE, which draws multiple plots on one screen.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Visualization of all numerical variables
 #' # plot_hist_numeric(heartfailure)
@@ -1014,13 +1074,14 @@ plot_hist_numeric <- function(.data, ...) {
 #' 
 plot_hist_numeric.data.frame <- function(.data, ..., 
                                         title = "Distribution by numerical variables",
-                                        each = FALSE, typographic = TRUE) {
+                                        each = FALSE, typographic = TRUE,
+                                        base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_hist_numeric_impl(.data, vars, title, each, typographic)
+  plot_hist_numeric_impl(.data, vars, title, each, typographic, base_family)
 }
 
-plot_hist_numeric_impl <- function(df, vars, title, each, typographic) {
+plot_hist_numeric_impl <- function(df, vars, title, each, typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
@@ -1042,18 +1103,19 @@ plot_hist_numeric_impl <- function(df, vars, title, each, typographic) {
       }
       
       p_box <- df %>% 
-        mutate(variables = var) %>% 
-        ggplot(aes_string(x = var)) +
+        rename(variables = {{var}}) %>% 
+        ggplot(aes(x = variables)) +
         geom_histogram(color="#e9ecef", fill = "steelblue", alpha = 0.8,
                        bins = round(log2(nrow(df)) + 1)) +
-        labs(title = title, subtitle = var, x = xlab) +        
+        labs(title = title, subtitle = var, x = xlab) +     
+        theme_grey(base_family = base_family) +
         theme(axis.title.y = element_blank(),
               axis.text.y = element_blank(),
               axis.ticks.y = element_blank())
       
       if (typographic) {
         p_box <- p_box + 
-          theme_typographic() +
+          theme_typographic(base_family) +
           theme(legend.position = "none",
                 axis.title.x = element_blank(),
                 axis.title.y = element_text(size = 12))
@@ -1086,9 +1148,11 @@ plot_hist_numeric_impl <- function(df, vars, title, each, typographic) {
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
@@ -1108,15 +1172,16 @@ plot_hist_numeric_impl <- function(df, vars, title, each, typographic) {
 #' 
 plot_hist_numeric.grouped_df <- function(.data, ..., 
                                         title = "Distribution by numerical variables",
-                                        each = FALSE, typographic = TRUE) {
+                                        each = FALSE, typographic = TRUE, 
+                                        base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
-  plot_hist_numeric_group_impl(.data, vars, title, each, typographic)
+  plot_hist_numeric_group_impl(.data, vars, title, each, typographic, base_family)
 }
 
 #' @importFrom stats IQR
 #' 
-plot_hist_numeric_group_impl <- function(df, vars, title, each, typographic) {
+plot_hist_numeric_group_impl <- function(df, vars, title, each, typographic, base_family) {
   if (utils::packageVersion("dplyr") >= "0.8.0") {
     group_key <- setdiff(attr(df, "groups") %>% names(), ".rows")
   } else {
@@ -1150,11 +1215,12 @@ plot_hist_numeric_group_impl <- function(df, vars, title, each, typographic) {
       
       p_box <- df %>% 
         mutate(variables = var) %>% 
-        ggplot(aes_string(x = var, fill = group_key)) +
-        geom_histogram(color="#e9ecef", alpha = 0.7,
+        ggplot(aes(x = !!sym(var), fill = !!sym(group_key))) +
+        geom_histogram(color="#e9ecef", alpha = 0.8,
                        binwidth = function(x) 2 * stats::IQR(x) / (length(x)^(1/3))) + 
         facet_grid(reformulate("variables", group_key)) + 
-        labs(title = title, x = xlab, y = ylab) +        
+        labs(title = title, x = xlab, y = ylab) +    
+        theme_grey(base_family = base_family) + 
         theme(legend.position = "none",
               axis.title.y = element_blank(),
               axis.text.y = element_blank(),
@@ -1162,8 +1228,8 @@ plot_hist_numeric_group_impl <- function(df, vars, title, each, typographic) {
       
       if (typographic) {
         p_box <- p_box + 
-          theme_typographic() +
-          scale_fill_ipsum() + 
+          theme_typographic(base_family) +
+          scale_fill_ipsum(na.value = "gray") + 
           theme(legend.position = "none",
                 axis.title.x = element_text(size = 12),
                 axis.text.y = element_blank(),
@@ -1192,16 +1258,19 @@ plot_hist_numeric_group_impl <- function(df, vars, title, each, typographic) {
       n_row <- floor(sqrt(n))
       
       if (typographic) {
-        fontfamily <- get_font_family()
+        if (is.null(base_family)) {
+          base_family <- "Roboto Condensed"           
+        }
         
-        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = fontfamily, 
+        title <- grid::textGrob(title, gp = grid::gpar(fontfamily = base_family, 
                                                        fontsize = 18, font = 2),
                                 x = unit(0.075, "npc"), just = "left")
       }
       
       suppressWarnings(gridExtra::grid.arrange(
-        gridExtra::arrangeGrob(grobs = plist, nrow = n_row),
-        top = title, right = group_key))
+        gridExtra::arrangeGrob(grobs = plist, nrow = n_row), top = title, 
+        right = grid::textGrob(group_key, rot = 270,
+                               gp = gpar(fontfamily = base_family))))
     }
   }) # End of suppressWarnings()
 }

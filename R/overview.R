@@ -316,8 +316,16 @@ summary.overview <- function(object, html = FALSE, ...)  {
 #' Visualize a plot by attribute of `overview` class.
 #' Visualize the data type, number of observations, and number of missing values for each variable.
 #'
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x an object of class "overview", usually, a result of a call to overview().
 #' @param order_type character. method of order of bars(variables).
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... further arguments to be passed from or to other methods.
 #' @seealso \code{\link{overview}}, \code{\link{summary.overview}}.
 #' @examples
@@ -333,14 +341,15 @@ summary.overview <- function(object, html = FALSE, ...)  {
 #' plot(ov, order_type = "name")
 #' 
 #' # sort by data type of variables
-#' plot(ov, order_type = "type")
+#' # plot(ov, order_type = "type")
 #' }
 #' 
 #' @method plot overview
 #' @import ggplot2
 #' @import dplyr
 #' @export
-plot.overview <- function(x, order_type = c("none", "name", "type"), ...)  {
+plot.overview <- function(x, order_type = c("none", "name", "type"), 
+                          typographic = TRUE, base_family = NULL, ...)  {
   info_class <- attr(x, "info_class")
   na_col <- attr(x, "na_col")
   
@@ -364,7 +373,7 @@ plot.overview <- function(x, order_type = c("none", "name", "type"), ...)  {
       mutate(variable = factor(variable, levels = odr))  
   }
   
-  raw %>% 
+  p <- raw %>% 
     ggplot() +
     geom_bar(aes(x = variable, y = cnt, fill = class), stat = "identity") +
     geom_point(aes(x = variable, y = n_missing, color = "Missing")) +
@@ -376,7 +385,16 @@ plot.overview <- function(x, order_type = c("none", "name", "type"), ...)  {
            color = guide_legend(order = 2)) + 
     ylab("Count") +
     xlab("Variables") +
+    theme_grey(base_family = base_family) +  
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  
+  if (typographic) {
+    p <- p +
+      theme_typographic(base_family) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  }  
+  
+  p
 }
 
 

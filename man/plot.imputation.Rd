@@ -4,7 +4,7 @@
 \alias{plot.imputation}
 \title{Visualize Information for an "imputation" Object}
 \usage{
-\method{plot}{imputation}(x, typographic = TRUE, ...)
+\method{plot}{imputation}(x, typographic = TRUE, base_family = NULL, ...)
 }
 \arguments{
 \item{x}{an object of class "imputation", usually, a result of a call to imputate_na()
@@ -13,6 +13,9 @@ or imputate_outlier().}
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
+
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
 only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.}
 }
@@ -20,6 +23,11 @@ only applies when the model argument is TRUE, and is used for ... of the plot.lm
 Visualize two kinds of plot by attribute of `imputation` class.
 The imputation of a numerical variable is a density plot,
 and the imputation of a categorical variable is a bar plot.
+}
+\details{
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \examples{
 \donttest{
@@ -37,11 +45,11 @@ summary(platelets)
 plot(platelets)
 
 # If the variable of interest is a categorical variables
-smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
-smoking
-summary(smoking)
+# smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
+# smoking
+# summary(smoking)
 
-plot(smoking)
+# plot(smoking)
 
 # Impute outliers ----------------------------------
 # If the variable of interest is a numerical variable

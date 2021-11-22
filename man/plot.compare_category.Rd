@@ -4,7 +4,14 @@
 \alias{plot.compare_category}
 \title{Visualize Information for an "compare_category" Object}
 \usage{
-\method{plot}{compare_category}(x, prompt = FALSE, na.rm = FALSE, typographic = TRUE, ...)
+\method{plot}{compare_category}(
+  x,
+  prompt = FALSE,
+  na.rm = FALSE,
+  typographic = TRUE,
+  base_family = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class "compare_category", usually, a result of a call to compare_category().}
@@ -17,6 +24,9 @@ The default is FALSE, so plot NA.}
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
 
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
+
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).
 However, it only support las parameter. las is numeric in {0,1}; the style of axis labels.
 \itemize{
@@ -26,6 +36,11 @@ However, it only support las parameter. las is numeric in {0,1}; the style of ax
 }
 \description{
 Visualize mosaics plot by attribute of compare_category class.
+}
+\details{
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \examples{
 # Generate data for the example
@@ -47,7 +62,7 @@ two_var <- compare_category(heartfailure2, smoking, death_event)
 two_var
 
 # plot all pair of variables
-plot(all_var)
+# plot(all_var)
 
 # plot a pair of variables
 plot(two_var)
@@ -56,13 +71,13 @@ plot(two_var)
 # plot(all_var, prompt = TRUE)
   
 # plot a pair of variables without NA
-plot(two_var, na.rm = TRUE)
+# plot(two_var, na.rm = TRUE)
 
 # plot a pair of variables
-plot(two_var, las = 1)
+# plot(two_var, las = 1)
 
 # plot a pair of variables not focuses on typographic elements
-plot(two_var, typographic = FALSE)
+# plot(two_var, typographic = FALSE)
 
 }
 \seealso{

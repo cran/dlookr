@@ -92,9 +92,9 @@ plot_correlate <- function(.data, ...) {
 #'  correlate() %>%
 #'  filter(as.integer(var1) > as.integer(var2))
 #'
-#' heartfailure %>%
-#'  correlate(creatinine, sodium) %>%
-#'  filter(as.integer(var1) > as.integer(var2))
+#' # heartfailure %>%
+#' #  correlate(creatinine, sodium) %>%
+#' #  filter(as.integer(var1) > as.integer(var2))
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Compute the correlation coefficient of Sales variable by 'smoking'
@@ -109,12 +109,12 @@ plot_correlate <- function(.data, ...) {
 #' # and compute the correlation coefficient of 'Sales' variable
 #' # by 'hblood_pressure' and 'death_event' variables.
 #' # And the correlation coefficient is negative and smaller than 0.5
-#' heartfailure %>%
-#'  filter(smoking == "Yes") %>%
-#'  group_by(hblood_pressure, death_event) %>%
-#'  correlate(creatinine) %>%
-#'  filter(coef_corr < 0) %>%
-#'  filter(abs(coef_corr) > 0.5)
+#' # heartfailure %>%
+#' #  filter(smoking == "Yes") %>%
+#' #  group_by(hblood_pressure, death_event) %>%
+#' #  correlate(creatinine) %>%
+#' #  filter(coef_corr < 0) %>%
+#' #  filter(abs(coef_corr) > 0.5)
 #' @method correlate data.frame
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang quos
@@ -230,9 +230,17 @@ correlate_group_impl <- function(df, vars, method) {
 #' Since the plot is drawn for each variable, if you specify more than
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param method a character string indicating which correlation coefficient (or covariance) is 
 #' to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
 #' Positive values select variables; negative values to drop variables.
@@ -261,18 +269,18 @@ correlate_group_impl <- function(df, vars, method) {
 #'
 #' gdata <- group_by(heartfailure, smoking, death_event)
 #' plot_correlate(gdata, "creatinine")
-#' plot_correlate(gdata)
+#' # plot_correlate(gdata)
 #'
 #' # Using pipes ---------------------------------
 #' # Visualize correlation plot of all numerical variables
-#' heartfailure %>%
-#'   plot_correlate()
+#' # heartfailure %>%
+#' #   plot_correlate()
 #' # Positive values select variables
 #' heartfailure %>%
 #'   plot_correlate(creatinine, sodium)
 #' # Negative values to drop variables
-#' heartfailure %>%
-#'   plot_correlate(-creatinine, -sodium)
+#' # heartfailure %>%
+#' #   plot_correlate(-creatinine, -sodium)
 #' # Positions values select variables
 #' heartfailure %>%
 #'   plot_correlate(1)
@@ -290,30 +298,31 @@ correlate_group_impl <- function(df, vars, method) {
 #' # Extract only those with 'smoking' variable level is "Yes",
 #' # and visualize correlation plot of 'creatinine' variable by 'hblood_pressure'
 #' # and 'death_event' variables.
-#' heartfailure %>%
-#'  filter(smoking == "Yes") %>%
-#'  group_by(hblood_pressure, death_event) %>%
-#'  plot_correlate(creatinine)
+#' #heartfailure %>%
+#' #  filter(smoking == "Yes") %>%
+#' #  group_by(hblood_pressure, death_event) %>%
+#' #  plot_correlate(creatinine)
 #'  
 #' @method plot_correlate data.frame
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang quos
 #' @export
-plot_correlate.data.frame <- function(.data, ..., method = c("pearson", "kendall", 
-                                                             "spearman")) {
+plot_correlate.data.frame <- function(.data, ..., 
+                                      method = c("pearson", "kendall", "spearman"),
+                                      typographic = TRUE, base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   method <- match.arg(method)
   
-  plot_correlate_impl(.data, vars, method)
+  plot_correlate_impl(.data, vars, method, typographic, base_family)
 }
 
 
 #' @import ggplot2
 #' 
-plot_correlate_impl <- function(df, vars, method) {
+plot_correlate_impl <- function(df, vars, method, typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
-  df %>% 
+  p <- df %>% 
     correlate(method = method) %>% 
     filter(var2 %in% vars) %>% 
     ggplot(aes(var1, var2, fill = coef_corr, label = round(coef_corr, 2))) +
@@ -325,11 +334,21 @@ plot_correlate_impl <- function(df, vars, method) {
     scale_y_discrete(expand = c(0, 0)) +
     labs(fill = "Correlation\nCoefficient") + 
     coord_equal() +
-    theme_typographic() +
+    theme_grey(base_family = base_family) +
     theme(axis.title.x = element_blank(),
           axis.title.y = element_blank(),
           axis.text.x = element_text(angle = 40, hjust = 1),
           panel.grid.major = element_blank())
+  
+  if (typographic) {
+    p <- p + theme_typographic(base_family) +
+      theme(axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.x = element_text(angle = 40, hjust = 1),
+            panel.grid.major = element_blank())
+  } 
+
+  p
 }
 
 
@@ -339,18 +358,19 @@ plot_correlate_impl <- function(df, vars, method) {
 #' @importFrom rlang quos warn
 #' @export
 plot_correlate.grouped_df <- function(.data, ..., method = c("pearson", "kendall", 
-                                                             "spearman")) {
+                                                             "spearman"),
+                                      typographic = TRUE, base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   method <- match.arg(method)
   
-  plot_correlate_group_impl(.data, vars, method)
+  plot_correlate_group_impl(.data, vars, method, typographic, base_family)
 }
 
 
 #' @import ggplot2
 #' @import dplyr
 #' @importFrom utils packageVersion
-plot_correlate_group_impl <- function(df, vars, method) {
+plot_correlate_group_impl <- function(df, vars, method, typographic, base_family) {
   if (length(vars) == 0) vars <- names(df)
 
   idx_numeric <- find_class(df, type = "numerical")
@@ -403,11 +423,20 @@ plot_correlate_group_impl <- function(df, vars, method) {
           labs(title = label, 
                fill = "Correlation\nCoefficient") + 
           coord_equal() +
-          theme_typographic() +
+          theme_grey(base_family = base_family) +
           theme(axis.title.x = element_blank(),
                 axis.title.y = element_blank(),
                 axis.text.x = element_text(angle = 40, hjust = 1),
                 panel.grid.major = element_blank())
+        
+        if (typographic) {
+          p <- p + 
+            theme_typographic(base_family) +
+            theme(axis.title.x = element_blank(),
+                  axis.title.y = element_blank(),
+                  axis.text.x = element_text(angle = 40, hjust = 1),
+                  panel.grid.major = element_blank())
+        } 
         
         print(p)        
       }

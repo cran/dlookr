@@ -55,25 +55,25 @@ plot_normality <- function(.data, ...) {
 #' 
 #' # Select the variable to describe
 #' normality(heartfailure, platelets, sodium)
-#' normality(heartfailure, -platelets, -sodium)
-#' normality(heartfailure, 1)
-#' normality(heartfailure, platelets, sodium, sample = 200)
+#' # normality(heartfailure, -platelets, -sodium)
+#' # normality(heartfailure, 1)
+#' # normality(heartfailure, platelets, sodium, sample = 200)
 #' 
 #' # death_eventing dplyr::grouped_dt
 #' library(dplyr)
 #' 
 #' gdata <- group_by(heartfailure, smoking, death_event)
 #' normality(gdata, "platelets")
-#' normality(gdata, sample = 250)
+#' # normality(gdata, sample = 250)
 #' 
 #' # death_eventing pipes ---------------------------------
 #' # Normality test of all numerical variables
 #' heartfailure %>%
 #'   normality()
 #' 
-#' # Positive values select variables
-#' heartfailure %>%
-#'   normality(platelets, sodium)
+#' # # Positive values select variables
+#' # heartfailure %>%
+#' #   normality(platelets, sodium)
 #' 
 #' # Positions values select variables
 #' heartfailure %>%
@@ -242,6 +242,10 @@ normality_group_impl <- function(df, vars, sample) {
 #'   \item histogram by square root transfer data
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#'
 #' @param .data a data.frame or a \code{\link{tbl_df}}.
 #' @param ... one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -260,6 +264,8 @@ normality_group_impl <- function(df, vars, sample) {
 #' @param col a color to be used to fill the bars. The default is "steelblue".
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' 
 #' @seealso \code{\link{plot_normality.tbl_dbi}}, \code{\link{plot_outlier.data.frame}}.
 #' @export
@@ -271,8 +277,8 @@ normality_group_impl <- function(df, vars, sample) {
 #'
 #' # Select the variable to plot
 #' plot_normality(heartfailure2, platelets, sodium)
-#' plot_normality(heartfailure2, -platelets, -sodium, col = "gray")
-#' plot_normality(heartfailure2, 1)
+#' # plot_normality(heartfailure2, -platelets, -sodium, col = "gray")
+#' # plot_normality(heartfailure2, 1)
 #'
 #' # Change the method of transformation
 #' plot_normality(heartfailure2, platelets, right = "1/x")
@@ -282,8 +288,8 @@ normality_group_impl <- function(df, vars, sample) {
 #' } else {
 #'   cat("If you want to use this feature, you need to install the rpart package.\n")
 #' }
-#' # Not allow typographic elements
-#' plot_normality(heartfailure2, platelets, typographic = FALSE)
+#' # # Not allow typographic elements
+#' # plot_normality(heartfailure2, platelets, typographic = FALSE)
 #' 
 #' # Using dplyr::grouped_df
 #' library(dplyr)
@@ -298,8 +304,8 @@ normality_group_impl <- function(df, vars, sample) {
 #'  plot_normality()
 #'
 #' # Positive values select variables
-#' heartfailure2 %>%
-#' plot_normality(platelets, sodium)
+#' # heartfailure2 %>%
+#' # plot_normality(platelets, sodium)
 #'
 #' # Positions values select variables
 #' # heartfailure2 %>%
@@ -307,9 +313,9 @@ normality_group_impl <- function(df, vars, sample) {
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Plot 'creatinine' variable by 'sex' and 'smoking'
-#' heartfailure2 %>%
-#'  group_by(sex, smoking) %>%
-#'  plot_normality(creatinine)
+#' # heartfailure2 %>%
+#' #  group_by(sex, smoking) %>%
+#' #  plot_normality(creatinine)
 #'
 #' # extract only those with 'sex' variable level is "Male",
 #' # and plot 'platelets' by 'smoking'
@@ -327,37 +333,43 @@ normality_group_impl <- function(df, vars, sample) {
 #' @importFrom rlang quos
 #' @importFrom tibble is_tibble
 #' @export
-plot_normality.data.frame <- function(.data, ..., left = c("log", "sqrt", "log+1", "log+a", "1/x", "x^2", 
-                                                           "x^3", "Box-Cox", "Yeo-Johnson"),
-                                      right = c("sqrt", "log", "log+1", "log+a", "1/x", "x^2", 
-                                                "x^3", "Box-Cox", "Yeo-Johnson"),
-                                      col = "steelblue", typographic = TRUE) {
+plot_normality.data.frame <- function(.data, ..., 
+                                      left = c("log", "sqrt", "log+1", "log+a", 
+                                               "1/x", "x^2", "x^3", "Box-Cox", 
+                                               "Yeo-Johnson"),
+                                      right = c("sqrt", "log", "log+1", "log+a", 
+                                                "1/x", "x^2", "x^3", "Box-Cox", 
+                                                "Yeo-Johnson"),
+                                      col = "steelblue", typographic = TRUE, 
+                                      base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
   left <- match.arg(left)
   right <- match.arg(right)
   
-  plot_normality_impl(.data, vars, left, right, col, typographic)
+  plot_normality_impl(.data, vars, left, right, col, typographic, base_family)
 }
 
 #' @importFrom stats qqline qqnorm
-plot_normality_impl <- function(df, vars, left, right, col = "steelblue", typographic = TRUE) {
+plot_normality_impl <- function(df, vars, left, right, col = "steelblue", 
+                                typographic = TRUE, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- as_tibble(df)
   
   idx_numeric <- find_class(df[, vars], type = "numerical")
   
-  plot_normality <- function(df, var, left, right, col = "steelblue", typographic = TRUE) {
+  plot_normality <- function(df, var, left, right, col = "steelblue", 
+                             typographic = TRUE, base_family) {
     x <- pull(df, var)
     
     main <- sprintf("Normality Diagnosis Plot (%s)", var) 
     
-    plot_normality_raw(x, left, right, main, col, typographic)
+    plot_normality_raw(x, left, right, main, col, typographic, base_family)
   }
   
   invisible(lapply(vars[idx_numeric], function(x) 
-    plot_normality(df, x, left, right, col, typographic)))
+    plot_normality(df, x, left, right, col, typographic, base_family)))
 }
 
 
@@ -366,11 +378,13 @@ plot_normality_impl <- function(df, vars, left, right, col = "steelblue", typogr
 #' @import hrbrthemes
 #' @importFrom gridExtra grid.arrange
 #' @importFrom grid textGrob gpar
-plot_normality_raw <- function(x, left = c("log", "sqrt", "log+1", "log+a", "1/x", "x^2", 
-                                           "x^3", "Box-Cox", "Yeo-Johnson"),
-                               right = c("sqrt", "log", "log+1", "log+a", "1/x", "x^2", 
-                                         "x^3", "Box-Cox", "Yeo-Johnson"),
-                               main = NULL, col = "steelblue", typographic = TRUE) {
+plot_normality_raw <- function(x, 
+                               left = c("log", "sqrt", "log+1", "log+a", "1/x", 
+                                        "x^2", "x^3", "Box-Cox", "Yeo-Johnson"),
+                               right = c("sqrt", "log", "log+1", "log+a", "1/x", 
+                                         "x^2", "x^3", "Box-Cox", "Yeo-Johnson"),
+                               main = NULL, col = "steelblue", 
+                               typographic = TRUE, base_family = NULL) {
   left <- match.arg(left)
   right <- match.arg(right)
   
@@ -421,7 +435,8 @@ plot_normality_raw <- function(x, left = c("log", "sqrt", "log+1", "log+a", "1/x
     bottom_left <- df_left %>% 
       ggplot(aes(x)) +
       geom_histogram(fill = col, color = "black", alpha = 0.8, bins = n_bins) +
-      labs(title = paste(left, "transformation"), x = "", y = "")
+      labs(title = paste(left, "transformation"), x = "", y = "") +
+      theme_grey(base_family = base_family)
   }
   
   suppressWarnings(df_right <- df %>% 
@@ -441,57 +456,57 @@ plot_normality_raw <- function(x, left = c("log", "sqrt", "log+1", "log+a", "1/x
     bottom_right <- df_right %>% 
       ggplot(aes(x)) +
       geom_histogram(fill = col, color = "black", alpha = 0.8, bins = n_bins) +
-      labs(title = paste(right, "transformation"), x = "", y = "")
+      labs(title = paste(right, "transformation"), x = "", y = "") +
+      theme_grey(base_family = base_family)
   }
   
   if (typographic) {
     top_left <- top_left +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(plot.title = element_text(size = 15, face = "plain"),
             plot.margin = margin(20, 30, 10, 30))
     
     top_right <- top_right +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(plot.title = element_text(size = 15, face = "plain"),
             plot.margin = margin(20, 30, 10, 30))
     
     if (non_finite_left) {
       bottom_left <- bottom_left +
-        theme_typographic() +
+        theme_typographic(base_family) +
         theme(panel.grid = element_blank(),
               plot.title = element_text(size = 15, face = "plain"),
               plot.margin = margin(10, 30, 20, 30)) +
         null_theme
     } else {
       bottom_left <- bottom_left +
-        theme_typographic() +
+        theme_typographic(base_family) +
         theme(plot.title = element_text(size = 15, face = "plain"),
               plot.margin = margin(10, 30, 20, 30))
     }
     
     if (non_finite_right) {
       bottom_right <- bottom_right +
-        theme_typographic() +
+        theme_typographic(base_family) +
         theme(panel.grid = element_blank(),
               plot.title = element_text(size = 15, face = "plain"),
               plot.margin = margin(10, 30, 20, 30)) +
         null_theme
     } else {
       bottom_right <- bottom_right +
-        theme_typographic() +
+        theme_typographic(base_family) +
         theme(plot.title = element_text(size = 15, face = "plain"),
               plot.margin = margin(10, 30, 20, 30))
     }
     
-    fontfamily <- get_font_family()
-    
-    top <- grid::textGrob(main, gp = grid::gpar(fontfamily = fontfamily, 
-                                                fontsize = 18, font = 2),
-                          x = unit(0.075, "npc"), just = "left")
-    
-  } else {
-    top <- main
-  }
+    if (is.null(base_family)) {
+      base_family <- "Roboto Condensed"
+    }
+  } 
+  
+  top <- grid::textGrob(main, gp = grid::gpar(fontfamily = base_family, 
+                                              fontsize = 18, font = 2),
+                        x = unit(0.075, "npc"), just = "left")
   
   suppressWarnings(gridExtra::grid.arrange(top_left, top_right, bottom_left, bottom_right, 
                                            ncol = 2, nrow = 2, top = top))
@@ -503,17 +518,21 @@ plot_normality_raw <- function(x, left = c("log", "sqrt", "log+1", "log+a", "1/x
 #' @importFrom rlang quos
 #' @importFrom tibble is_tibble
 #' @export
-plot_normality.grouped_df <- function(.data, ..., left = c("log", "sqrt", "log+1", "log+a", "1/x", "x^2", 
-                                                           "x^3", "Box-Cox", "Yeo-Johnson"),
-                                      right = c("sqrt", "log", "log+1", "log+a", "1/x", "x^2", 
-                                                "x^3", "Box-Cox", "Yeo-Johnson"),
-                                      col = "steelblue", typographic = TRUE) {
+plot_normality.grouped_df <- function(.data, ..., 
+                                      left = c("log", "sqrt", "log+1", "log+a", 
+                                               "1/x", "x^2", "x^3", "Box-Cox", 
+                                               "Yeo-Johnson"),
+                                      right = c("sqrt", "log", "log+1", "log+a", 
+                                                "1/x", "x^2", "x^3", "Box-Cox", 
+                                                "Yeo-Johnson"),
+                                      col = "steelblue", typographic = TRUE,
+                                      base_family = NULL) {
   vars <- tidyselect::vars_select(names(.data), !!! rlang::quos(...))
   
   left <- match.arg(left)
   right <- match.arg(right)
   
-  plot_normality_group_impl(.data, vars, left, right, col, typographic)
+  plot_normality_group_impl(.data, vars, left, right, col, typographic, base_family)
 }
 
 
@@ -521,15 +540,18 @@ plot_normality.grouped_df <- function(.data, ..., left = c("log", "sqrt", "log+1
 #' @importFrom utils packageVersion
 #' @importFrom tidyselect matches
 #' @importFrom tibble is_tibble as_tibble
-plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue", typographic = TRUE) {
+plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue", 
+                                      typographic = TRUE, base_family) {
   if (length(vars) == 0) vars <- names(df)
   
   if (length(vars) == 1 & !tibble::is_tibble(df)) df <- tibble::as_tibble(df)
   
   idx_numeric <- find_class(df[, vars], type = "numerical")
   
-  call_plot <- function(var, left, right, col = "steelblue", typographic = TRUE) {
-    plot_normality <- function(pos, df, var, col = "steelblue", typographic = TRUE) {
+  call_plot <- function(var, left, right, col = "steelblue", typographic = TRUE,
+                        base_family) {
+    plot_normality <- function(pos, df, var, col = "steelblue", 
+                               typographic = TRUE, base_family) {
       if (utils::packageVersion("dplyr") >= "0.8.0") {
         x <- unlist(df[(attr(df, "groups") %>% 
                           select(tidyselect::matches("\\.rows")) %>% 
@@ -545,7 +567,7 @@ plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue", 
       label <- paste(names(label), "==", unlist(label[pos, ]), collapse = ",")
       
       main <- sprintf("Normality Diagnosis Plot\n(%s by %s)", var, label)
-      plot_normality_raw(x, left, right, main, col, typographic)
+      plot_normality_raw(x, left, right, main, col, typographic, base_family)
     }
     
     if (utils::packageVersion("dplyr") >= "0.8.0") {
@@ -554,11 +576,11 @@ plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue", 
       cnt <- nrow(attr(df, "labels"))
     } 
     
-    lapply(seq(cnt), plot_normality, df, var, col, typographic)
+    lapply(seq(cnt), plot_normality, df, var, col, typographic, base_family)
   }
   
   invisible(lapply(vars[idx_numeric], function(x) 
-    call_plot(x, left, right, col, typographic)))
+    call_plot(x, left, right, col, typographic, base_family)))
 }
 
 
@@ -595,7 +617,7 @@ plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue", 
 #'   get_transform(iris$Sepal.Length, "Box-Cox")
 #' 
 #'   # Yeo-Johnson transform 
-#'   get_transform(iris$Sepal.Length, "Yeo-Johnson")
+#'   # get_transform(iris$Sepal.Length, "Yeo-Johnson")
 #' } else {
 #'   cat("If you want to use this feature, you need to install the forecast package.\n")
 #' }

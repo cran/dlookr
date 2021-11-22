@@ -36,17 +36,17 @@
 #' @examples
 #' library(dplyr)
 #' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' # con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
 #' # copy heartfailure to the DBMS with a table named TB_HEARTFAILURE
-#' copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#' # copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
 #' 
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   get_column_info
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   get_column_info
 #'   
 #' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#' # DBI::dbDisconnect(con_sqlite)
 #' 
 get_column_info <- function(df) {
   if (requireNamespace("DBI", quietly = TRUE)) {
@@ -126,24 +126,24 @@ get_column_info <- function(df) {
 #'   diagnose()
 #'   
 #' # Positive values select columns
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(gender, education_level, company_size)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose(gender, education_level, company_size)
 #'   
 #' # Negative values to drop columns
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(-gender, -education_level, -company_size)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose(-gender, -education_level, -company_size)
 #'   
 #' # Positions values select columns, and In-memory mode
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(1, 3, 8, in_database = FALSE)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose(1, 3, 8, in_database = FALSE)
 #'   
 #' # Positions values select columns, and In-memory mode and collect size is 200
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Diagnosis of missing variables
@@ -279,31 +279,31 @@ diagn_std_impl_dbi <- function(df, vars) {
 #'   diagnose_category(company_type, job_chnge)
 #'   
 #' # Negative values to drop variables, and In-memory mode
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose_category(-company_type, -job_chnge, in_database = FALSE)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose_category(-company_type, -job_chnge, in_database = FALSE)
 #'   
 #' # Positions values select variables, and In-memory mode and collect size is 200
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose_category(7, in_database = FALSE, collect_size = 200) 
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose_category(7, in_database = FALSE, collect_size = 200) 
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose_category(-7)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose_category(-7)
 #'   
 #' # Top rank levels with top argument
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose_category(top = 2)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose_category(top = 2)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Extraction of level that is more than 60% of categorical data
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose_category()  %>%
-#'   filter(ratio >= 60)
+#' # con_sqlite %>% 
+#' #   tbl("TB_JOBCHANGE") %>% 
+#' #   diagnose_category()  %>%
+#' #   filter(ratio >= 60)
 #'   
 #' # Using type argument -------------------------
 #'  dfm <- data.frame(alpabet = c(rep(letters[1:5], times = 5), "c")) 
@@ -318,20 +318,20 @@ diagn_std_impl_dbi <- function(df, vars) {
 #'   diagnose_category()
 #'    
 #' # extract rows that less than equal rank 2
-#' con_sqlite %>% 
-#'   tbl("TB_EXAMPLE") %>% 
-#'   diagnose_category(top = 2, type = "rank")
+#' # con_sqlite %>% 
+#' #   tbl("TB_EXAMPLE") %>% 
+#' #   diagnose_category(top = 2, type = "rank")
 #'    
 #' # extract rows that less than equal rank 2
 #' # default of type argument is "rank"
-#' con_sqlite %>% 
-#'   tbl("TB_EXAMPLE") %>% 
-#'   diagnose_category(top = 2)
+#' # con_sqlite %>% 
+#' #   tbl("TB_EXAMPLE") %>% 
+#' #   diagnose_category(top = 2)
 #'  
-#'  # extract only 2 rows
-#' con_sqlite %>% 
-#'   tbl("TB_EXAMPLE") %>% 
-#'   diagnose_category(top = 2, type = "n")
+#' # extract only 2 rows
+#' # con_sqlite %>% 
+#' #   tbl("TB_EXAMPLE") %>% 
+#' #   diagnose_category(top = 2, type = "n")
 #'
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
@@ -466,26 +466,26 @@ diagn_category_impl_dbi <- function(df, vars, top, type) {
 #'   diagnose_numeric(age, sodium, collect_size = 200)
 #'   
 #' # Negative values to drop variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_numeric(-age, -sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_numeric(-age, -sodium)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_numeric(5)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_numeric(5)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_numeric(-1, -5)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_numeric(-1, -5)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # List of variables containing outliers
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_numeric()  %>%
-#'   filter(outlier > 0)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_numeric()  %>%
+#' #   filter(outlier > 0)
 #'
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
@@ -567,26 +567,26 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #'   diagnose_outlier(platelets, sodium, collect_size = 200)
 #'   
 #' # Negative values to drop variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_outlier(-platelets, -sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_outlier(-platelets, -sodium)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_outlier(5)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_outlier(5)
 #' # Positions values select variables
 #' 
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_outlier(-1, -5)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_outlier(-1, -5)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # outlier_ratio is more than 1%
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_outlier()  %>%
-#'   filter(outliers_ratio > 1)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_outlier()  %>%
+#' #   filter(outliers_ratio > 1)
 #'
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
@@ -626,6 +626,10 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #'
 #' See vignette("diagonosis") for an introduction to these concepts.
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#' 
 #' @param .data a tbl_dbi.
 #' @param ... one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -643,6 +647,8 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' Applies only if in_database = FALSE.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' 
 #' @seealso \code{\link{plot_outlier.data.frame}}, \code{\link{diagnose_outlier.tbl_dbi}}.
 #' @export
@@ -702,7 +708,7 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' DBI::dbDisconnect(con_sqlite)
 #'          
 plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue", 
-  in_database = FALSE, collect_size = Inf, typographic = TRUE) {
+  in_database = FALSE, collect_size = Inf, typographic = TRUE, base_family = NULL) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   if (in_database) {
@@ -710,7 +716,7 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue",
   } else {
     .data %>% 
       dplyr::collect(n = collect_size) %>%
-      plot_outlier_impl(vars, col, typographic)
+      plot_outlier_impl(vars, col, typographic, base_family)
   }
 }
 
@@ -755,7 +761,7 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue",
 #' See vignette("EDA") for an introduction to these concepts.
 #'
 #' @return An object of the same class as .data.
-#' @seealso \code{\link{normality.data.frame}}, \code{\link{diagnose_numeric.tbl_dbi}}, \code{\link{describe.tbl_dbi}}, \code{\link{plot_normality.tbl_dbi}}.
+#' @seealso \code{\link{normality.data.frame}}, \code{\link{diagnose_numeric.tbl_dbi}}, \code{\link{describe.tbl_dbi}}.
 #' @export
 #' @examples
 #' \donttest{
@@ -779,26 +785,26 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue",
 #'   normality(platelets, sodium, collect_size  = 200)
 #'
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   normality(1)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   normality(1)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Test all numerical variables by 'smoking' and 'death_event',
 #' # and extract only those with 'smoking' variable level is "Yes".
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   normality() %>%
-#'   filter(smoking == "Yes")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(smoking, death_event) %>%
+#' #   normality() %>%
+#' #   filter(smoking == "Yes")
 #'
 #' # extract only those with 'sex' variable level is "Male",
 #' # and test 'sodium' by 'smoking' and 'death_event'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   filter(sex == "Male") %>%
-#'   group_by(smoking, death_event) %>%
-#'   normality(sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   filter(sex == "Male") %>%
+#' #   group_by(smoking, death_event) %>%
+#' #   normality(sodium)
 #'
 #' # Test log(sodium) variables by 'smoking' and 'death_event',
 #' # and extract only p.value greater than 0.01.
@@ -876,6 +882,10 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' \item histogram by square root transfer data
 #' }
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#' 
 #' @param .data a tbl_dbi.
 #' @param ... one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -898,6 +908,8 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' lower right corner. The default is "sqrt".
 #' @param col a color to be used to fill the bars. The default is "steelblue".
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' 
 #' @seealso \code{\link{plot_normality.data.frame}}, \code{\link{plot_outlier.tbl_dbi}}.
 #' @export
@@ -923,27 +935,27 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #'   plot_normality(platelets, sodium, collect_size = 200)
 #'
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_normality(1)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   plot_normality(1)
 #'
 #' # Not allow the typographic elements
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_normality(1, typographic = FALSE)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   plot_normality(1, typographic = FALSE)
 #'   
 #' # Using pipes & dplyr -------------------------
 #' # Plot 'sodium' variable by 'smoking' and 'death_event'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   plot_normality(sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(smoking, death_event) %>%
+#' #   plot_normality(sodium)
 #'
 #' # Plot using left and right arguments
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   plot_normality(sodium, left = "Box-Cox", right = "log")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(smoking, death_event) %>%
+#' #   plot_normality(sodium, left = "Box-Cox", right = "log")
 #'
 #' # extract only those with 'smoking' variable level is "Yes",
 #' # and plot 'sodium' by 'death_event'
@@ -962,7 +974,8 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
                                             "x^3", "Box-Cox", "Yeo-Johnson"),
                                    right = c("sqrt", "log", "log+1", "1/x", "x^2", 
                                              "x^3", "Box-Cox", "Yeo-Johnson"),
-                                   col = "steelblue", typographic = TRUE) {
+                                   col = "steelblue", typographic = TRUE, 
+                                   base_family = NULL) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   left <- match.arg(left)
@@ -974,11 +987,11 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
     if (class(.data$ops)[1] != "op_group_by") {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_normality_impl(vars, left, right, col, typographic)
+        plot_normality_impl(vars, left, right, col, typographic, base_family)
     } else {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_normality_group_impl(vars, left, right, col, typographic)
+        plot_normality_group_impl(vars, left, right, col, typographic, base_family)
     }
   }
 }
@@ -1050,14 +1063,14 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'   correlate(-platelets, -sodium, collect_size = 200)
 #'  
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(1)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   correlate(1)
 #'  
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(-1, -2, -3, -5, -6)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   correlate(-1, -2, -3, -5, -6)
 #'  
 #' # ---------------------------------------------
 #' # Correlation coefficient
@@ -1067,20 +1080,20 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'   correlate() %>%
 #'   filter(as.integer(var1) > as.integer(var2))
 #'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(platelets, sodium) %>%
-#'   filter(as.integer(var1) > as.integer(var2))
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   correlate(platelets, sodium) %>%
+#' #   filter(as.integer(var1) > as.integer(var2))
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Compute the correlation coefficient of creatinine variable by 'hblood_pressure'
 #' # and 'death_event' variables. And extract only those with absolute
 #' # value of correlation coefficient is greater than 0.2
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(hblood_pressure, death_event) %>%
-#'   correlate(creatinine) %>%
-#'   filter(abs(coef_corr) >= 0.2)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(hblood_pressure, death_event) %>%
+#' #   correlate(creatinine) %>%
+#' #   filter(abs(coef_corr) >= 0.2)
 #'
 #' # extract only those with 'hblood_pressure' variable level is "Yes",
 #' # and compute the correlation coefficient of 'creatinine' variable
@@ -1129,6 +1142,10 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' Since the plot is drawn for each variable, if you specify more than
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#' 
 #' @param .data a tbl_dbi.
 #' @param ... one or more unquoted expressions separated by commas.
 #' You can treat variable names like they are positions.
@@ -1137,6 +1154,10 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' These arguments are automatically quoted and evaluated in a context where column names
 #' represent column positions.
 #' They support unquoting and splicing.
+#' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+#' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param in_database Specifies whether to perform in-database operations. 
 #' If TRUE, most operations are performed in the DBMS. if FALSE, 
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
@@ -1170,27 +1191,27 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #'   plot_correlate(platelets, sodium, collect_size = 200)
 #'   
 #' # Negative values to drop variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_correlate(-platelets, -sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   plot_correlate(-platelets, -sodium)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_correlate(1)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   plot_correlate(1)
 #'   
 #' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_correlate(-1, -2, -3, -5, -6)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   plot_correlate(-1, -2, -3, -5, -6)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Visualize correlation plot of 'sodiumsodium' variable by 'smoking'
 #' # and 'death_event' variables.
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   plot_correlate(sodium)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(smoking, death_event) %>%
+#' #   plot_correlate(sodium)
 #'
 #' # Extract only those with 'smoking' variable level is "Yes",
 #' # and visualize correlation plot of 'sodium' variable by 'sex'
@@ -1205,7 +1226,8 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' DBI::dbDisconnect(con_sqlite)
 #'
 plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf,
-                                   method = c("pearson", "kendall", "spearman")) {
+                                   method = c("pearson", "kendall", "spearman"),
+                                   typographic = TRUE, base_family = NULL) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   method <- match.arg(method)
@@ -1216,11 +1238,11 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
     if (class(.data$ops)[1] != "op_group_by") {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_correlate_impl(vars, method)
+        plot_correlate_impl(vars, method, typographic, base_family)
     } else {
       .data %>% 
         dplyr::collect(n = collect_size) %>%
-        plot_correlate_group_impl(vars, method)
+        plot_correlate_group_impl(vars, method, typographic, base_family)
     }
   }  
 }
@@ -1307,11 +1329,11 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' # Using pipes & dplyr -------------------------
 #' # Find the statistic of all numerical variables by 'smoking' and 'death_event',
 #' # and extract only those with 'smoking' variable level is "Yes".
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   describe() %>%
-#'   filter(smoking == "Yes")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   group_by(smoking, death_event) %>%
+#' #   describe() %>%
+#' #   filter(smoking == "Yes")
 #'
 #' # extract only those with 'sex' variable level is "Male",
 #' # and find 'sodium' statistics by 'smoking' and 'death_event'
@@ -1409,10 +1431,10 @@ describe.tbl_dbi <- function(.data, ..., statistics = NULL, quantiles = NULL,
 #' plot(cat_num)
 #'
 #' # If the variable of interest is a categorical column
-#' cat_cat <- relate(categ, hblood_pressure)
-#' cat_cat
-#' summary(cat_cat)
-#' plot(cat_cat)
+#' # cat_cat <- relate(categ, hblood_pressure)
+#' # cat_cat
+#' # summary(cat_cat)
+#' # plot(cat_cat)
 #'
 #' ##---------------------------------------------------
 #' # If the target variable is a categorical column, 
@@ -1420,11 +1442,11 @@ describe.tbl_dbi <- function(.data, ..., statistics = NULL, quantiles = NULL,
 #' num <- target_by(con_sqlite %>% tbl("TB_HEARTFAILURE"), death_event, collect_size = 250)
 #'
 #' # If the variable of interest is a numerical column
-#' num_num <- relate(num, creatinine)
-#' num_num
-#' summary(num_num)
-#' plot(num_num)
-#' plot(num_num, hex_thres = 200)
+#' # num_num <- relate(num, creatinine)
+#' # num_num
+#' # summary(num_num)
+#' # plot(num_num)
+#' # plot(num_num, hex_thres = 200)
 #'
 #' # If the variable of interest is a categorical column
 #' num_cat <- relate(num, smoking)
@@ -1525,34 +1547,34 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 5), "smoking"] <- NA
 #'
 #' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' # con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
 #' # copy heartfailure2 to the DBMS with a table named TB_HEARTFAILURE
-#' copy_to(con_sqlite, heartfailure2, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#' # copy_to(con_sqlite, heartfailure2, name = "TB_HEARTFAILURE", overwrite = TRUE)
 #'
 #' # reporting the diagnosis information -------------------------
 #' # create pdf file. file name is DataDiagnosis_Report.pdf
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_report()
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_report()
 #'   
 #' # create pdf file. file name is Diagn.pdf, and collect size is 350
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_report(collect_size = 350, output_file = "Diagn.pdf")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_report(collect_size = 350, output_file = "Diagn.pdf")
 #' 
 #' # create html file. file name is Diagnosis_Report.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_report(output_format = "html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_report(output_format = "html")
 #' 
 #' # create html file. file name is Diagn.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   diagnose_report(output_format = "html", output_file = "Diagn.html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   diagnose_report(output_format = "html", output_file = "Diagn.html")
 #'   
 #' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#' # DBI::dbDisconnect(con_sqlite)
 #' }
 #' 
 #' @method diagnose_report tbl_dbi
@@ -1650,77 +1672,77 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 5), "smoking"] <- NA
 #'
 #' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' # con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
 #' # copy heartfailure2 to the DBMS with a table named TB_HEARTFAILURE
-#' copy_to(con_sqlite, heartfailure2, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#' # copy_to(con_sqlite, heartfailure2, name = "TB_HEARTFAILURE", overwrite = TRUE)
 #'
 #' ## target variable is categorical variable
 #' # reporting the EDA information
 #' # create pdf file. file name is EDA_Report.pdf
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(death_event)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(death_event)
 #' 
 #' # create pdf file. file name is EDA_TB_HEARTFAILURE.pdf
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report("death_event", output_file = "EDA_TB_HEARTFAILURE.pdf")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report("death_event", output_file = "EDA_TB_HEARTFAILURE.pdf")
 #' 
 #' # create html file. file name is EDA_Report.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report("death_event", output_format = "html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report("death_event", output_format = "html")
 #' 
 #' # create html file. file name is EDA_TB_HEARTFAILURE.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(death_event, output_format = "html", output_file = "EDA_TB_HEARTFAILURE.html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(death_event, output_format = "html", output_file = "EDA_TB_HEARTFAILURE.html")
 #'
 #' ## target variable is numerical variable
 #' # reporting the EDA information, and collect size is 250
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(sodium, collect_size = 250)
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(sodium, collect_size = 250)
 #' 
 #' # create pdf file. file name is EDA2.pdf
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report("sodium", output_file = "EDA2.pdf")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report("sodium", output_file = "EDA2.pdf")
 #' 
 #' # create html file. file name is EDA_Report.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report("sodium", output_format = "html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report("sodium", output_format = "html")
 #' 
 #' # create html file. file name is EDA2.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(sodium, output_format = "html", output_file = "EDA2.html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(sodium, output_format = "html", output_file = "EDA2.html")
 #'
 #' ## target variable is null
 #' # reporting the EDA information
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report()
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report()
 #' 
 #' # create pdf file. file name is EDA2.pdf
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(output_file = "EDA2.pdf")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(output_file = "EDA2.pdf")
 #' 
 #' # create html file. file name is EDA_Report.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(output_format = "html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(output_format = "html")
 #' 
 #' # create html file. file name is EDA2.html
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   eda_report(output_format = "html", output_file = "EDA2.html")
+#' # con_sqlite %>% 
+#' #   tbl("TB_HEARTFAILURE") %>% 
+#' #   eda_report(output_format = "html", output_file = "EDA2.html")
 #'   
 #' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#' # DBI::dbDisconnect(con_sqlite)
 #' }
 #'
 #' @export

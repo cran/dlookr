@@ -9,7 +9,9 @@
   ...,
   in_database = FALSE,
   collect_size = Inf,
-  method = c("pearson", "kendall", "spearman")
+  method = c("pearson", "kendall", "spearman"),
+  typographic = TRUE,
+  base_family = NULL
 )
 }
 \arguments{
@@ -34,6 +36,12 @@ Applies only if in_database = FALSE.}
 to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.
 
 See vignette("EDA") for an introduction to these concepts.}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 }
 \description{
 The plot_correlate() visualize correlation plot
@@ -44,6 +52,10 @@ the DBMS table through tbl_dbi.
 The scope of the visualization is the provide a correlation information.
 Since the plot is drawn for each variable, if you specify more than
 one variable in the ... argument, the specified number of plots are drawn.
+
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \examples{
 library(dplyr)
@@ -66,27 +78,27 @@ con_sqlite \%>\%
   plot_correlate(platelets, sodium, collect_size = 200)
   
 # Negative values to drop variables
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  plot_correlate(-platelets, -sodium)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   plot_correlate(-platelets, -sodium)
   
 # Positions values select variables
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  plot_correlate(1)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   plot_correlate(1)
   
 # Positions values select variables
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  plot_correlate(-1, -2, -3, -5, -6)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   plot_correlate(-1, -2, -3, -5, -6)
 
 # Using pipes & dplyr -------------------------
 # Visualize correlation plot of 'sodiumsodium' variable by 'smoking'
 # and 'death_event' variables.
-con_sqlite \%>\% 
-  tbl("TB_HEARTFAILURE") \%>\% 
-  group_by(smoking, death_event) \%>\%
-  plot_correlate(sodium)
+# con_sqlite \%>\% 
+#   tbl("TB_HEARTFAILURE") \%>\% 
+#   group_by(smoking, death_event) \%>\%
+#   plot_correlate(sodium)
 
 # Extract only those with 'smoking' variable level is "Yes",
 # and visualize correlation plot of 'sodium' variable by 'sex'

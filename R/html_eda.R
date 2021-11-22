@@ -3,7 +3,11 @@
 #' @import dplyr
 #' @import ggplot2
 #' @import reactable
-html_descriptive <- function(.data) {
+html_descriptive <- function(.data, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   N <- nrow(.data)
   
   raws <- .data %>% 
@@ -241,7 +245,8 @@ html_descriptive <- function(.data) {
                       defaultColDef = colDef(style = "font-size: 14px;color: hsl(0, 0%, 40%);"))
           
           p_hist <- htmltools::plotTag({
-            plot_hist_numeric(.data, which(names(.data) == variable))
+            plot_hist_numeric(.data, which(names(.data) == variable), 
+                              base_family = base_family)
           }, sprintf("A plot of the %s variable", variable), width = 600, 
           height = 400, device = grDevices::png)
           
@@ -279,7 +284,7 @@ html_descriptive <- function(.data) {
                       ))
           
           p_outlier <- htmltools::plotTag({
-            plot_outlier(.data, variable)
+            plot_outlier(.data, variable, base_family = base_family)
           }, sprintf("A plot of the %s variable", variable), width = 600,
           height = 400, device = grDevices::png)
           
@@ -310,7 +315,12 @@ html_descriptive <- function(.data) {
 #' @importFrom purrr map_df
 #' @import dplyr
 #' @import htmltools
-html_normality <- function(.data, theme = c("orange", "blue")[1]) {
+html_normality <- function(.data, theme = c("orange", "blue")[1], 
+                           base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   normality_indicator <- function(value, theme) {
     style <- ifelse(theme == "orange", "color: rgb(255, 127, 42)", 
                     "color: rgb(0, 114, 188)")
@@ -511,12 +521,14 @@ html_normality <- function(.data, theme = c("orange", "blue")[1]) {
             x <- data.frame(x)
             
             if (sum(x < 0, na.rm = TRUE) > 0) {
-              plot_normality(x, x, left = "log+a", right = "Box-Cox")
+              plot_normality(x, x, left = "log+a", right = "Box-Cox",
+                             base_family = base_family)
             } else {
               if (any(x == 0, na.rm = TRUE)) 
-                plot_normality(x, x, left = "log+1", right = "sqrt")
+                plot_normality(x, x, left = "log+1", right = "sqrt",
+                               base_family = base_family)
               else
-                plot_normality(x, x)
+                plot_normality(x, x, base_family = base_family)
             }
           }, sprintf("A plot of the %s variable", variable), width = 600,
           height = 400, device = grDevices::png)
@@ -544,8 +556,13 @@ html_normality <- function(.data, theme = c("orange", "blue")[1]) {
 #' @import reactable
 #' @import dplyr
 #' @import htmltools
-html_compare_category <- function(.data, n_cells = 20, n_levels = 10) {
-  plot_compare <- function(x, y, ctab) {
+html_compare_category <- function(.data, n_cells = 20, n_levels = 10, 
+                                  base_family = NULL) {
+  plot_compare <- function(x, y, ctab, base_family = base_family) {
+    if (is.null(base_family)) {
+      base_family <- "Roboto Condensed"
+    }
+    
     xvar <- x
     yvar <- y
     
@@ -573,6 +590,9 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10) {
       y_pos[j] <- y_pos[j] / sum(y)
     }
     
+    # Logic for the case where variable y has one level
+    y_pos <- y_pos[y_pos %>% complete.cases()]
+    
     suppressWarnings({
       p <- data %>% 
         group_by(a) %>% 
@@ -593,7 +613,7 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10) {
     })
     
       p <- p +
-        hrbrthemes::theme_ipsum(base_family = get_font_family()) +
+        hrbrthemes::theme_ipsum(base_family = base_family) +
         hrbrthemes::scale_fill_ipsum(na.value = "grey80") +
         theme(legend.position = "none",
               panel.grid.major.x = element_blank(),
@@ -712,7 +732,7 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10) {
             idx_nm <- paste(x, y, sep = " vs ")
             
             p_compare <- htmltools::plotTag({
-              plot_compare(x, y, cat_compares[[idx_nm]])
+              plot_compare(x, y, cat_compares[[idx_nm]], base_family = base_family)
             }, sprintf("A plot of the %s variable", idx_nm), width = 600,
             height = 400, device = grDevices::png)
             
@@ -738,7 +758,11 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10) {
 #' @importFrom hrbrthemes theme_ipsum
 #' @import reactable
 #' @import dplyr
-html_compare_numerical <- function(.data) {
+html_compare_numerical <- function(.data, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   idx <- .data %>% 
     find_class("numerical")
   
@@ -820,7 +844,7 @@ html_compare_numerical <- function(.data) {
           attr(num_compare, "combination") <- vars %>% t()
           
           p_scatter <- htmltools::plotTag({
-            plot(num_compare)
+            plot(num_compare, base_family = base_family)
           }, sprintf("A plot of the %s variable", vars %>% 
                        paste(collapse = " vs ")), width = 600,
           height = 400, device = grDevices::png)
@@ -880,7 +904,11 @@ html_correlation <- function(.data) {
 #' @importFrom shiny icon tabsetPanel tabPanel
 #' @import reactable
 #' @import dplyr
-html_target_numerical <- function(.data, target) {
+html_target_numerical <- function(.data, target, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     html_cat("The target variable is not defied.")   
     return()
@@ -952,7 +980,7 @@ html_target_numerical <- function(.data, target) {
             )
           
           p_box <- htmltools::plotTag({
-            plot_outlier(tgt_by, all_of(nm_var))
+            plot_outlier(tgt_by, all_of(nm_var), base_family = base_family)
           }, sprintf("A plot of the %s and %s variable", target, nm_var), 
           width = 600, height = 400, device = grDevices::png)
           
@@ -976,7 +1004,11 @@ html_target_numerical <- function(.data, target) {
 #' @importFrom stats addmargins
 #' @import reactable
 #' @import dplyr
-html_target_categorical <- function(.data, target) {
+html_target_categorical <- function(.data, target, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     stop("The target variable is not defied.")    
   }
@@ -1054,7 +1086,7 @@ html_target_categorical <- function(.data, target) {
             )          
           
           p_mosaics <- htmltools::plotTag({
-            plot(relate(tgt_by, all_of(nm_var)))
+            plot(relate(tgt_by, all_of(nm_var)), base_family = base_family)
           }, sprintf("A plot of the %s and %s variable", target, nm_var), 
           width = 600, height = 400, device = grDevices::png)
           
@@ -1080,7 +1112,11 @@ html_target_categorical <- function(.data, target) {
 #' @importFrom tidyr spread
 #' @import reactable
 #' @import dplyr
-html_target_correlation <- function(.data, target) {
+html_target_correlation <- function(.data, target, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     stop("The target variable is not defied.")    
   }
@@ -1154,7 +1190,7 @@ html_target_correlation <- function(.data, target) {
             )
 
           p_corr <- htmltools::plotTag({
-            plot_correlate(data_filterd)
+            plot_correlate(data_filterd, base_family = base_family)
           }, sprintf("A plot of the variable %s == %s", target, value), 
           width = 600, height = 500, device = grDevices::png)
           
@@ -1175,7 +1211,7 @@ html_target_correlation <- function(.data, target) {
 #' @import dplyr
 html_paged_describe <- function(.data, n_rows = 25, add_row = 3, caption = "", 
                                 full_width = TRUE, font_size = 14) {
-  in_numerical <- find_class(reportData, type = "numerical") %>%
+  in_numerical <- find_class(.data, type = "numerical") %>%
     length() %>% 
     as.logical()
   
@@ -1201,7 +1237,12 @@ html_paged_describe <- function(.data, n_rows = 25, add_row = 3, caption = "",
 #' @importFrom knitr kable
 #' @importFrom kableExtra kable_styling
 html_paged_describe_detail <- function(.data, n_ind = 4, caption = "", 
-                                       full_width = TRUE, font_size = 14) {
+                                       full_width = TRUE, font_size = 14,
+                                       base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   nums <- .data %>% 
     find_class("numerical", index = FALSE)
   
@@ -1213,7 +1254,7 @@ html_paged_describe_detail <- function(.data, n_ind = 4, caption = "",
       
       .data %>% 
         select_at(vars_nm) %>% 
-        plot_box_numeric()
+        plot_box_numeric(base_family = base_family)
       
       break_line_asis(2)
       
@@ -1259,7 +1300,7 @@ html_paged_describe_detail <- function(.data, n_ind = 4, caption = "",
 #' @import dplyr
 html_paged_categorical <- function(.data, n_rows = 25, add_row = 3, caption = "", 
                                 full_width = TRUE, font_size = 14) {
-  in_category <- find_class(reportData, type = "date_categorical2") %>%
+  in_category <- find_class(.data, type = "date_categorical2") %>%
     length() %>% 
     as.logical()
   
@@ -1282,7 +1323,12 @@ html_paged_categorical <- function(.data, n_rows = 25, add_row = 3, caption = ""
 #' @importFrom knitr kable
 #' @importFrom kableExtra kable_styling
 html_paged_categorical_detail <- function(.data, n_ind = 4, caption = "", 
-                                       full_width = TRUE, font_size = 14) {
+                                       full_width = TRUE, font_size = 14,
+                                       base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   cats <- .data %>% 
     find_class("categorical", index = FALSE)
   
@@ -1294,7 +1340,7 @@ html_paged_categorical_detail <- function(.data, n_ind = 4, caption = "",
       
       .data %>% 
         select_at(vars_nm) %>% 
-        plot_bar_category()
+        plot_bar_category(base_family = base_family)
       
       break_line_asis(2)
       
@@ -1324,7 +1370,7 @@ html_paged_categorical_detail <- function(.data, n_ind = 4, caption = "",
 #' @import dplyr
 html_paged_normality <- function(.data, n_rows = 25, add_row = 3, caption = "", 
                                  full_width = TRUE, digits = 1, font_size = 13) {
-  in_numerical <- find_class(reportData, type = "numerical") %>%
+  in_numerical <- find_class(.data, type = "numerical") %>%
     length() %>% 
     as.logical()
   
@@ -1356,7 +1402,11 @@ html_paged_normality <- function(.data, n_rows = 25, add_row = 3, caption = "",
 #' @import dplyr
 #' @importFrom knitr kable
 #' @importFrom kableExtra kable_styling
-html_paged_normality_detail <- function(.data) {
+html_paged_normality_detail <- function(.data, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   nums <- .data %>% 
     find_class("numerical", index = FALSE)
   
@@ -1468,12 +1518,12 @@ html_paged_normality_detail <- function(.data) {
       x <- data.frame(x)
       
       if (sum(x < 0, na.rm = TRUE) > 0) {
-        plot_normality(x, x, left = "log+a", right = "Box-Cox")
+        plot_normality(x, x, left = "log+a", right = "Box-Cox", base_family = base_family)
       } else {
         if (any(x == 0, na.rm = TRUE)) 
-          plot_normality(x, x, left = "log+1", right = "sqrt")
+          plot_normality(x, x, left = "log+1", right = "sqrt", base_family = base_family)
         else
-          plot_normality(x, x)
+          plot_normality(x, x, base_family = base_family)
       }
       
       break_page_asis()
@@ -1489,7 +1539,11 @@ html_paged_normality_detail <- function(.data) {
 html_paged_compare_numerical <- function(.data, n_rows = 25, add_row = 3, 
                                          caption = "Correlation coefficient", 
                                          full_width = TRUE, digits = 5, 
-                                         font_size = 13) {
+                                         font_size = 13, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   idx <- .data %>% 
     find_class("numerical")
   
@@ -1534,7 +1588,7 @@ html_paged_compare_numerical <- function(.data, n_rows = 25, add_row = 3,
       attr(num_compare, "raw") <- attr(num_compare, "raw")[, vars]
       attr(num_compare, "combination") <- vars %>% t()
       
-      plot(num_compare)
+      plot(num_compare, base_family = base_family)
       
       break_page_asis()
     }      
@@ -1550,8 +1604,12 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
                                            caption = "Chisqure-Test", 
                                            full_width = TRUE, digits = 5, 
                                            font_size = 13, thres_cells = 20, 
-                                           thres_levels = 10) {
-  plot_compare <- function(x, y, ctab) {
+                                           thres_levels = 10, base_family = NULL) {
+  plot_compare <- function(x, y, ctab, base_family = base_family) {
+    if (is.null(base_family)) {
+      base_family <- "Roboto Condensed"
+    }
+    
     xvar <- x
     yvar <- y
     
@@ -1579,6 +1637,9 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
       y_pos[j] <- y_pos[j] / sum(y)
     }
     
+    # Logic for the case where variable y has one level
+    y_pos <- y_pos[y_pos %>% complete.cases()]
+    
     suppressWarnings({
       p <- data %>% 
         group_by(a) %>% 
@@ -1599,7 +1660,7 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
     })
     
     p <- p +
-      hrbrthemes::theme_ipsum(base_family = get_font_family()) +
+      hrbrthemes::theme_ipsum(base_family = base_family) +
       hrbrthemes::scale_fill_ipsum(na.value = "grey80") +
       theme(legend.position = "none",
             panel.grid.major.x = element_blank(),
@@ -1611,6 +1672,8 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
     
     suppressWarnings(print(p))
   }
+  
+  .data <- as.data.frame(.data)
   
   idx <- .data %>% 
     find_class("categorical")
@@ -1629,7 +1692,7 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
       idx[.]
     
     if (length(idx_target) < 2) {
-      html_cat("The valid categorical variables is less than 2.")
+      html_cat(sprintf("Fewer than 2 categorical variables with %d or fewer levels.", thres_levels))
       break_page_asis()
     } else {
       cat_compares <-  compare_category(.data[, idx_target]) 
@@ -1639,86 +1702,91 @@ html_paged_compare_categorical <- function(.data, n_rows = 25, add_row = 3,
         filter(df <= thres_cells) %>% 
         filter(!is.nan(statistic))
       
-      tab_compare <- tab_compare %>% 
-        select(1, 2, 5, 3, 4) %>% 
-        rename("first variable" = variable_1,
-               "second variable" = variable_2,
-               "degree of freedom" = df,
-               "p-value" = p.value) 
-      
-      print_tab(tab_compare, n_rows = n_rows, add_row = add_row, caption = caption, 
-                full_width = full_width, font_size = font_size, 
-                digits = digits, big_mark = FALSE)
-      
-      for (i in seq(NROW(tab_compare))) {
-        el <- div(h3(paste0("'", tab_compare[i, 1], "' vs '", tab_compare[i, 2], "'")))
-        cat(as.character(el))
+      if (NROW(tab_compare) == 0) {
+        html_cat(sprintf("There is no combination of categorical variables with %d or fewer intersecting cells.", thres_cells))
+        break_page_asis()
+      } else {
+        tab_compare <- tab_compare %>% 
+          select(1, 2, 5, 3, 4) %>% 
+          rename("first variable" = variable_1,
+                 "second variable" = variable_2,
+                 "degree of freedom" = df,
+                 "p-value" = p.value) 
         
-        ctable <- tabs$table[[i]]
+        print_tab(tab_compare, n_rows = n_rows, add_row = add_row, caption = caption, 
+                  full_width = full_width, font_size = font_size, 
+                  digits = digits, big_mark = FALSE)
         
-        contingency <- function(tab, relate = FALSE) {
-          dname <-  tab %>% dimnames()
-          dframe <- tab %>% data.frame()
+        for (i in seq(NROW(tab_compare))) {
+          el <- div(h3(paste0("'", tab_compare[i, 1], "' vs '", tab_compare[i, 2], "'")))
+          cat(as.character(el))
           
-          if (relate) {
-            dframe <- round(dframe / dframe[nrow(dframe), ncol(dframe)] * 100, 2)
+          ctable <- tabs$table[[i]]
+          
+          contingency <- function(tab, relate = FALSE) {
+            dname <-  tab %>% dimnames()
+            dframe <- tab %>% data.frame()
+            
+            if (relate) {
+              dframe <- round(dframe / dframe[nrow(dframe), ncol(dframe)] * 100, 2)
+            }
+            
+            rownames(dframe) <- tab %>% 
+              rownames() %>% 
+              ifelse(is.na(.), "<NA>", .)
+            
+            rname <- dname %>% names() %>% "["(1)
+            varname <- ifelse(is.na(dname[[2]]), "<NA>", dname[[2]])
+            
+            colum_list <- seq(ncol(dframe)) %>% 
+              lapply(function(x) {
+                colDef(
+                  name = varname[x],
+                  format = colFormat(
+                    separators = TRUE
+                  ),
+                  sortable = FALSE
+                )
+              }) 
+            names(colum_list) <- names(dframe)
+            
+            cname <- list(
+              colGroup(name = dname %>% names() %>% "["(2), 
+                       columns = names(dframe))
+            )
+            
+            dframe
           }
           
-          rownames(dframe) <- tab %>% 
-            rownames() %>% 
-            ifelse(is.na(.), "<NA>", .)
+          x <- ctable %>% dimnames() %>% names() %>% "["(1)
+          y <- ctable %>% dimnames() %>% names() %>% "["(2)
+          idx_nm <- paste(x, y, sep = " vs ")
           
-          rname <- dname %>% names() %>% "["(1)
-          varname <- ifelse(is.na(dname[[2]]), "<NA>", dname[[2]])
+          header_above <- c(1, NCOL(ctable))
+          names(header_above) <- c(tab_compare[i, 1], tab_compare[i, 2])
           
-          colum_list <- seq(ncol(dframe)) %>% 
-            lapply(function(x) {
-              colDef(
-                name = varname[x],
-                format = colFormat(
-                  separators = TRUE
-                ),
-                sortable = FALSE
-              )
-            }) 
-          names(colum_list) <- names(dframe)
+          ctable %>% 
+            knitr::kable(format = "html") %>% 
+            kableExtra::add_header_above(header_above) %>% 
+            kableExtra::kable_styling(full_width = TRUE, font_size = font_size, 
+                                      position = "left") %>%
+            cat() 
+          break_line_asis(1)  
           
-          cname <- list(
-            colGroup(name = dname %>% names() %>% "["(2), 
-                     columns = names(dframe))
-          )
+          total <- ctable[NROW(ctable),  NCOL(ctable)]
           
-          dframe
-        }
-        
-        x <- ctable %>% dimnames() %>% names() %>% "["(1)
-        y <- ctable %>% dimnames() %>% names() %>% "["(2)
-        idx_nm <- paste(x, y, sep = " vs ")
-        
-        header_above <- c(1, NCOL(ctable))
-        names(header_above) <- c(tab_compare[i, 1], tab_compare[i, 2])
-        
-        ctable %>% 
-          knitr::kable(format = "html") %>% 
-          kableExtra::add_header_above(header_above) %>% 
-          kableExtra::kable_styling(full_width = TRUE, font_size = font_size, 
-                                    position = "left") %>%
-          cat() 
-        break_line_asis(1)  
-        
-        total <- ctable[NROW(ctable),  NCOL(ctable)]
-        
-        round(ctable / total * 100, 2) %>% 
-          knitr::kable(format = "html") %>% 
-          kableExtra::add_header_above(header_above) %>% 
-          kableExtra::kable_styling(full_width = TRUE, font_size = font_size, 
-                                    position = "left") %>%
-          cat() 
-        break_line_asis(1)  
-        
-        plot_compare(x, y, cat_compares[[i]])
-        break_page_asis()
-      } 
+          round(ctable / total * 100, 2) %>% 
+            knitr::kable(format = "html") %>% 
+            kableExtra::add_header_above(header_above) %>% 
+            kableExtra::kable_styling(full_width = TRUE, font_size = font_size, 
+                                      position = "left") %>%
+            cat() 
+          break_line_asis(1)  
+          
+          plot_compare(x, y, cat_compares[[i]], base_family = base_family)
+          break_page_asis()
+        } 
+      }
     }
   }
 }
@@ -1763,7 +1831,11 @@ html_paged_correlation <- function(.data, full_width = TRUE, font_size = 13) {
 #' @importFrom knitr kable
 #' @importFrom kableExtra kable_styling add_header_above
 html_paged_target_numerical <- function(.data, target, full_width = TRUE, 
-                                        font_size = 13) {
+                                        font_size = 13, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     html_cat("The target variable is not defied.")    
   } else if (!target %in% names(.data)) {
@@ -1789,7 +1861,7 @@ html_paged_target_numerical <- function(.data, target, full_width = TRUE,
         el <- div(h3(nm_var))
         cat(as.character(el))
         
-        plot_outlier(tgt_by, all_of(nm_var))
+        plot_outlier(tgt_by, all_of(nm_var), base_family = base_family)
         
         if (i == 1) {
           break_line_asis(20)
@@ -1837,7 +1909,11 @@ html_paged_target_numerical <- function(.data, target, full_width = TRUE,
 #' @importFrom kableExtra kable_styling add_header_above
 #' @importFrom stats addmargins
 html_paged_target_categorical <- function(.data, target, full_width = TRUE, 
-                                        font_size = 13) {
+                                        font_size = 13, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     html_cat("The target variable is not defied.")    
     break_page_asis()
@@ -1866,7 +1942,7 @@ html_paged_target_categorical <- function(.data, target, full_width = TRUE,
         el <- div(h3(nm_var))
         cat(as.character(el))
         
-        print(plot(relate(tgt_by, all_of(nm_var))))
+        print(plot(relate(tgt_by, all_of(nm_var)), base_family = base_family))
         
         if (i == 1 & length(levels(.data[, nm_var])) > 12) {
           break_line_asis(20)
@@ -1911,7 +1987,11 @@ html_paged_target_categorical <- function(.data, target, full_width = TRUE,
 #' @importFrom kableExtra kable_styling add_header_above
 #' @import dplyr
 html_paged_target_correlation <- function(.data, target, full_width = TRUE, 
-                                          font_size = 13) {
+                                          font_size = 13, base_family = NULL) {
+  if (is.null(base_family)) {
+    base_family <- "Roboto Condensed"
+  }
+  
   if (is.null(target)) {
     html_cat("The target variable is not defied.")    
     break_page_asis()
@@ -1973,7 +2053,7 @@ html_paged_target_correlation <- function(.data, target, full_width = TRUE,
         el <- div(h4("Correlation Plot"))
         cat(as.character(el))
         
-        plot_correlate(data_filterd)
+        print(plot_correlate(data_filterd, base_family = base_family))
         
         break_page_asis()
       }

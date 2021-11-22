@@ -4,13 +4,16 @@
 \alias{plot.bins}
 \title{Visualize Distribution for a "bins" object}
 \usage{
-\method{plot}{bins}(x, typographic = TRUE, ...)
+\method{plot}{bins}(x, typographic = TRUE, base_family = NULL, ...)
 }
 \arguments{
 \item{x}{an object of class "bins", usually, a result of a call to binning().}
 
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).}
 }
@@ -19,12 +22,17 @@ Visualize two plots on a single screen.
 The plot at the top is a histogram representing the frequency of the level.
 The plot at the bottom is a bar chart representing the frequency of the level.
 }
+\details{
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
+}
 \examples{
 # Generate data for the example
 heartfailure2 <- heartfailure
 heartfailure2[sample(seq(NROW(heartfailure2)), 20), "platelets"] <- NA
 
-# Binning the carat variable. default type argument is "quantile"
+# Binning the platelets variable. default type argument is "quantile"
 bin <- binning(heartfailure2$platelets, nbins = 5)
 plot(bin)
 
@@ -32,14 +40,14 @@ plot(bin)
 bin <- binning(heartfailure2$platelets, nbins = 5, type = "equal")
 plot(bin)
 
-#bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
-#plot(bin)
+# bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
+# plot(bin)
 
-#bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
-#plot(bin)
+# bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
+# plot(bin)
 
-bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
-plot(bin)
+# bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
+# plot(bin)
 
 }
 \seealso{

@@ -8,9 +8,21 @@
 \usage{
 plot_correlate(.data, ...)
 
-\method{plot_correlate}{data.frame}(.data, ..., method = c("pearson", "kendall", "spearman"))
+\method{plot_correlate}{data.frame}(
+  .data,
+  ...,
+  method = c("pearson", "kendall", "spearman"),
+  typographic = TRUE,
+  base_family = NULL
+)
 
-\method{plot_correlate}{grouped_df}(.data, ..., method = c("pearson", "kendall", "spearman"))
+\method{plot_correlate}{grouped_df}(
+  .data,
+  ...,
+  method = c("pearson", "kendall", "spearman"),
+  typographic = TRUE,
+  base_family = NULL
+)
 }
 \arguments{
 \item{.data}{a data.frame or a \code{\link{tbl_df}}.}
@@ -27,6 +39,12 @@ See vignette("EDA") for an introduction to these concepts.}
 
 \item{method}{a character string indicating which correlation coefficient (or covariance) is 
 to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.}
+
+\item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
+The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 }
 \description{
 The plot_correlate() visualize correlation plot
@@ -36,6 +54,10 @@ for find relationship between two numerical variables.
 The scope of the visualization is the provide a correlation information.
 Since the plot is drawn for each variable, if you specify more than
 one variable in the ... argument, the specified number of plots are drawn.
+
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \examples{
 # Visualize correlation plot of all numerical variables
@@ -53,18 +75,18 @@ library(dplyr)
 
 gdata <- group_by(heartfailure, smoking, death_event)
 plot_correlate(gdata, "creatinine")
-plot_correlate(gdata)
+# plot_correlate(gdata)
 
 # Using pipes ---------------------------------
 # Visualize correlation plot of all numerical variables
-heartfailure \%>\%
-  plot_correlate()
+# heartfailure \%>\%
+#   plot_correlate()
 # Positive values select variables
 heartfailure \%>\%
   plot_correlate(creatinine, sodium)
 # Negative values to drop variables
-heartfailure \%>\%
-  plot_correlate(-creatinine, -sodium)
+# heartfailure \%>\%
+#   plot_correlate(-creatinine, -sodium)
 # Positions values select variables
 heartfailure \%>\%
   plot_correlate(1)
@@ -82,10 +104,10 @@ plot_correlate(creatinine)
 # Extract only those with 'smoking' variable level is "Yes",
 # and visualize correlation plot of 'creatinine' variable by 'hblood_pressure'
 # and 'death_event' variables.
-heartfailure \%>\%
- filter(smoking == "Yes") \%>\%
- group_by(hblood_pressure, death_event) \%>\%
- plot_correlate(creatinine)
+#heartfailure \%>\%
+#  filter(smoking == "Yes") \%>\%
+#  group_by(hblood_pressure, death_event) \%>\%
+#  plot_correlate(creatinine)
  
 }
 \seealso{

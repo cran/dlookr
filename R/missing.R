@@ -8,12 +8,18 @@
 #' So, it was made possible to visually examine how the missing values are distributed 
 #' for each combination of variables.
 #' 
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x data frames, or objects to be coerced to one.
 #' @param main character. Main title.
 #' @param col.left character. The color of left legend that is frequency of NA. default is "#009E73".
 #' @param col.right character. The color of right legend that is percentage of NA. default is "#56B4E9".
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Generate data for the example
 #' set.seed(123L)
@@ -23,17 +29,19 @@
 #' plot_na_hclust(jobchange2)
 #' 
 #' # Change the main title.
-#' plot_na_hclust(jobchange2, main = "Distribution of missing value")
+#' # plot_na_hclust(jobchange2, main = "Distribution of missing value")
 #' 
 #' # Not support typographic elements
-#' plot_na_hclust(jobchange2, typographic = FALSE)
+#' # plot_na_hclust(jobchange2, typographic = FALSE)
 #' 
 #' @importFrom stats hclust dist order.dendrogram as.dendrogram reorder
 #' @import ggplot2
 #' @import hrbrthemes
 #' @export
 #' 
-plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#56B4E9", typographic = TRUE)
+plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", 
+                            col.right = "#56B4E9", typographic = TRUE,
+                            base_family = NULL)
 {
   N <- nrow(x)
   
@@ -100,6 +108,7 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
                fontface = "bold") +
     labs(y = "Variables with missing values", 
          x = "Number of observations", title = main) +
+    theme_grey(base_family = base_family) +    
     theme(axis.text.x = element_text(size = 9, angle = 0, vjust = 0.3),
           axis.text.y = element_text(size = 10),
           plot.title = element_text(size = 11),
@@ -107,7 +116,7 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
   
   if (typographic) {
     p <- p +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(legend.position = "none",
             axis.title.x = element_text(size = 12),
             axis.title.y = element_text(size = 12))
@@ -122,6 +131,10 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
 #' @description
 #' Visualize pareto chart for variables with missing value.
 #'
+#' @details The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font().
+#' 
 #' @param x data frames, or objects to be coerced to one.
 #' @param only_na logical. The default value is FALSE. 
 #' If TRUE, only variables containing missing values are selected for visualization. 
@@ -135,6 +148,8 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
 #' @param plot logical. If this value is TRUE then visualize plot. else if FALSE, return aggregate information about missing values.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Generate data for the example
 #' set.seed(123L)
@@ -154,23 +169,23 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
 #' plot_na_pareto(jobchange2, col = "blue")
 #' 
 #' # Visualize only variables containing missing values
-#' plot_na_pareto(jobchange2, only_na = TRUE)
+#' # plot_na_pareto(jobchange2, only_na = TRUE)
 #' 
 #' # Display the relative frequency 
-#' plot_na_pareto(jobchange2, relative = TRUE)
+#' # plot_na_pareto(jobchange2, relative = TRUE)
 #' 
 #' # Change the grade
 #' plot_na_pareto(jobchange2, grade = list(High = 0.1, Middle = 0.6, Low = 1))
 #' 
 #' # Change the main title.
-#' plot_na_pareto(jobchange2, relative = TRUE, only_na = TRUE, 
-#'                main = "Pareto Chart for jobchange")
+#' # plot_na_pareto(jobchange2, relative = TRUE, only_na = TRUE, 
+#' #                main = "Pareto Chart for jobchange")
 #'   
 #' # Return the aggregate information about missing values.
-#' plot_na_pareto(jobchange2, only_na = TRUE, plot = FALSE)
+#' # plot_na_pareto(jobchange2, only_na = TRUE, plot = FALSE)
 #' 
 #' # Not support typographic elements
-#' plot_na_pareto(jobchange2, typographic = FALSE)
+#' # plot_na_pareto(jobchange2, typographic = FALSE)
 #' 
 #' @importFrom purrr map_int
 #' @importFrom tibble enframe
@@ -179,7 +194,7 @@ plot_na_hclust <- function (x, main = NULL, col.left = "#009E73", col.right = "#
 #' @export
 plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, col = "black",
                             grade = list(Good = 0.05, OK = 0.1, NotBad = 0.2, Bad = 0.5, Remove = 1),
-                            plot = TRUE, typographic = TRUE)
+                            plot = TRUE, typographic = TRUE, base_family = NULL)
 {
   if (sum(is.na(x)) == 0) {
     stop("Data have no missing value.")
@@ -253,6 +268,7 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
                colour = col, size = 1.5) +
     scale_y_continuous(sec.axis = sec_axis(~.*scaleRight, name = "Cumulative (%)")) +
     labs(title = main, x = xlab, y = ylab) + 
+    theme_grey(base_family = base_family) +    
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
           legend.position = "top") +
     scale_fill_manual(values = pals, 
@@ -262,7 +278,7 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
   
   if (typographic) {
     p <- p +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(legend.position = "top",
             axis.title.x = element_text(size = 12),
             axis.title.y = element_text(size = 12),
@@ -287,6 +303,10 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
 #' Finally, the visualization at the top right expresses the number of variables including missing values in the data set, 
 #' and the number of observations including missing values and complete cases .
 #' 
+#' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+#' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+#' use it after loading the Google font with import_google_font(). 
+#' 
 #' @param x data frames, or objects to be coerced to one.
 #' @param only_na logical. The default value is FALSE. 
 #' If TRUE, only variables containing missing values are selected for visualization. 
@@ -300,6 +320,8 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
 #' @param main character. Main title.
 #' @param typographic logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
+#' @param base_family character. The name of the base font family to use 
+#' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @examples
 #' # Generate data for the example
 #' set.seed(123L)
@@ -328,7 +350,7 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
 #' plot_na_intersect(jobchange2, only_na = FALSE, n_intersacts = 7)
 #' 
 #' # Not allow typographic elements
-#' plot_na_intersect(jobchange2, typographic = FALSE)
+#' # plot_na_intersect(jobchange2, typographic = FALSE)
 #' 
 #' @importFrom purrr map_int
 #' @importFrom tibble enframe
@@ -339,7 +361,8 @@ plot_na_pareto <- function (x, only_na = FALSE, relative = FALSE, main = NULL, c
 #' @import dplyr
 #' @export
 plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL, 
-                               n_vars = NULL, main = NULL, typographic = TRUE)
+                               n_vars = NULL, main = NULL, typographic = TRUE,
+                               base_family = NULL)
 {
   N <- nrow(x)
   
@@ -471,7 +494,7 @@ plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL,
   
   if (typographic) {
     top <- top +
-      theme_typographic() +
+      theme_typographic(base_family) +
       scale_x_continuous(breaks = seq(marginal_var$Var1), 
                          labels = marginal_var$n_var,
                          limits = c(0, length(na_variable)) + 0.5) +
@@ -482,15 +505,16 @@ plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL,
             plot.margin = margin(10, 10, 0, 10))
     
     body <- body +
-      theme_typographic() +
+      theme_typographic(base_family) +
       theme(legend.position = "none",
             axis.title.x = element_text(size = 12),
             axis.title.y = element_blank(),
             axis.text.y = element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1),
             plot.margin = margin(0, 10, 30, 10))
       
     right <- right +
-      theme_typographic() +
+      theme_typographic(base_family) +
       scale_x_continuous(breaks = seq(marginal_obs$Var2), 
                          labels = marginal_obs$n_obs,
                          limits = c(0, nrow(marginal_obs)) + 0.5) +    
@@ -502,14 +526,17 @@ plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL,
             axis.text.x = element_text(color = "transparent"),
             plot.margin = margin(0, 10, 30, 0))
     
-    fontfamily <- get_font_family()
+    if (is.null(base_family)) {
+      base_family <- "Roboto Condensed" 
+    }
     
-    main <- grid::textGrob(main, gp = grid::gpar(fontfamily = fontfamily, 
+    main <- grid::textGrob(main, gp = grid::gpar(fontfamily = base_family, 
                                                  fontsize = 18, font = 2),
                           x = unit(0.075, "npc"), just = "left")
     
   } else {
     body <- body +
+      theme_grey(base_family = base_family) +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1,
                                        family = "mono"),
             axis.title.y = element_blank(), axis.text.y = element_blank(),
@@ -521,6 +548,7 @@ plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL,
       scale_x_continuous(breaks = seq(marginal_var$Var1), 
                          labels = marginal_var$n_var,
                          limits = c(0, length(na_variable)) + 0.5) +
+      theme_grey(base_family = base_family) +
       theme(axis.ticks.x = element_blank(), axis.title.x = element_blank(),
             axis.title.y = element_blank(), axis.text.y = element_blank(),
             axis.ticks.y = element_blank())
@@ -531,7 +559,8 @@ plot_na_intersect <- function (x, only_na = TRUE, n_intersacts = NULL,
                          limits = c(0, nrow(marginal_obs)) + 0.5) +    
       scale_y_continuous(breaks = breaks, 
                          labels = breaks_label,
-                         limits = range(c(0, breaks))) +    
+                         limits = range(c(0, breaks))) +
+      theme_grey(base_family = base_family) +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, 
                                        family = "mono", color = "transparent"),
             axis.ticks.x = element_blank(),

@@ -12,7 +12,8 @@ plot_na_pareto(
   col = "black",
   grade = list(Good = 0.05, OK = 0.1, NotBad = 0.2, Bad = 0.5, Remove = 1),
   plot = TRUE,
-  typographic = TRUE
+  typographic = TRUE,
+  base_family = NULL
 )
 }
 \arguments{
@@ -36,9 +37,17 @@ The default values are Good: [0, 0.05], OK: (0.05, 0.1], NotBad: (0.1, 0.2], Bad
 
 \item{typographic}{logical. Whether to apply focuses on typographic elements to ggplot2 visualization. 
 The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.}
+
+\item{base_family}{character. The name of the base font family to use 
+for the visualization. If not specified, the font defined in dlookr is applied. (See details)}
 }
 \description{
 Visualize pareto chart for variables with missing value.
+}
+\details{
+The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
+"NanumSquare", "Noto Sans Korean". If you want to use a different font, 
+use it after loading the Google font with import_google_font().
 }
 \examples{
 # Generate data for the example
@@ -59,22 +68,22 @@ plot_na_pareto(jobchange2)
 plot_na_pareto(jobchange2, col = "blue")
 
 # Visualize only variables containing missing values
-plot_na_pareto(jobchange2, only_na = TRUE)
+# plot_na_pareto(jobchange2, only_na = TRUE)
 
 # Display the relative frequency 
-plot_na_pareto(jobchange2, relative = TRUE)
+# plot_na_pareto(jobchange2, relative = TRUE)
 
 # Change the grade
 plot_na_pareto(jobchange2, grade = list(High = 0.1, Middle = 0.6, Low = 1))
 
 # Change the main title.
-plot_na_pareto(jobchange2, relative = TRUE, only_na = TRUE, 
-               main = "Pareto Chart for jobchange")
+# plot_na_pareto(jobchange2, relative = TRUE, only_na = TRUE, 
+#                main = "Pareto Chart for jobchange")
   
 # Return the aggregate information about missing values.
-plot_na_pareto(jobchange2, only_na = TRUE, plot = FALSE)
+# plot_na_pareto(jobchange2, only_na = TRUE, plot = FALSE)
 
 # Not support typographic elements
-plot_na_pareto(jobchange2, typographic = FALSE)
+# plot_na_pareto(jobchange2, typographic = FALSE)
 
 }

@@ -42,6 +42,7 @@ sample_percent <- get("sample_percent", .dlookrEnv)
 author <- get("author", .dlookrEnv)
 thres_uniq_cat <- get("thres_uniq_cat", .dlookrEnv)
 thres_uniq_num <- get("thres_uniq_num", .dlookrEnv)
+base_family <- get("base_family", .dlookrEnv)
 ```
 
 
@@ -56,6 +57,7 @@ thres_uniq_num <- get("thres_uniq_num", .dlookrEnv)
 
 .subtitle {
   color: $subtitle_color$;
+  font-size: 2.5em !important;  
 }
 
 /* Warnings */
@@ -389,8 +391,8 @@ metrics <- c("dataset" ,"dataset type", "samples", "created", "created by")
 
 value <- c("$dataset$", 
            "$datatype$",
-           paste0(N_sample, " / ", format(N, big.mark = ","), " (",
-                  sample_percent, "%)"),
+           paste0(format(N_sample, big.mark = ","), " / ", 
+                  format(N, big.mark = ","), " (", sample_percent, "%)"),
            "$date$",
            ifelse(author == "", "dlookr", author))
 
@@ -465,7 +467,7 @@ diagn_missing <- diagn_na_unique %>%
 
 if (NROW(diagn_missing) > 1) {
   break_line_asis(1)
-  plot_na_intersect(reportData)
+  plot_na_intersect(reportData, base_family = base_family)
 } else if (NROW(diagn_missing) == 1) {
   html_cat("Supported only when the number of variables including missing values is 2 or more.")
   break_line_asis(1)
@@ -653,7 +655,7 @@ if (NROW(diagn_numeric) > 0) {
 
       cat("<br><br>")
       
-      plot_outlier(reportData, variables[i])
+      plot_outlier(reportData, variables[i], base_family = base_family)
       
       break_page_asis()
     }
