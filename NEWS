@@ -29,6 +29,12 @@ CHANGES IN R VERSION 0.5.2:
       "Compare Categorical Variables" section of the report in eda_web_report(),
       eda_paged_report().
 
+    * Fixed an error that occurred when generating a paged report as a pdf file 
+      when non-ASCII (multi-byte) characters were included in MS-Windows.
+        - diagnose_paged_report()
+        - eda_paged_report()
+        - transformation_paged_report()
+
   MAJOR CHANGES:
 
     * Changed the way fonts are imported into the R environment to insert fonts 
