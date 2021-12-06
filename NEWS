@@ -1,3 +1,43 @@
+CHANGES IN R VERSION 0.5.4:
+  BUG FIXES:
+    * Fixed an error that occurred when attaching a package in an offline 
+      environment.
+      - In the case of an offline environment, the import of Google fonts 
+        is canceled and only offline fonts are imported.
+    
+    * Fixed an error that occurred when the number of breaks and 
+      the number of labels in plot.compare_category() are different.
+      
+    * Fixed an error that occurred when check in the CRAN in 
+      r-devel-windows-x86_64-old
+      - "Error in loadNamespace(i, c(lib.loc, .libPaths()), 
+        versionCheck = vI[[i]]) : 
+        there is no package called 'stringi'"
+      - so append stringi package to "Suggests" section in DESCRIPTION file.
+
+  MINOR CHANGES:
+    * The default font for visualization is "Roboto Condensed" in the online 
+      environment and "Liberation Sans Narrow" in the offline environment.
+    
+  
+  
+CHANGES IN R VERSION 0.5.3:
+  BUG FIXES:
+  
+  * Fixed an error that occurred when generating a paged report as a pdf file 
+    when non-ASCII (multi-byte) characters were included in MS-Windows.
+      - diagnose_paged_report()
+      - eda_paged_report()
+      - transformation_paged_report()
+      
+  MAJOR CHANGES:
+  
+  * The size of the vignettes is large and the size of the attached file is large, 
+    so it is difficult to keep the package stable on CRAN. So I opted to move 
+    the content of vignettes to an external web page and share that URL on vignettes.
+  
+  
+  
 CHANGES IN R VERSION 0.5.2:
   BUG FIXES:
 
@@ -28,12 +68,6 @@ CHANGES IN R VERSION 0.5.2:
       categorical variable was 1 combined with this variable in the 
       "Compare Categorical Variables" section of the report in eda_web_report(),
       eda_paged_report().
-
-    * Fixed an error that occurred when generating a paged report as a pdf file 
-      when non-ASCII (multi-byte) characters were included in MS-Windows.
-        - diagnose_paged_report()
-        - eda_paged_report()
-        - transformation_paged_report()
 
   MAJOR CHANGES:
 
@@ -82,8 +116,10 @@ CHANGES IN R VERSION 0.5.2:
       
   MINOR CHANGES:
     
-    * Reduce the font size of subtitle in paged reports (diagnose_paged_report(),
-      eda_paged_report(), transformation_paged_report()).
+    * Reduce the font size of subtitle in paged reports. 
+      - diagnose_paged_report()
+      - eda_paged_report()
+      - transformation_paged_report()
       
   DEFUNCT:
   
