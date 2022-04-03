@@ -1,8 +1,8 @@
 Package: dlookr
 Type: Package
 Title: Tools for Data Diagnosis, Exploration, Transformation
-Version: 0.5.4
-Date: 2021-12-06
+Version: 0.5.5
+Date: 2022-04-04
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
@@ -25,14 +25,15 @@ Imports: dplyr (>= 0.7.6), showtext (>= 0.9-4), sysfonts (>= 0.7.1),
         htmltools, kableExtra, knitr (>= 1.22), methods, mice, pagedown
         (>= 0.15), partykit, purrr, reactable, rlang, rmarkdown, shiny,
         tibble, tidyr, tidyselect, utils
-Suggests: DBI, classInt, dbplyr, forecast (>= 8.3), ISLR, nycflights13,
-        randomForest, rpart, prettydoc, RSQLite, ranger, stringi
+Suggests: DBI, classInt, dbplyr, forecast (>= 8.3), funModeling, ISLR,
+        nycflights13, ppsr, randomForest, rpart, prettydoc, RSQLite,
+        ranger, stringi
 Author: Choonghyun Ryu [aut, cre]
 Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>
 BugReports: https://github.com/choonghyunryu/dlookr/issues
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 NeedsCompilation: no
-Packaged: 2021-12-06 09:12:43 UTC; choonghyunryu
+Packaged: 2022-04-03 22:32:24 UTC; choonghyunryu
 Repository: CRAN
-Date/Publication: 2021-12-06 10:40:13 UTC
+Date/Publication: 2022-04-03 23:30:02 UTC

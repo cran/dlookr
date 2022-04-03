@@ -10,6 +10,7 @@ html_descriptive <- function(.data, base_family = NULL) {
   
   N <- nrow(.data)
   
+  # change name from "variable" to "described_variables".
   raws <- .data %>% 
     diagnose() %>% 
     left_join(
@@ -21,7 +22,7 @@ html_descriptive <- function(.data, base_family = NULL) {
       .data %>% 
         dlookr::describe(statistics = c("skewness", "kurtosis")) %>% 
         select(-n, -na),
-      by = c("variables" = "variable")) %>% 
+      by = c("variables" = "described_variables")) %>% 
     mutate(missing_percent = round(missing_percent, 2),
            unique_rate = round(unique_rate, 3),
            skewness = round(skewness, 3),
@@ -345,7 +346,8 @@ html_normality <- function(.data, theme = c("orange", "blue")[1],
   N <- nrow(.data)
   
   describe_num <- dlookr::describe(.data) %>% 
-    select(variable, n, na, mean, p00, p25, p50,  p75, p100, skewness, kurtosis) %>% 
+    select(described_variables, n, na, mean, p00, p25, p50,  p75, p100, 
+           skewness, kurtosis) %>% 
     rename("Min" = p00,
            "Max" = p100,
            "Median" = p50,
@@ -372,7 +374,7 @@ html_normality <- function(.data, theme = c("orange", "blue")[1],
           width = 145,
           cell = function(value) normality_indicator(value, theme)
         ),
-        variable = colDef(
+        described_variables = colDef(
           name = "Variables",
           width = 125
         ),
@@ -393,12 +395,15 @@ html_normality <- function(.data, theme = c("orange", "blue")[1],
         )         
       ),
       details = function(index) {
-        variable <- describe_num$variable[index]
+        variable <- describe_num$described_variables[index]
         
         flag_sample <- FALSE
         
+        # fix non-numeric argument to binary operator error
+        # so, add as.numeric() function
         x <- .data[, variable] %>%
-          .[!is.na(.)]
+          .[!is.na(.)] %>% 
+          as.numeric()
         
         if (length(x) > 5000) {
           x <- sample(x, size = 5000, replace = TRUE)
@@ -603,7 +608,11 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10,
                  position = position_fill(reverse = FALSE)) +
         facet_grid(~ a, space = "free", scales = "free", switch = "x") +
         scale_x_discrete(name = xvar) +
-        scale_y_continuous(name = yvar, breaks = y_pos, labels = y_lab) +
+        # Resolved an error when the number of levels of one of the two 
+        # categorical variables is 1
+        # github issue of html_compare_category() #63        
+        scale_y_continuous(name = yvar, breaks = y_pos[!is.na(y_pos)], 
+                           labels = y_lab) +
         labs(title = sprintf("Mosaics plot by '%s' vs '%s'", xvar, yvar)) +
         theme(legend.position = "none",
               axis.text.x = element_blank(),
@@ -679,7 +688,15 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10,
             )         
           ),
           details = function(index) {
-            ctable <- tabs$table[[index]]
+            # Resolved an issue where table and table detail did not match
+            # github issue of html_compare_category() #63
+            variable <- tab_compare[index, ] %>% 
+              select(variable_1, variable_2) %>% 
+              mutate(variable = paste(variable_1, variable_2, sep = " vs ")) %>% 
+              select(variable) %>% 
+              pull()
+            
+            ctable <- tabs$table[[variable]]
             
             contingency <- function(tab, relate = FALSE) {
               dname <-  tab %>% dimnames()
@@ -1275,7 +1292,7 @@ html_paged_describe_detail <- function(.data, n_ind = 4, caption = "",
             select_at(vars_nm) %>% 
             dlookr::describe(statistics = c("sd", "skewness", "kurtosis")) %>% 
             select(-n, -na),
-          by = c("variables" = "variable")) %>% 
+          by = c("variables" = "described_variables")) %>% 
         mutate(skewness = round(skewness, 3),
                kurtosis = round(kurtosis, 3)) %>% 
         select(variables:distinct, skewness, kurtosis, zero, 
@@ -1376,7 +1393,8 @@ html_paged_normality <- function(.data, n_rows = 25, add_row = 3, caption = "",
   
   if (in_numerical) {
     tabs <- dlookr::describe(.data) %>% 
-      select(variable, p00, p25, p50,  p75, p100, skewness, kurtosis) %>% 
+      select(described_variables, p00, p25, p50,  p75, p100, 
+             skewness, kurtosis) %>% 
       rename("min" = p00,
              "max" = p100,
              "median" = p50,

@@ -10,7 +10,13 @@ describe(.data, ...)
 
 \method{describe}{data.frame}(.data, ..., statistics = NULL, quantiles = NULL)
 
-\method{describe}{grouped_df}(.data, ..., statistics = NULL, quantiles = NULL)
+\method{describe}{grouped_df}(
+  .data,
+  ...,
+  statistics = NULL,
+  quantiles = NULL,
+  all.combinations = FALSE
+)
 }
 \arguments{
 \item{.data}{a data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.}
@@ -28,6 +34,11 @@ See vignette("EDA") for an introduction to these concepts.}
 \item{statistics}{character. the name of the descriptive statistic to calculate. The defaults is c("mean", "sd", "se_mean", "IQR", "skewness", "kurtosis", "quantiles")}
 
 \item{quantiles}{numeric. list of quantiles to calculate. The values of elements must be between 0 and 1. and to calculate quantiles, you must include "quantiles" in the statistics argument value. The default is c(0, .01, .05, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 0.99, 1).}
+
+\item{all.combinations}{logical. When used with group_by(), 
+this argument expresses all combinations of  group combinations. 
+If the argument value is TRUE, cases that do not exist as actual 
+data are also included in the output.}
 }
 \value{
 An object of the same class as .data.
@@ -42,6 +53,12 @@ of the dplyr package.
 If you want to calculate the statistic by level of the categorical data
 you are interested in, rather than the whole statistic, you can use
 grouped_df as the group_by() function.
+
+From version 0.5.5, the 'variable' column in the "descriptive statistic 
+information" tibble object has been changed to 'described_variables'. 
+This is because there are cases where 'variable' is included in the variable 
+name of the data. There is probably no case where 'described_variables' is 
+included in the variable name of the data.
 }
 \section{Descriptive statistic information}{
 
@@ -100,10 +117,16 @@ heartfailure2 \%>\%
 # Find the statistic of all numerical variables by 'hblood_pressure' and 'death_event',
 # and extract only those with 'hblood_pressure' variable level is "Yes".
 heartfailure2 \%>\%
- group_by(hblood_pressure, death_event) \%>\%
-   describe() \%>\%
-   filter(hblood_pressure == "Yes")
-
+  group_by(hblood_pressure, death_event) \%>\%
+  describe() \%>\%
+  filter(hblood_pressure == "Yes")
+  
+# Using all.combinations = TRUE
+heartfailure2 \%>\%
+  filter(!hblood_pressure \%in\% "Yes" | !death_event \%in\% "Yes") \%>\% 
+  group_by(hblood_pressure, death_event) \%>\%
+  describe(all.combinations = TRUE) 
+  
 # extract only those with 'smoking' variable level is "Yes",
 # and find 'creatinine' statistics by 'hblood_pressure' and 'death_event'
 heartfailure2 \%>\%

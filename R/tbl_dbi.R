@@ -1009,24 +1009,33 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 }
 
 
-#' Compute the correlation coefficient between two numerical data
+#' Compute the correlation coefficient between two variable in DBMS
 #'
-#' @description The correlate() compute Pearson's the correlation
-#' coefficient of the numerical(INTEGER, NUMBER, etc.) column of 
-#' the DBMS table through tbl_dbi.
+#' @description The correlate() compute the correlation coefficient for numerical or categorical data.
 #'
 #' @details This function is useful when used with the group_by() function of the dplyr package.
 #' If you want to compute by level of the categorical data you are interested in,
 #' rather than the whole observation, you can use \code{\link{grouped_df}} as the group_by() function.
-#' This function is computed stats::cor() function by use = "pairwise.complete.obs" option.
+#' This function is computed stats::cor() function by use = "pairwise.complete.obs" option for numerical variable.
+#' And support categorical variable with theil's U correlation coefficient and Cramer's V correlation coefficient.
 #'
 #' @section Correlation coefficient information:
-#' The information derived from the numerical data compute is as follows.
+#' It returns data.frame with the following variables.:
 #'
 #' \itemize{
 #' \item var1 : names of numerical variable
 #' \item var2 : name of the corresponding numeric variable
-#' \item coef_corr : Pearson's correlation coefficient
+#' \item coef_corr : Correlation coefficient
+#' }
+#' 
+#' When method = "cramer", data.frame with the following variables is returned.
+#' \itemize{
+#' \item var1 : names of numerical variable
+#' \item var2 : name of the corresponding numeric variable
+#' \item chisq : the value the chi-squared test statistic
+#' \item df : the degrees of freedom of the approximate chi-squared distribution of the test statistic
+#' \item pval : the p-value for the test
+#' \item coef_corr : theil's U correlation coefficient (Uncertainty Coefficient).
 #' }
 #'
 #' @param .data a tbl_dbi.
@@ -1044,7 +1053,10 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' Applies only if in_database = FALSE.
 #' @param method a character string indicating which correlation coefficient (or covariance) is 
 #' to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.
-#' 
+#' For numerical variables, one of "pearson" (default), "kendall", or 
+#' "spearman": can be used as an abbreviation.
+#' For categorical variables, "cramer" and "theil" can be used. "cramer" 
+#' computes Cramer's V statistic, "theil" computes Theil's U statistic.
 #' See vignette("EDA") for an introduction to these concepts.
 #'
 #' @seealso \code{\link{correlate.data.frame}}, \code{\link{cor}}.
@@ -1061,9 +1073,13 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'
 #' # Using pipes ---------------------------------
 #' # Correlation coefficients of all numerical variables
-#' con_sqlite %>% 
+#' tab_corr <- con_sqlite %>% 
 #'   tbl("TB_HEARTFAILURE") %>% 
 #'   correlate()
+#'  
+#'  tab_corr
+#'  summary(tab_corr)
+#'  plot(tab_corr)
 #'  
 #' # Positive values select variables
 #' con_sqlite %>% 
@@ -1075,27 +1091,12 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'   tbl("TB_HEARTFAILURE") %>% 
 #'   correlate(-platelets, -sodium, collect_size = 200)
 #'  
-#' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(1)
-#'  
-#' # Negative values to drop variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(-1, -2, -3, -5, -6)
-#'  
 #' # ---------------------------------------------
 #' # Correlation coefficient
 #' # that eliminates redundant combination of variables
 #' con_sqlite %>% 
 #'   tbl("TB_HEARTFAILURE") %>% 
 #'   correlate() %>%
-#'   filter(as.integer(var1) > as.integer(var2))
-#'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   correlate(platelets, sodium) %>%
 #'   filter(as.integer(var1) > as.integer(var2))
 #'
 #' # Using pipes & dplyr -------------------------
@@ -1125,7 +1126,8 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' }
 #'   
 correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf,
-                              method = c("pearson", "kendall", "spearman")) {
+                              method = c("pearson", "kendall", "spearman", 
+                                         "cramer", "theil")) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   method <- match.arg(method)
@@ -1134,14 +1136,30 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
   } else {
     if (class(.data$ops)[1] != "op_group_by") {
-      .data %>% 
-        dplyr::collect(n = collect_size) %>%
-        correlate_impl(vars, method)
+      if (method %in% c("pearson", "kendall", "spearman")) {
+        result <- .data %>% 
+          dplyr::collect(n = collect_size) %>%
+          correlate_impl_num(vars, method)
+      } else if (method %in% c("cramer", "theil")) {
+        result <- .data %>% 
+          dplyr::collect(n = collect_size) %>%
+          correlate_impl_cat(vars, method)
+      }  
+      
+
     } else {
-      .data %>% 
-        dplyr::collect(n = collect_size) %>%
-        correlate_group_impl(vars, method)
+      if (method %in% c("pearson", "kendall", "spearman")) {
+        result <- .data %>% 
+          dplyr::collect(n = collect_size) %>%
+          correlate_group_impl_num(vars, method)
+      } else if (method %in% c("cramer", "theil")) {
+        result <- .data %>% 
+          dplyr::collect(n = collect_size) %>%
+          correlate_group_impl_cat(vars, method)
+      }
     }
+    
+    return(result)
   }
 }
 
@@ -1156,6 +1174,9 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' Since the plot is drawn for each variable, if you specify more than
 #' one variable in the ... argument, the specified number of plots are drawn.
 #'
+#' The direction of the diagonal is top-left to bottom-right. and color of the 
+#' cells is 'red' to -1, 'blue' to 1.
+#' 
 #' The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
 #' "NanumSquare", "Noto Sans Korean". If you want to use a different font, 
 #' use it after loading the Google font with import_google_font(). 
@@ -1182,7 +1203,7 @@ correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = In
 #' 
 #' See vignette("EDA") for an introduction to these concepts.
 #'
-#' @seealso \code{\link{plot_correlate.data.frame}}, \code{\link{plot_outlier.tbl_dbi}}.
+#' @seealso \code{\link{plot.correlate}}, \code{\link{plot_outlier.tbl_dbi}}.
 #' @export
 #' @examples
 #' \donttest{
@@ -1275,6 +1296,12 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' you are interested in, rather than the whole statistic, you can use
 #' grouped_df as the group_by() function.
 #'
+#' From version 0.5.5, the 'variable' column in the "descriptive statistic 
+#' information" tibble object has been changed to 'described_variables'. 
+#' This is because there are cases where 'variable' is included in the variable 
+#' name of the data. There is probably no case where 'described_variables' is 
+#' included in the variable name of the data.
+#'
 #' @section Descriptive statistic information:
 #' The information derived from the numerical data describe is as follows.
 #'
@@ -1306,6 +1333,10 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' They support unquoting and splicing.
 #' @param statistics character. the name of the descriptive statistic to calculate. The defaults is c("mean", "sd", "se_mean", "IQR", "skewness", "kurtosis", "quantiles")
 #' @param quantiles numeric. list of quantiles to calculate. The values of elements must be between 0 and 1. and to calculate quantiles, you must include "quantiles" in the statistics argument value. The default is c(0, .01, .05, 0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.95, 0.99, 1).
+#' @param all.combinations logical. When used with group_by(), 
+#' this argument expresses all combinations of  group combinations. 
+#' If the argument value is TRUE, cases that do not exist as actual 
+#' data are also included in the output.
 #' @param in_database Specifies whether to perform in-database operations. 
 #' If TRUE, most operations are performed in the DBMS. if FALSE, 
 #' table data is taken in R and operated in-memory. Not yet supported in_database = TRUE.
@@ -1352,6 +1383,14 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'   describe() %>%
 #'   filter(smoking == "Yes")
 #'
+#' # Using all.combinations = TRUE
+#' con_sqlite %>% 
+#'   tbl("TB_HEARTFAILURE") %>% 
+#'   filter(!smoking %in% "Yes" | !death_event %in% "Yes") %>% 
+#'   group_by(smoking, death_event) %>%
+#'   describe(all.combinations = TRUE) %>%
+#'   filter(smoking == "Yes")
+#'   
 #' # extract only those with 'sex' variable level is "Male",
 #' # and find 'sodium' statistics by 'smoking' and 'death_event'
 #' con_sqlite %>% 
@@ -1365,6 +1404,7 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' }
 #' 
 describe.tbl_dbi <- function(.data, ..., statistics = NULL, quantiles = NULL,
+                             all.combinations = FALSE,
                              in_database = FALSE, collect_size = Inf) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
@@ -1391,7 +1431,8 @@ describe.tbl_dbi <- function(.data, ..., statistics = NULL, quantiles = NULL,
       .data %>% 
         group_by_at(group) %>% 
         dplyr::collect(n = collect_size) %>%
-        describe(vars, statistics = statistics, quantiles = quantiles)
+        describe(vars, statistics = statistics, quantiles = quantiles,
+                 all.combinations = all.combinations)
     }
   }
 }
