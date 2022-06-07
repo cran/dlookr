@@ -572,7 +572,7 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10,
     yvar <- y
     
     data <- ctab %>% 
-      select(a = xvar, b = yvar, n) 
+      select(a = all_of(xvar), b = all_of(yvar), n) 
     
     first <- data[1, 1] %>% pull %>% as.character
     y <- data %>% 
@@ -699,6 +699,9 @@ html_compare_category <- function(.data, n_cells = 20, n_levels = 10,
             ctable <- tabs$table[[variable]]
             
             contingency <- function(tab, relate = FALSE) {
+              rname <- rownames(tab)
+              rownames(tab) <- ifelse(rname %in% NA, "<NA>", rname)
+              
               dname <-  tab %>% dimnames()
               dframe <- tab %>% data.frame()
               
@@ -967,7 +970,7 @@ html_target_numerical <- function(.data, target, base_family = NULL) {
           
           mat <- relate(tgt_by, all_of(nm_var)) %>% 
             select(-p20, -p30, -p40, -p60, -p70, -p80) %>% 
-            select(-variable) %>% 
+            select(-described_variables) %>% 
             t()
           
           colnames(mat) <- mat[1, ] %>%
@@ -1207,7 +1210,9 @@ html_target_correlation <- function(.data, target, base_family = NULL) {
             )
 
           p_corr <- htmltools::plotTag({
-            plot_correlate(data_filterd, base_family = base_family)
+            data_filterd %>% 
+              correlate() %>% 
+              plot(base_family = base_family)
           }, sprintf("A plot of the variable %s == %s", target, value), 
           width = 600, height = 500, device = grDevices::png)
           
@@ -2071,7 +2076,9 @@ html_paged_target_correlation <- function(.data, target, full_width = TRUE,
         el <- div(h4("Correlation Plot"))
         cat(as.character(el))
         
-        print(plot_correlate(data_filterd, base_family = base_family))
+        data_filterd %>% 
+          correlate() %>%
+          plot(base_family = base_family)
         
         break_page_asis()
       }

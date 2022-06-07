@@ -839,6 +839,7 @@ plot_correlate_group_impl <- function(df, vars, method, typographic, base_family
 #' plot(tab_corr)
 #' 
 #' # correlate type is group ====================================
+#' # Draw a correlation matrix plot by category of Species.
 #' tab_corr <- iris %>% 
 #'   group_by(Species) %>% 
 #'   correlate()
@@ -896,7 +897,7 @@ plot.correlate <- function(x, typographic = TRUE, base_family = NULL, ...) {
           val <- groups[idx, ]
           nm <- names(val)
           
-          condition <- paste(nm, pull(val), sep = "==", collapse = ", ")
+          condition <- paste(nm, unlist(val), sep = "==", collapse = ", ")
           
           tab_subset <- groups[idx, ] %>% 
             inner_join(x, by = attr(x, "group_variable"))
@@ -927,9 +928,10 @@ plot.correlate <- function(x, typographic = TRUE, base_family = NULL, ...) {
             geom_text(aes(label = round(coef_corr, 2))) +
             scale_x_discrete(expand = c(0, 0)) +
             scale_y_discrete(expand = c(0, 0)) +
-            labs(title = paste0("Correlation Matrix (", attr(x, "method"), ") - ", condition), 
+            labs(title = paste0("Correlation Matrix (", attr(x, "method"), ")"), 
+                 subtitle = condition, 
                  fill = "Correlation\nCoieficent",
-                 x = "variable 2", y = "variable 2") + 
+                 x = "variable 1", y = "variable 2") + 
             coord_fixed() +
             theme_grey(base_family = base_family) +
             theme(axis.text.x = element_text(angle = 40, hjust = 1),
@@ -939,7 +941,8 @@ plot.correlate <- function(x, typographic = TRUE, base_family = NULL, ...) {
             p_corr <- p_corr +
               theme_typographic(base_family) +
               theme(axis.title.x = element_text(size = 13),
-                    axis.title.y = element_text(size = 13))
+                    axis.title.y = element_text(size = 13),
+                    axis.text.x = element_text(angle = 40, hjust = 1))
           }
           
           print(p_corr)
@@ -973,7 +976,7 @@ plot.correlate <- function(x, typographic = TRUE, base_family = NULL, ...) {
       scale_y_discrete(expand = c(0, 0)) +
       labs(title = paste0("Correlation Matrix (", attr(x, "method"), ")"), 
            fill = "Correlation\nCoieficent",
-           x = "variable 2", y = "variable 2") + 
+           x = "variable 1", y = "variable 2") + 
       coord_fixed() +
       theme_grey(base_family = base_family) +
       theme(axis.text.x = element_text(angle = 40, hjust = 1),
