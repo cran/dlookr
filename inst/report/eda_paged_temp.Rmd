@@ -149,6 +149,8 @@ if (!is.null(targetVariable)) {
   target <- if (!factor_flag & numeric_flag) 
     factor(pull(reportData, targetVariable)) else
       pull(reportData, targetVariable)
+} else { 
+  factor_flag <- FALSE
 }
 
 # if all elements of a numerical variable are NA,
@@ -242,22 +244,24 @@ break_page_asis()
 $targeted_eda$
 
 # Target based Analysis
-## Grouped Numerical Variables
+## Target Variable and Numerical Variables
 
-```{r group-numerical, results='asis', dpi=400, fig.height=5, fig.width=7, out.width="85%"}
+```{r group-numerical, results='asis', dpi=400, fig.height=5, fig.width=7, out.width="80%"}
 html_paged_target_numerical(reportData, targetVariable, base_family = base_family)  
 ```
 
-## Grouped Categorical Variables
+## Target Variable and Categorical Variables
 
-```{r group-categorical, results='asis', dpi=400, fig.height=6, fig.width=7, out.width="85%"}
+```{r group-categorical, results='asis', dpi=400, fig.height=5, fig.width=7, out.width="80%"}
 html_paged_target_categorical(reportData, targetVariable, base_family = base_family)  
 ```
 
-## Grouped Correlation
-
 ```{r group-correlation, results='asis', dpi=400, fig.height=6, fig.width=6, out.width="95%"}
-html_paged_target_correlation(reportData, targetVariable, base_family = base_family)  
+if (!is.null(targetVariable) & factor_flag) {
+  htmltools::h2("Grouped Correlation")
+  
+  html_paged_target_correlation(reportData, targetVariable, base_family = base_family)  
+}  
 ```
 
 $targeted_eda$
