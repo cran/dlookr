@@ -12,7 +12,7 @@
 
 <meta name="author" content="Choonghyun Ryu" />
 
-<meta name="date" content="2022-11-08" />
+<meta name="date" content="2023-06-30" />
 
 <title>Data quality diagnosis</title>
 
@@ -31,13 +31,13 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 
@@ -239,7 +239,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Data quality diagnosis</h1>
 <h4 class="author">Choonghyun Ryu</h4>
-<h4 class="date">2022-11-08</h4>
+<h4 class="date">2023-06-30</h4>
 
 
 
@@ -252,17 +252,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><strong>If there is a problem with data quality,</strong></li>
 <li><strong>The data must be corrected or re-acquired.</strong></li>
 </ul></li>
-<li>Explore data to understand the data and find scenarios for performing the analysis.</li>
+<li>Explore data to understand the data and find scenarios for
+performing the analysis.</li>
 <li>Derive new variables or perform variable transformations.</li>
 </ul>
 <p>The dlookr package makes these steps fast and easy:</p>
 <ul>
-<li><strong>Performs a data diagnosis or automatically generates a data diagnosis report.</strong></li>
-<li>Discover data in a variety of ways, and automatically generate EDA(exploratory data analysis) report.</li>
-<li>Impute missing values and outliers, resolve skewed data, and categorize continuous variables into categorical variables. And generates an automated report to support it.</li>
+<li><strong>Performs a data diagnosis or automatically generates a data
+diagnosis report.</strong></li>
+<li>Discover data in a variety of ways, and automatically generate
+EDA(exploratory data analysis) report.</li>
+<li>Impute missing values and outliers, resolve skewed data, and
+categorize continuous variables into categorical variables. And
+generates an automated report to support it.</li>
 </ul>
-<p>This document introduces <strong>Data Quality Diagnosis</strong> methods provided by the dlookr package. You will learn how to diagnose the quality of <code>tbl_df</code> data that inherits from data.frame and <code>data.frame</code> with functions provided by dlookr.</p>
-<p>dlookr increases synergy with <code>dplyr</code>. Particularly in data exploration and data wrangle, it increases the efficiency of the <code>tidyverse</code> package group.</p>
+<p>This document introduces <strong>Data Quality Diagnosis</strong>
+methods provided by the dlookr package. You will learn how to diagnose
+the quality of <code>tbl_df</code> data that inherits from data.frame
+and <code>data.frame</code> with functions provided by dlookr.</p>
+<p>dlookr increases synergy with <code>dplyr</code>. Particularly in
+data exploration and data wrangle, it increases the efficiency of the
+<code>tidyverse</code> package group.</p>
 </div>
 <div id="supported-data-structures" class="section level2">
 <h2>Supported data structures</h2>
@@ -272,13 +282,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li>data table : tbl_df class.</li>
 <li><strong>table of DBMS</strong> : table of the DBMS through tbl_dbi.
 <ul>
-<li><strong>Use dplyr as the back-end interface for any DBI-compatible database.</strong></li>
+<li><strong>Use dplyr as the back-end interface for any DBI-compatible
+database.</strong></li>
 </ul></li>
 </ul>
 </div>
 <div id="how-to-perform-data-diagnosis" class="section level2">
 <h2>How to perform data diagnosis</h2>
-<p>For information on how to perform data diagnosis, refer to the following website.</p>
+<p>For information on how to perform data diagnosis, refer to the
+following website.</p>
 <ul>
 <li><a href="https://choonghyunryu.github.io/dlookr_vignette/diagonosis.html"><code>Data quality diagnosis</code></a></li>
 </ul>
