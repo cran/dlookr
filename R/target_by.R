@@ -395,20 +395,6 @@ relate_impl <- function(.data, predictor) {
 #'
 #' @seealso \code{\link{plot.relate}}.
 #' @examples
-#' \dontrun{
-#' # If the target variable is a categorical variable
-#' categ <- target_by(heartfailure, death_event)
-#'
-#' # If the variable of interest is a categorical variable
-#' cat_cat <- relate(categ, hblood_pressure)
-#' 
-#' # Print bins class object
-#' cat_cat
-#' 
-#' summary(cat_cat)
-#' }
-#'
-#' @examples
 #' \donttest{
 #' # If the target variable is a categorical variable
 #' categ <- target_by(heartfailure, death_event)
@@ -627,7 +613,7 @@ plot.relate <- function(x, model = FALSE, hex_thres = 1000,
     # for Exception handling in plot.relate() #76
     # Code of MASS::bandwidth.nrd
     bandwidth.nrd <- function (x) {
-      r <- quantile(x, c(0.25, 0.75))
+      r <- quantile(x, c(0.25, 0.75), na.rm = TRUE)
       h <- (r[2L] - r[1L])/1.34
       4 * 1.06 * min(sqrt(stats::var(x)), h) * length(x)^(-1/5)
     }

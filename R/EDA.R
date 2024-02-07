@@ -70,8 +70,9 @@ eda_report <- function(.data, ...) {
 #' @param browse logical. choose whether to output the report results to the browser.
 #' @param ... arguments to be passed to methods.
 #' 
+#' @return No return value. This function only generates a report.
+#' 
 #' @examples
-#' \donttest{
 #' if (FALSE) {
 #' library(dplyr)
 #' 
@@ -119,7 +120,6 @@ eda_report <- function(.data, ...) {
 #' 
 #' # create html file. file name is EDA2.html
 #' eda_report(heartfailure, output_format = "html", output_file = "EDA2.html")
-#' }
 #' }
 #' @importFrom knitr knit2pdf
 #' @importFrom rmarkdown render
@@ -210,8 +210,9 @@ eda_report.data.frame <- function(.data, target = NULL, output_format = c("pdf",
     file.copy(from = Rmd_file, to = path, recursive = TRUE)
     
     if (!requireNamespace("prettydoc", quietly = TRUE)) {
-      stop("Package \"prettydoc\" needed for this function to work. Please install it.",
+      warning("Package \"prettydoc\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     rmarkdown::render(paste(path, rmd, sep = "/"),

@@ -45,7 +45,8 @@ Data analysis proceeds with the purpose of predicting target variables that
 See vignette("EDA") for an introduction to these concepts.
 }
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 library(dplyr)
 
 # connect DBMS

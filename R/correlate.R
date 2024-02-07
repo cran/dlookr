@@ -24,8 +24,10 @@ plot_correlate <- function(.data, ...) {
 #' This function is computed stats::cor() function by use = "pairwise.complete.obs" option for numerical variable.
 #' And support categorical variable with theil's U correlation coefficient and Cramer's V correlation coefficient.
 #'
-#' @section Correlation coefficient information:
-#' It returns data.frame with the following variables.:
+#' @return An object of correlate class.
+#' 
+#' @section correlate class:
+#' The correlate class inherits the tibble class and has the following variables.:
 #'
 #' \itemize{
 #' \item var1 : names of numerical variable
@@ -69,11 +71,6 @@ plot_correlate <- function(.data, ...) {
 #' tab_corr <- correlate(heartfailure)
 #' tab_corr
 #' 
-#' mat_corr <- summary(tab_corr)
-#' mat_corr
-#' 
-#' plot(tab_corr)
-#' 
 #' # Select the variable to compute
 #' correlate(heartfailure, "creatinine", "sodium")
 #' 
@@ -83,9 +80,6 @@ plot_correlate <- function(.data, ...) {
 #' # theil's U correlation coefficient (Uncertainty Coefficient)
 #' tab_corr <- correlate(heartfailure, anaemia, hblood_pressure, method = "theil")
 #' tab_corr
-#' 
-#' summary(tab_corr)   
-#' plot(tab_corr)
 #'    
 #' # Using dplyr::grouped_dt
 #' library(dplyr)
@@ -452,6 +446,7 @@ correlate_group_impl_cat <- function(df, vars, method) {
 #' mat <- summary(corr_tab)
 #' mat
 #' 
+#' if (FALSE) {
 #' # connect DBMS
 #' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
@@ -471,7 +466,7 @@ correlate_group_impl_cat <- function(df, vars, method) {
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
 #' }
-#' 
+#' }
 #' @method summary correlate
 #' @import dplyr
 #' @importFrom tidyr pivot_wider
@@ -613,7 +608,7 @@ summary.correlate <- function(object, ...) {
 #' They support unquoting and splicing.
 #'
 #' See vignette("EDA") for an introduction to these concepts.
-#'
+#' @return a ggplot2 object.
 #' @seealso \code{\link{plot_correlate.tbl_dbi}}, \code{\link{plot_outlier.data.frame}}.
 #' @export
 #' @method plot_correlate data.frame
@@ -819,6 +814,7 @@ plot_correlate_group_impl <- function(df, vars, method, typographic, base_family
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
+#' @return No return value. This function is called for its side effect, which is to produce a plot on the current graphics device.
 #' @seealso \code{\link{correlate}}, \code{\link{summary.correlate}}.
 #' @examples
 #' \donttest{
@@ -847,7 +843,9 @@ plot_correlate_group_impl <- function(df, vars, method, typographic, base_family
 #' # plot correlate class
 #' plot(tab_corr)
 #' 
-#' # S3 method for correlate class by 'tbl_dbi' ================
+#' ## S3 method for correlate class by 'tbl_dbi' ================
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' # connect DBMS
 #' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
@@ -856,13 +854,14 @@ plot_correlate_group_impl <- function(df, vars, method, typographic, base_family
 #' 
 #' # correlation coefficients of all numerical variables
 #' tab_corr <- con_sqlite %>% 
-#'   tbl("TB_IRIS") %>% 
-#'   correlate()
-#'   
+#'    tbl("TB_IRIS") %>% 
+#'    correlate()
+#'    
 #' plot(tab_corr)   
-#'   
+#'    
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
+#' }
 #' }
 #' 
 #' @method plot correlate

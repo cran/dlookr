@@ -17,6 +17,9 @@ for the visualization. If not specified, the font defined in dlookr is applied. 
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).}
 }
+\value{
+An object of gtable class.
+}
 \description{
 Visualize two plots on a single screen.
 The plot at the top is a histogram representing the frequency of the level.
@@ -44,11 +47,15 @@ plot(bin)
 bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
 plot(bin)
 
-bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
-plot(bin)
+# "kmeans" and "bclust" was implemented by classInt::classIntervals() function.
+# So, you must install classInt package.
+if (requireNamespace("classInt", quietly = TRUE)) {
+  bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
+  plot(bin)
 
-bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
-plot(bin)
+  bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
+  plot(bin)
+}    
 }
 
 }

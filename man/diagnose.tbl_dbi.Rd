@@ -35,7 +35,8 @@ the column of the DBMS table through tbl_dbi.
 The scope of data quality diagnosis is information on missing values
 and unique value information. Data quality diagnosis can determine variables
 that require missing value processing. Also, the unique value information can
-determine the variable to be removed from the data analysis.
+determine the variable to be removed from the data analysis. 
+You can use grouped_df as the group_by() function.
 }
 \section{Diagnostic information}{
 
@@ -61,47 +62,47 @@ See vignette("diagonosis") for an introduction to these concepts.
 \donttest{
 library(dplyr)
 
-# connect DBMS
-con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+if (requireNamespace("DBI", quietly = TRUE) & requireNamespace("RSQLite", quietly = TRUE)) {
+  # connect DBMS
+  con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
-# copy jobchange to the DBMS with a table named TB_JOBCHANGE
-copy_to(con_sqlite, jobchange, name = "TB_JOBCHANGE", overwrite = TRUE)
+  # copy jobchange to the DBMS with a table named TB_JOBCHANGE
+  copy_to(con_sqlite, jobchange, name = "TB_JOBCHANGE", overwrite = TRUE)
 
-# Using pipes ---------------------------------
-# Diagnosis of all columns
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose()
+  # Using pipes ---------------------------------
+  # Diagnosis of all columns
+  con_sqlite \%>\% 
+    tbl("TB_JOBCHANGE") \%>\% 
+    diagnose() \%>\% 
+    print()
   
-# Positive values select columns
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose(gender, education_level, company_size)
-  
-# Negative values to drop columns
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose(-gender, -education_level, -company_size)
-  
-# Positions values select columns, and In-memory mode
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose(1, 3, 8, in_database = FALSE)
-  
-# Positions values select columns, and In-memory mode and collect size is 200
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
+  # Positions values select columns, and In-memory mode and collect size is 200
+  con_sqlite \%>\% 
+    tbl("TB_JOBCHANGE") \%>\% 
+    diagnose(gender, education_level, company_size, in_database = FALSE, collect_size = 200) \%>\% 
+    print()
 
-# Using pipes & dplyr -------------------------
-# Diagnosis of missing variables
-con_sqlite \%>\% 
-  tbl("TB_JOBCHANGE") \%>\% 
-  diagnose() \%>\%
-  filter(missing_count > 0)
+  # Using pipes & dplyr -------------------------
+  # Diagnosis of missing variables
+  con_sqlite \%>\% 
+    tbl("TB_JOBCHANGE") \%>\% 
+    diagnose() \%>\%
+    filter(missing_count > 0) \%>\% 
+    print()
   
-# Disconnect DBMS   
-DBI::dbDisconnect(con_sqlite)
+  # Using pipes & dplyr -------------------------
+  # Diagnosis of missing variables
+  con_sqlite \%>\% 
+    tbl("TB_JOBCHANGE") \%>\% 
+    group_by(job_chnge) \%>\% 
+    diagnose() \%>\% 
+    print()
+ 
+  # Disconnect DBMS   
+  DBI::dbDisconnect(con_sqlite)
+} else {
+  cat("If you want to use this feature, you need to install the 'DBI' and 'RSQLite' package.\n")
+}
 }
    
 }

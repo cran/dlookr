@@ -87,7 +87,8 @@ The information derived from the numerical data describe is as follows.
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 library(dplyr)
 
 # connect DBMS

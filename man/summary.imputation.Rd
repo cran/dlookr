@@ -19,7 +19,6 @@ print and summary method for "imputation" class.
 summary.imputation() tries to be smart about formatting two kinds of imputation.
 }
 \examples{
-\donttest{
 # Generate data for the example
 heartfailure2 <- heartfailure
 heartfailure2[sample(seq(NROW(heartfailure2)), 20), "platelets"] <- NA
@@ -27,26 +26,17 @@ heartfailure2[sample(seq(NROW(heartfailure2)), 5), "smoking"] <- NA
 
 # Impute missing values -----------------------------
 # If the variable of interest is a numerical variables
-platelets <- imputate_na(heartfailure2, platelets, death_event, method = "rpart")
-platelets
+platelets <- imputate_na(heartfailure2, platelets, yvar = death_event, method = "rpart")
 summary(platelets)
-plot(platelets)
 
 # If the variable of interest is a categorical variables
-smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
-smoking
+smoking <- imputate_na(heartfailure2, smoking, yvar = death_event, method = "rpart")
 summary(smoking)
-
-plot(smoking)
 
 # Impute outliers ----------------------------------
 # If the variable of interest is a numerical variable
 platelets <- imputate_outlier(heartfailure2, platelets, method = "capping")
-platelets
 summary(platelets)
-
-plot(platelets)
-}
 }
 \seealso{
 \code{\link{imputate_na}}, \code{\link{imputate_outlier}}, \code{\link{summary.imputation}}.

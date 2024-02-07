@@ -70,7 +70,8 @@ use it after loading the Google font with import_google_font().
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 library(dplyr)
 
 # connect DBMS

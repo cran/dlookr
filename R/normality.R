@@ -49,14 +49,10 @@ plot_normality <- function(.data, ...) {
 #' @seealso \code{\link{normality.tbl_dbi}}, \code{\link{diagnose_numeric.data.frame}}, \code{\link{describe.data.frame}}, \code{\link{plot_normality.data.frame}}.
 #' @export
 #' @examples
-#' \donttest{
 #' # Normality test of numerical variables
 #' normality(heartfailure)
 #' 
 #' # Select the variable to describe
-#' normality(heartfailure, platelets, sodium)
-#' normality(heartfailure, -platelets, -sodium)
-#' normality(heartfailure, 1)
 #' normality(heartfailure, platelets, sodium, sample = 200)
 #' 
 #' # death_eventing dplyr::grouped_dt
@@ -66,18 +62,9 @@ plot_normality <- function(.data, ...) {
 #' normality(gdata, "platelets")
 #' normality(gdata, sample = 250)
 #' 
-#' # death_eventing pipes ---------------------------------
-#' # Normality test of all numerical variables
-#' heartfailure %>%
-#'   normality()
-#' 
-#' # # Positive values select variables
+#' # Positive values select variables
 #' heartfailure %>%
 #'   normality(platelets, sodium)
-#' 
-#' # Positions values select variables
-#' heartfailure %>%
-#'   normality(1)
 #' 
 #' # death_eventing pipes & dplyr -------------------------
 #' # Test all numerical variables by 'smoking' and 'death_event',
@@ -101,7 +88,6 @@ plot_normality <- function(.data, ...) {
 #'   group_by(smoking, death_event) %>%
 #'   normality(platelets_income) %>%
 #'   filter(p_value > 0.01)
-#' }
 #' 
 #' @method normality data.frame
 #' @importFrom tidyselect vars_select
@@ -277,17 +263,10 @@ normality_group_impl <- function(df, vars, sample) {
 #'
 #' # Select the variable to plot
 #' plot_normality(heartfailure2, platelets, sodium)
-#' plot_normality(heartfailure2, -platelets, -sodium, col = "gray")
-#' plot_normality(heartfailure2, 1)
 #'
 #' # Change the method of transformation
 #' plot_normality(heartfailure2, platelets, right = "1/x")
 #' 
-#' if (requireNamespace("forecast", quietly = TRUE)) {
-#'   plot_normality(heartfailure2, platelets, left = "Box-Cox", right = "Yeo-Johnson")
-#' } else {
-#'   cat("If you want to use this feature, you need to install the rpart package.\n")
-#' }
 #' # Non typographic elements
 #' plot_normality(heartfailure2, platelets, typographic = FALSE)
 #' 
@@ -295,7 +274,6 @@ normality_group_impl <- function(df, vars, sample) {
 #' library(dplyr)
 #'
 #' gdata <- group_by(heartfailure2, sex, smoking)
-#' plot_normality(gdata)
 #' plot_normality(gdata, "creatinine")
 #'
 #' # Using pipes ---------------------------------
@@ -304,12 +282,8 @@ normality_group_impl <- function(df, vars, sample) {
 #'  plot_normality()
 #'
 #' # Positive values select variables
-#' heartfailure2 %>%
-#'   plot_normality(platelets, sodium)
-#'
-#' # Positions values select variables
-#' heartfailure2 %>%
-#'   plot_normality(1)
+#' # heartfailure2 %>%
+#' #   plot_normality(platelets, sodium)
 #'
 #' # Using pipes & dplyr -------------------------
 #' # Plot 'creatinine' variable by 'sex' and 'smoking'
@@ -319,14 +293,10 @@ normality_group_impl <- function(df, vars, sample) {
 #'
 #' # extract only those with 'sex' variable level is "Male",
 #' # and plot 'platelets' by 'smoking'
-#' if (requireNamespace("forecast", quietly = TRUE)) {
-#'   heartfailure2 %>%
-#'    filter(sex == "Male") %>%
-#'    group_by(smoking) %>%
-#'    plot_normality(platelets, right = "Box-Cox")
-#' } else {
-#'   cat("If you want to use this feature, you need to install the rpart package.\n")
-#' }
+#' heartfailure2 %>%
+#'   filter(sex == "Male") %>%
+#'   group_by(smoking) %>%
+#'   plot_normality(platelets, right = "sqrt")
 #' }
 #' @method plot_normality data.frame
 #' @importFrom tidyselect vars_select
@@ -608,7 +578,6 @@ plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue",
 #' @seealso \code{\link{plot_normality}}.
 #' @export
 #' @examples
-#' \dontrun{
 #' # log+a transform 
 #' get_transform(iris$Sepal.Length, "log+a")
 #'
@@ -620,7 +589,6 @@ plot_normality_group_impl <- function(df, vars, left, right, col = "steelblue",
 #'   get_transform(iris$Sepal.Length, "Yeo-Johnson")
 #' } else {
 #'   cat("If you want to use this feature, you need to install the forecast package.\n")
-#' }
 #' }
 #' 
 get_transform <- function(x, method = c("log", "sqrt", "log+1", "log+a", "1/x", 
@@ -654,16 +622,18 @@ get_transform <- function(x, method = c("log", "sqrt", "log+1", "log+a", "1/x",
     result <- x^3
   else if (method == "Box-Cox") {
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     result <- get_boxcox(x) 
   }
   else if (method == "Yeo-Johnson") {
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     result <- get_yjohnson(x)

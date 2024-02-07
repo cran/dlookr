@@ -30,24 +30,27 @@
 #' }
 #'
 #' @param df a tbl_dbi.
-#'
 #' @return An object of data.frame.
 #' @export
 #' @examples
-#' \donttest{
 #' library(dplyr)
-#' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
-#' # copy heartfailure to the DBMS with a table named TB_HEARTFAILURE
-#' copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#' if (requireNamespace("DBI", quietly = TRUE) & requireNamespace("RSQLite", quietly = TRUE)) {
+#'   # connect DBMS
+#'   con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   get_column_info
+#'   # copy heartfailure to the DBMS with a table named TB_HEARTFAILURE
+#'   copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#' 
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
+#'     get_column_info() %>%
+#'     print() 
 #'   
-#' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#'   # Disconnect DBMS   
+#'   DBI::dbDisconnect(con_sqlite)
+#' } else {
+#'   cat("If you want to use this feature, you need to install the 'DBI' and 'RSQLite' package.\n")
 #' }
 #' 
 get_column_info <- function(df) {
@@ -55,10 +58,11 @@ get_column_info <- function(df) {
     res <- DBI::dbSendQuery(df$src$con,
                             dbplyr::remote_query(df))
   } else {
-    stop("Package 'DBI' needed for this function to work. Please install it.", 
+    warning("Package 'DBI' needed for this function to work. Please install it.", 
          call. = FALSE)
+    return(NULL)
   }
-
+  
   column_info <- DBI::dbColumnInfo(res)
   DBI::dbClearResult(res)
   
@@ -74,7 +78,8 @@ get_column_info <- function(df) {
 #' @details The scope of data quality diagnosis is information on missing values
 #' and unique value information. Data quality diagnosis can determine variables
 #' that require missing value processing. Also, the unique value information can
-#' determine the variable to be removed from the data analysis.
+#' determine the variable to be removed from the data analysis. 
+#' You can use grouped_df as the group_by() function.
 #'
 #' @section Diagnostic information:
 #' The information derived from the data diagnosis is as follows.:
@@ -116,96 +121,139 @@ get_column_info <- function(df) {
 #' \donttest{
 #' library(dplyr)
 #'
-#' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' if (requireNamespace("DBI", quietly = TRUE) & requireNamespace("RSQLite", quietly = TRUE)) {
+#'   # connect DBMS
+#'   con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
-#' # copy jobchange to the DBMS with a table named TB_JOBCHANGE
-#' copy_to(con_sqlite, jobchange, name = "TB_JOBCHANGE", overwrite = TRUE)
+#'   # copy jobchange to the DBMS with a table named TB_JOBCHANGE
+#'   copy_to(con_sqlite, jobchange, name = "TB_JOBCHANGE", overwrite = TRUE)
 #' 
-#' # Using pipes ---------------------------------
-#' # Diagnosis of all columns
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose()
+#'   # Using pipes ---------------------------------
+#'   # Diagnosis of all columns
+#'   con_sqlite %>% 
+#'     tbl("TB_JOBCHANGE") %>% 
+#'     diagnose() %>% 
+#'     print()
 #'   
-#' # Positive values select columns
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(gender, education_level, company_size)
-#'   
-#' # Negative values to drop columns
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(-gender, -education_level, -company_size)
-#'   
-#' # Positions values select columns, and In-memory mode
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(1, 3, 8, in_database = FALSE)
-#'   
-#' # Positions values select columns, and In-memory mode and collect size is 200
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose(-8, -9, -10, in_database = FALSE, collect_size = 200)
+#'   # Positions values select columns, and In-memory mode and collect size is 200
+#'   con_sqlite %>% 
+#'     tbl("TB_JOBCHANGE") %>% 
+#'     diagnose(gender, education_level, company_size, in_database = FALSE, collect_size = 200) %>% 
+#'     print()
 #'
-#' # Using pipes & dplyr -------------------------
-#' # Diagnosis of missing variables
-#' con_sqlite %>% 
-#'   tbl("TB_JOBCHANGE") %>% 
-#'   diagnose() %>%
-#'   filter(missing_count > 0)
+#'   # Using pipes & dplyr -------------------------
+#'   # Diagnosis of missing variables
+#'   con_sqlite %>% 
+#'     tbl("TB_JOBCHANGE") %>% 
+#'     diagnose() %>%
+#'     filter(missing_count > 0) %>% 
+#'     print()
 #'   
-#' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#'   # Using pipes & dplyr -------------------------
+#'   # Diagnosis of missing variables
+#'   con_sqlite %>% 
+#'     tbl("TB_JOBCHANGE") %>% 
+#'     group_by(job_chnge) %>% 
+#'     diagnose() %>% 
+#'     print()
+#'  
+#'   # Disconnect DBMS   
+#'   DBI::dbDisconnect(con_sqlite)
+#' } else {
+#'   cat("If you want to use this feature, you need to install the 'DBI' and 'RSQLite' package.\n")
+#' }
 #' }
 #'    
-diagnose.tbl_dbi <- function(.data, ..., in_database = TRUE, collect_size = Inf) {
+diagnose.tbl_dbi <- function(.data, ..., in_database = TRUE, 
+                             collect_size = Inf) {
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   if (in_database) {
-    diagn_std_impl_dbi(.data, vars)
+    if (!is_grouped(.data)) {  
+      diagn_std_impl_dbi(.data, vars)
+    } else {
+      diagn_group_impl_dbi(.data, vars)      
+    }  
   } else {
-    .data %>% 
-      dplyr::collect(n = collect_size) %>% 
-      diagn_std_impl(vars)
+    if (!is_grouped(.data)) {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagn_std_impl(vars)
+    } else {
+      .data %>%
+        dplyr::collect(n = collect_size) %>%
+        diagnose_group_impl(vars)
+    }    
   }
 }
 
 diagn_std_impl_dbi <- function(df, vars) {
   if (length(vars) == 0) vars <- colnames(df)
   
-  get_na_cnt <- function(df, x) {
-    suppressWarnings(df %>%
-                       select(variable = !!x) %>%
-                       summarise(missing_count = sum(ifelse(is.na(variable), 1, 0))) %>%
-                       pull())
-  }
-  
-  get_unique_cnt <- function(df, x) {
-    df %>%
-      select(variable = !!x) %>%
-      distinct(variable) %>%
-      summarise(unique_count = n()) %>%
-      pull()
-  }
   
   col_info <- df %>%
     get_column_info %>%
     filter(.[, 1] %in% vars) %>% 
     select(variables = 1, types = 2)
   
-  missing_count <- sapply(vars,
-                          function(x) get_na_cnt(df, x))
-  unique_count <- sapply(vars,
-                         function(x) get_unique_cnt(df, x))
-  data_count <- tally(df) %>%
-    pull
+  tabs <- vars %>% 
+    purrr::map_df(
+      function(x) {
+        suppressMessages(
+          df %>% 
+            select(variable = !!x) %>%
+            summarise(missing_count = sum(ifelse(is.na(variable), 1, 0), na.rm = TRUE),
+                      missing_percent = sum(ifelse(is.na(variable), 1, 0), na.rm = TRUE) / n() * 100,
+                      unique_count = n_distinct(variable),
+                      unique_rate = n_distinct(variable) * 1.0 / n()) %>% 
+            mutate(variables = x) %>% 
+            collect()      
+        )
+      }
+    )
   
-  as_tibble(cbind(col_info,
-                  tibble(missing_count = missing_count,
-                         missing_percent = missing_count / data_count * 100,
-                         unique_count = unique_count,
-                         unique_rate = unique_count / data_count))) 
+  col_info %>% 
+    right_join(
+      tabs,
+      by = "variables") %>% 
+    tibble::as_tibble()
+}
+
+#' @importFrom purrr map_df
+#' @importFrom tidyselect matches
+#' @importFrom tibble as_tibble
+diagn_group_impl_dbi <- function(df, vars) {
+  if (length(vars) == 0) vars <- colnames(df)
+  
+  col_info <- df %>%
+    get_column_info %>%
+    filter(.[, 1] %in% vars) %>% 
+    select(variables = 1, types = 2)
+  
+  tabs <- vars %>% 
+    purrr::map_df(
+      function(x) {
+        suppressMessages(
+          df %>% 
+            group_by_at(df$lazy_query$group_vars) %>% 
+            select(variable = !!x) %>%
+            summarise(data_count = n(),
+                      missing_count = sum(ifelse(is.na(variable), 1, 0), na.rm = TRUE),
+                      missing_percent = sum(ifelse(is.na(variable), 1, 0), na.rm = TRUE) / n() * 100,
+                      unique_count = n_distinct(variable),
+                      unique_rate = n_distinct(variable) * 1.0 / n()) %>% 
+            mutate(variables = x) %>% 
+            collect() %>% 
+            select(!tidyselect::matches("^variable$"))          
+        )
+      }
+    )
+  
+  col_info %>% 
+    right_join(
+      tabs,
+      by = "variables") %>% 
+    tibble::as_tibble()
 }
 
 
@@ -220,7 +268,8 @@ diagn_std_impl_dbi <- function(df, vars) {
 #' then the removal of this variable in the forecast model will have to be
 #' considered. Also, if the occupancy of all levels is close to 0%, this
 #' variable is likely to be an identifier.
-#'
+#' You can use grouped_df as the group_by() function.
+#' 
 #' @section Categorical diagnostic information:
 #' The information derived from the categorical data diagnosis is as follows.
 #'
@@ -260,10 +309,13 @@ diagn_std_impl_dbi <- function(df, vars) {
 #' Applies only if in_database = FALSE.
 #' 
 #' @return an object of tbl_df.
-#' @seealso \code{\link{diagnose_category.data.frame}}, \code{\link{diagnose.tbl_dbi}}, \code{\link{diagnose_category.tbl_dbi}}, \code{\link{diagnose_numeric.tbl_dbi}}, \code{\link{diagnose_outlier.tbl_dbi}}.
+#' @seealso \code{\link{diagnose_category.data.frame}}, \code{\link{diagnose.tbl_dbi}}, 
+#' \code{\link{diagnose_category.tbl_dbi}}, \code{\link{diagnose_numeric.tbl_dbi}}, 
+#' \code{\link{diagnose_outlier.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -310,6 +362,12 @@ diagn_std_impl_dbi <- function(df, vars) {
 #'   diagnose_category()  %>%
 #'   filter(ratio >= 60)
 #'   
+#' # Using group_by() ---------------------------- 
+#' con_sqlite %>% 
+#'   tbl("TB_JOBCHANGE") %>% 
+#'   group_by(job_chnge) %>% 
+#'   diagnose_category(company_type) 
+#'   
 #' # Using type argument -------------------------
 #'  dfm <- data.frame(alpabet = c(rep(letters[1:5], times = 5), "c")) 
 #'  
@@ -347,11 +405,21 @@ diagnose_category.tbl_dbi <- function(.data, ..., top = 10, type = c("rank", "n"
   vars <- tidyselect::vars_select(colnames(.data), !!! rlang::quos(...))
   
   if (in_database) {
-    diagn_category_impl_dbi(.data, vars, top, type)
+    if (!is_grouped(.data)) {  
+      diagn_category_impl_dbi(.data, vars, top, type)
+    } else {
+      diagn_category_group_impl_dbi(.data, vars, top, type)      
+    }      
   } else {
-    .data %>% 
-      dplyr::collect(n = collect_size) %>% 
-      diagn_category_impl(vars, top, type, add_character = TRUE, add_date = TRUE)
+    if (!is_grouped(.data)) {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagn_category_impl(vars, top, type, add_character = TRUE, add_date = TRUE)
+    } else {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagnose_category_group_impl(vars, top, type, add_character = TRUE, add_date = TRUE)
+    }      
   }
 }
 
@@ -371,35 +439,89 @@ diagn_category_impl_dbi <- function(df, vars, top, type) {
   
   idx_factor <- which(col_type == "character")
   
-  N <- tally(df) %>% 
-    pull
-  
-  get_topn <- function(df, var, top, type) {
-    suppressMessages({
-      tab <- df %>%
-        select(levels = var) %>%
-        group_by(levels) %>% 
-        tally %>% 
-        arrange(desc(n)) %>% 
-        as_tibble %>% 
-        cbind(var, .) %>% 
-        transmute(variables = var, levels, N, freq = n,
-                  ratio = n / N * 100, 
-                  rank = rank(max(freq) - freq, ties.method = "min"))
-      
-      if (type == "n") {
-        tab %>% 
-          slice_head(n = top)
-      } else if (type == "rank") {
-        tab %>% 
-          top_n(n = top, freq)      
-      }
-    })
+  if (length(idx_factor) == 0) {
+    message("There is no categorical variable in the data or variable list.\n")
+    return(NULL)
   }
   
-  result <- lapply(vars[idx_factor],
-                   function(x) get_topn(df, x, top, type))
-  as_tibble(do.call("rbind", result))
+  vars[idx_factor] %>% 
+    purrr::map_df(
+      function(x) {
+        suppressMessages(
+          tab <- df %>% 
+            select(variable = x) %>%
+            count(variable, sort = TRUE) %>% 
+            collect() %>%           
+            transmute(variables = x, levels = variable, N = sum(n), freq = n,
+                      ratio = n / sum(n) * 100, 
+                      rank = rank(max(freq) - freq, ties.method = "min"))
+        )  
+        
+        if (type == "n") {
+          tab %>% 
+            slice_head(n = top)
+        } else if (type == "rank") {
+          tab %>% 
+            top_n(n = top, freq)      
+        }   
+      }
+    ) 
+}
+
+diagn_category_group_impl_dbi <- function(df, vars, top, type) {
+  if (length(vars) == 0) vars <- colnames(df)
+  
+  if (length(type) != 1 | !type %in% c("rank", "n")) {
+    message("The type argument must be one of \"rank\" or \"n\".\n")
+    return(NULL)    
+  }
+  
+  col_info <- df %>%
+    get_column_info %>%
+    filter(.[, 1] %in% vars) %>% 
+    select(variables = 1, types = 2)
+  
+  idx_factor <- which(col_info$types %in% "character")
+  
+  if (length(idx_factor) == 0) {
+    message("There is no categorical variable in the data or variable list.\n")
+    return(NULL)
+  }
+  
+  tabs <- vars[idx_factor] %>% 
+    purrr::map_df(
+      function(x) {
+        suppressMessages(
+          tab <- df %>% 
+            group_by_at(df$lazy_query$group_vars) %>% 
+            select(variable = !!x) %>%
+            count(variable, sort = TRUE) %>% 
+            collect() %>% 
+            transmute(variables = x, levels = variable, N = sum(n), freq = n,
+                      ratio = n / sum(n) * 100, 
+                      rank = rank(max(freq) - freq, ties.method = "min"))
+        )  
+        
+        tab <- tab[, c("variables", setdiff(names(tab), "variables"))]
+        
+        if (type == "n") {
+          tab %>% 
+            slice_head(n = top)
+        } else if (type == "rank") {
+          tab %>% 
+            top_n(n = top, freq)      
+        }   
+      }
+    ) 
+  
+  col_info %>% 
+    filter(types %in% "character") %>% 
+    select(1) %>% 
+    right_join(
+      tabs %>% 
+        arrange_at(c("variables", df$lazy_query$group_vars, "rank")),
+      by = "variables") %>% 
+    tibble::as_tibble() 
 }
 
 
@@ -415,7 +537,8 @@ diagn_category_impl_dbi <- function(df, vars, top, type) {
 #' of data. If the number of zero or minus is large, it is necessary to suspect
 #' the error of the data. If the number of outliers is large, a strategy of
 #' eliminating or replacing outliers is needed.
-#'
+#' You can use grouped_df as the group_by() function.
+#' 
 #' @section Numerical diagnostic information:
 #' The information derived from the numerical data diagnosis is as follows.
 #'
@@ -452,7 +575,8 @@ diagn_category_impl_dbi <- function(df, vars, top, type) {
 #' @seealso \code{\link{diagnose_numeric.data.frame}}, \code{\link{diagnose.tbl_dbi}}, \code{\link{diagnose_category.tbl_dbi}}, \code{\link{diagnose_outlier.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -494,6 +618,12 @@ diagn_category_impl_dbi <- function(df, vars, top, type) {
 #'   diagnose_numeric()  %>%
 #'   filter(outlier > 0)
 #'
+#' # Using group_by() ---------------------------- 
+#' con_sqlite %>% 
+#'   tbl("TB_HEARTFAILURE") %>% 
+#'   group_by(death_event) %>% 
+#'   diagnose_numeric() 
+#'   
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
 #' }
@@ -504,9 +634,15 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
   if (in_database) {
     stop("It does not yet support in-database mode. Use in_database = FALSE.")
   } else {
-    .data %>% 
-      dplyr::collect(n = collect_size) %>% 
-      diagn_numeric_impl(vars)
+    if (!is_grouped(.data)) {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagn_numeric_impl(vars)
+    } else {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagnose_numeric_group_impl(vars)
+    }     
   }
 }
 
@@ -521,7 +657,8 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' If the number of outliers is small and the difference between the averages
 #' including outliers and the averages not including them is large,
 #' it is necessary to eliminate or replace the outliers.
-#'
+#' You can use grouped_df as the group_by() function.
+#' 
 #' @section Outlier Diagnostic information:
 #' The information derived from the numerical data diagnosis is as follows.
 #'
@@ -555,7 +692,8 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' @seealso \code{\link{diagnose_outlier.data.frame}}, \code{\link{diagnose.tbl_dbi}}, \code{\link{diagnose_category.tbl_dbi}}, \code{\link{diagnose_numeric.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -597,6 +735,12 @@ diagnose_numeric.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #'   diagnose_outlier()  %>%
 #'   filter(outliers_ratio > 1)
 #'
+#' # Using group_by() ----------------------------
+#' con_sqlite %>% 
+#'   tbl("TB_HEARTFAILURE") %>% 
+#'   group_by(death_event) %>% 
+#'   diagnose_outlier() 
+#'   
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
 #' }
@@ -607,9 +751,15 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
   if (in_database) {
     stop("It does not yet support in-database mode. Use dbi = FALSE.")
   } else {
-    .data %>% 
-      dplyr::collect(n = collect_size) %>%
-      diagnose_outlier_impl(vars)
+    if (!is_grouped(.data)) {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagnose_outlier_impl(vars)
+    } else {
+      .data %>% 
+        dplyr::collect(n = collect_size) %>% 
+        diagnose_outlier_group_impl(vars)
+    }      
   }
 }
 
@@ -663,7 +813,8 @@ diagnose_outlier.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_si
 #' @seealso \code{\link{plot_outlier.data.frame}}, \code{\link{diagnose_outlier.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -776,7 +927,8 @@ plot_outlier.tbl_dbi <- function(.data, ..., col = "steelblue",
 #' @seealso \code{\link{normality.data.frame}}, \code{\link{diagnose_numeric.tbl_dbi}}, \code{\link{describe.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -929,56 +1081,50 @@ normality.tbl_dbi <- function(.data, ..., sample = 5000,
 #' \donttest{
 #' library(dplyr)
 #' 
-#' # connect DBMS
-#' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+#' if (requireNamespace("DBI", quietly = TRUE) & requireNamespace("RSQLite", quietly = TRUE)) {
+#'   # connect DBMS
+#'   con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
-#' # copy heartfailure to the DBMS with a table named TB_HEARTFAILURE
-#' copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
+#'   # copy heartfailure to the DBMS with a table named TB_HEARTFAILURE
+#'   copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
 #'
-#' # Using pipes ---------------------------------
-#' # Visualization of all numerical variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_normality()
+#'   # Using pipes ---------------------------------
+#'   # Visualization of all numerical variables
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
+#'     plot_normality()
 #'
-#' # Positive values select variables, and In-memory mode and collect size is 200
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
+#'   # Positive values select variables, and In-memory mode and collect size is 200
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
 #'   plot_normality(platelets, sodium, collect_size = 200)
+#'     
+#'   # Using pipes & dplyr -------------------------
+#'   # Plot 'sodium' variable by 'smoking' and 'death_event'
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
+#'     group_by(smoking, death_event) %>%
+#'     plot_normality(sodium)
 #'
-#' # Positions values select variables
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_normality(1)
+#'   # Plot using left and right arguments
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
+#'     group_by(smoking, death_event) %>%
+#'     plot_normality(sodium, left = "sqrt", right = "log")
 #'
-#' # Not allow the typographic elements
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   plot_normality(1, typographic = FALSE)
-#'   
-#' # Using pipes & dplyr -------------------------
-#' # Plot 'sodium' variable by 'smoking' and 'death_event'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   plot_normality(sodium)
-#'
-#' # Plot using left and right arguments
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   group_by(smoking, death_event) %>%
-#'   plot_normality(sodium, left = "Box-Cox", right = "log")
-#'
-#' # extract only those with 'smoking' variable level is "Yes",
-#' # and plot 'sodium' by 'death_event'
-#' con_sqlite %>% 
-#'   tbl("TB_HEARTFAILURE") %>% 
-#'   filter(smoking == "Yes") %>%
-#'   group_by(death_event) %>%
-#'   plot_normality(sodium)
-#'   
-#' # Disconnect DBMS   
-#' DBI::dbDisconnect(con_sqlite)
+#'   # extract only those with 'smoking' variable level is "Yes",
+#'   # and plot 'sodium' by 'death_event'
+#'   con_sqlite %>% 
+#'     tbl("TB_HEARTFAILURE") %>% 
+#'     filter(smoking == "Yes") %>%
+#'     group_by(death_event) %>%
+#'     plot_normality(sodium)
+#'     
+#'   # Disconnect DBMS   
+#'   DBI::dbDisconnect(con_sqlite)
+#' } else {
+#'   cat("If you want to use this feature, you need to install the 'DBI' and 'RSQLite' package.\n")
+#' }
 #' }
 #' 
 plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size = Inf, 
@@ -1018,9 +1164,9 @@ plot_normality.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #'
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
-#' 
 #' # connect DBMS
 #' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
@@ -1213,7 +1359,8 @@ plot_correlate.tbl_dbi <- function(.data, ..., in_database = FALSE, collect_size
 #' @seealso \code{\link{describe.data.frame}}, \code{\link{diagnose_numeric.tbl_dbi}}.
 #' @export
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #' 
 #' # connect DBMS
@@ -1332,7 +1479,8 @@ describe.tbl_dbi <- function(.data, ..., statistics = NULL, quantiles = NULL,
 #' }
 #' @seealso \code{\link{target_by.data.frame}}, \code{\link{relate}}.
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' library(dplyr)
 #'
 #' # connect DBMS
@@ -1457,9 +1605,11 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #' @param font_family character. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
+#' @return No return value. This function only generates a report.
+#' 
 #' @seealso \code{\link{diagnose_report.data.frame}}.
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
 #' if (FALSE) {
 #' library(dplyr)
 #' 
@@ -1497,7 +1647,6 @@ target_by.tbl_dbi <- function(.data, target, in_database = FALSE, collect_size =
 #'   
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
-#' }
 #' }
 #' 
 #' @method diagnose_report tbl_dbi
@@ -1584,9 +1733,11 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #' @param font_family character. font family name for figure in pdf.
 #' @param ... arguments to be passed to methods.
 #' 
+#' @return No return value. This function only generates a report.
+#' 
 #' @seealso \code{\link{eda_report.data.frame}}.
 #' @examples
-#' \donttest{
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
 #' if (FALSE) {
 #' library(dplyr)
 #' 
@@ -1667,7 +1818,6 @@ diagnose_report.tbl_dbi <- function(.data, output_format = c("pdf", "html"),
 #'   
 #' # Disconnect DBMS   
 #' DBI::dbDisconnect(con_sqlite)
-#' }
 #' }
 #' 
 #' @export

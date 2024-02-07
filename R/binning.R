@@ -44,12 +44,6 @@
 #' # Print bins class object
 #' bin
 #' 
-#' # Summarise bins class object
-#' summary(bin)
-#' 
-#' # Plot bins class object
-#' plot(bin)
-#' 
 #' # Using labels argument
 #' bin <- binning(heartfailure2$platelets, nbins = 4,
 #'               labels = c("LQ1", "UQ1", "LQ3", "UQ3"))
@@ -60,10 +54,16 @@
 #' bin
 #' bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
 #' bin
-#' bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
-#' bin
-#' bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
-#' bin
+#' # "kmeans" and "bclust" was implemented by classInt::classIntervals() function.
+#' # So, you must install classInt package.
+#' if (requireNamespace("classInt", quietly = TRUE)) {
+#'   bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
+#'   bin
+#'   bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
+#'   bin
+#' } else {
+#'   cat("If you want to use this feature, you need to install the 'classInt' package.\n")
+#' }
 #' 
 #' x <- sample(1:1000, size = 50) * 12345679
 #' bin <- binning(x)
@@ -84,17 +84,9 @@
 #'   mutate(platelets_bin = binning(heartfailure2$platelets) %>% 
 #'            extract()) %>%
 #'   group_by(death_event, platelets_bin) %>%
-#'   summarise(freq = n()) %>%
+#'   summarise(freq = n(), .groups = "drop") %>%
 #'   arrange(desc(freq)) %>%
 #'   head(10)
-#'  
-#'  # Compare binned frequency by death_event using Viz
-#'  heartfailure2 %>%
-#'    mutate(platelets_bin = binning(heartfailure2$platelets) %>% 
-#'             extract()) %>%
-#'    target_by(death_event) %>% 
-#'    relate(platelets_bin) %>% 
-#'    plot()
 #' }
 #'  
 #' @importFrom grDevices nclass.Sturges
@@ -157,8 +149,9 @@ binning <- function(x, nbins,
     breaks <- pretty(x = x, n = nbins)
   } else {
     if (!requireNamespace("classInt", quietly = TRUE)) {
-      stop("Package \"classInt\" needed for this function to work. Please install it.",
+      warning("Package \"classInt\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     xx <- na.omit(x)
@@ -298,6 +291,7 @@ print.bins <- function(x, ...) {
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
+#' @return An object of gtable class.
 #' @seealso \code{\link{binning}}, \code{\link{print.bins}}, \code{\link{summary.bins}}.
 #' @examples
 #' # Generate data for the example
@@ -316,11 +310,15 @@ print.bins <- function(x, ...) {
 #' bin <- binning(heartfailure2$platelets, nbins = 5, type = "pretty")
 #' plot(bin)
 #' 
-#' bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
-#' plot(bin)
+#' # "kmeans" and "bclust" was implemented by classInt::classIntervals() function.
+#' # So, you must install classInt package.
+#' if (requireNamespace("classInt", quietly = TRUE)) {
+#'   bin <- binning(heartfailure2$platelets, nbins = 5, type = "kmeans")
+#'   plot(bin)
 #' 
-#' bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
-#' plot(bin)
+#'   bin <- binning(heartfailure2$platelets, nbins = 5, type = "bclust")
+#'   plot(bin)
+#' }    
 #' }
 #' 
 #' @export
@@ -428,9 +426,8 @@ plot.bins <- function(x, typographic = TRUE, base_family = NULL, ...) {
 #' \item iv : numeric. information value.
 #' \item target : integer. binary response variable.
 #' }
-#' @seealso \code{\link{binning}}, \code{\link{plot.optimal_bins}}.
+#' @seealso \code{\link{binning}}, \code{\link{summary.optimal_bins}}, \code{\link{plot.optimal_bins}}.
 #' @examples
-#' \donttest{
 #' library(dplyr)
 #' 
 #' # Generate data for the example
@@ -444,33 +441,18 @@ plot.bins <- function(x, typographic = TRUE, base_family = NULL, ...) {
 #' bin <- binning_by(heartfailure2, death_event, creatinine)
 #' bin
 #' 
-#' # performance table
-#' attr(bin, "performance")
-#' 
-#' # summary optimal_bins class
-#' summary(bin)
-#' 
-#' # visualize all information for optimal_bins class
-#' plot(bin)
-#' 
-#' # visualize WoE information for optimal_bins class
-#' plot(bin, type = "WoE")
-#' 
-#' # visualize all information without typographic
-#' plot(bin, typographic = FALSE)
-#' 
-#' # extract binned results
-#' extract(bin) %>% 
-#'   head(20)
-#' }
-#' 
 #' @export
 #' @importFrom tibble is_tibble
-#' @importFrom partykit ctree ctree_control width
 #' @importFrom tidyselect vars_select
 #' @importFrom rlang quos
 #' @import dplyr
 binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
+  if (!requireNamespace("partykit", quietly = TRUE)) {
+    warning("Package \"partykit\" needed for this function to work. Please install it.",
+            call. = FALSE)
+    return(NULL)
+  }
+  
   y <- tidyselect::vars_select(names(.data), !! enquo(y))
   x <- tidyselect::vars_select(names(.data), !! enquo(x))
   
@@ -531,7 +513,7 @@ binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
       )
     )
   
-  bins <- width(ctree)
+  bins <- partykit::width(ctree)
   if (bins < 2) {
     msg <- "No significant splits"
     
@@ -611,7 +593,6 @@ binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
 #' @return NULL.
 #' @seealso \code{\link{binning_by}}, \code{\link{plot.optimal_bins}}
 #' @examples
-#' \donttest{
 #' library(dplyr)
 #' 
 #' # Generate data for the example
@@ -627,19 +608,11 @@ binning_by <- function(.data, y, x, p = 0.05, ordered = TRUE, labels = NULL) {
 #'
 #' # performance table
 #' attr(bin, "performance")
-#'
-#' # visualize all information for optimal_bins class
-#' plot(bin)
-#' 
-#' # visualize WoE information for optimal_bins class
-#' plot(bin, type = "WoE")
-#' 
-#' # visualize all information without typographic
-#' plot(bin, typographic = FALSE)
 #' 
 #' # extract binned results
-#' extract(bin) %>% 
-#'   head(20)
+#' if (!is.null(bin)) {
+#'   extract(bin) %>% 
+#'     head(20)
 #' }
 #' 
 #' @method summary optimal_bins
@@ -672,31 +645,28 @@ summary.optimal_bins <- function(object, ...) {
 #' This is useful when the x-axis labels are long and overlap. 
 #' The default is 0 to not rotate the label.
 #' @param ... further arguments to be passed from or to other methods.
+#' @return An object of gtable class.
 #' @seealso \code{\link{binning_by}}, \code{\link{summary.optimal_bins}}
 #' @examples
-#' \donttest{
 #' # Generate data for the example
 #' heartfailure2 <- heartfailure
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 5), "creatinine"] <- NA
 #'
 #' # optimal binning using binning_by()
 #' bin <- binning_by(heartfailure2, "death_event", "creatinine")
-#' bin
-#' 
-#' # summary optimal_bins class.
-#' summary(bin)
 #'
-#' # visualize all information for optimal_bins class
-#' plot(bin)
+#' if (!is.null(bin)) {
+#'   # visualize all information for optimal_bins class
+#'   plot(bin)
 #' 
-#' # rotate the x-axis labels by 45 degrees so that they do not overlap.
-#' plot(bin, rotate_angle = 45)
+#'   # rotate the x-axis labels by 45 degrees so that they do not overlap.
+#'   plot(bin, rotate_angle = 45)
 #' 
-#' # visualize WoE information for optimal_bins class
-#' plot(bin, type = "WoE")
+#'   # visualize WoE information for optimal_bins class
+#'   plot(bin, type = "WoE")
 #' 
-#' # visualize all information with typographic
-#' plot(bin)
+#'   # visualize all information with typographic
+#'   plot(bin)
 #' }
 #' 
 #' @import ggplot2
@@ -891,9 +861,11 @@ extract <- function(x) {
 #' bin <- binning_by(heartfailure2, "death_event", "creatinine")
 #' bin
 #'
-#' # extract binning result
-#' extract(bin) %>% 
-#'   head(20)
+#' if (!is.null(bin)) {
+#'   # extract binning result
+#'   extract(bin) %>% 
+#'     head(20)
+#' }
 #' 
 #' @export
 #' @method extract bins
@@ -1293,6 +1265,7 @@ summary.performance_bin <- function(object, ...) {
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... further arguments to be passed from or to other methods.
+#' @return A ggplot2 object.
 #' @seealso \code{\link{performance_bin}}, \code{\link{summary.performance_bin}}, \code{\link{binning_by}}, 
 #' \code{\link{plot.optimal_bins}}.
 #' @examples
@@ -1543,6 +1516,7 @@ binning_rgr <- function(.data, y, x, min_perc_bins = 0.1, max_n_bins = 5, ordere
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... further arguments to be passed from or to other methods.
+#' @return An object of gtable class.
 #' @seealso \code{\link{binning_rgr}}, \code{\link{summary.bins}}
 #' @examples
 #' \donttest{

@@ -64,6 +64,7 @@ corr_tab
 mat <- summary(corr_tab)
 mat
 
+if (FALSE) {
 # connect DBMS
 con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
@@ -83,7 +84,7 @@ mat
 # Disconnect DBMS   
 DBI::dbDisconnect(con_sqlite)
 }
-
+}
 }
 \seealso{
 \code{\link{correlate}}, \code{\link{plot.correlate}}.

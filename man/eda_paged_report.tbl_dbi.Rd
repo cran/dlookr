@@ -85,6 +85,9 @@ Applies only if in_database = FALSE.}
 
 \item{...}{arguments to be passed to pagedown::chrome_print().}
 }
+\value{
+No return value. This function only generates a report.
+}
 \description{
 The eda_paged_report() paged report the information for EDA of the DBMS table through tbl_dbi
 }
@@ -140,7 +143,7 @@ The EDA process will report the following information:
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
 if (FALSE) {
 library(dplyr)
 
@@ -168,7 +171,6 @@ con_sqlite \%>\%
   
 # Disconnect DBMS   
 DBI::dbDisconnect(con_sqlite)
-}
 }
 
 }

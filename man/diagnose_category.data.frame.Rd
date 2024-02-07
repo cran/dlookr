@@ -3,6 +3,7 @@
 \name{diagnose_category}
 \alias{diagnose_category}
 \alias{diagnose_category.data.frame}
+\alias{diagnose_category.grouped_df}
 \title{Diagnose data quality of categorical variables}
 \usage{
 diagnose_category(.data, ...)
@@ -15,9 +16,18 @@ diagnose_category(.data, ...)
   add_character = TRUE,
   add_date = TRUE
 )
+
+\method{diagnose_category}{grouped_df}(
+  .data,
+  ...,
+  top = 10,
+  type = c("rank", "n")[2],
+  add_character = TRUE,
+  add_date = TRUE
+)
 }
 \arguments{
-\item{.data}{a data.frame or a \code{\link{tbl_df}}.}
+\item{.data}{a data.frame or a \code{\link{tbl_df}} or a \code{\link{grouped_df}}.}
 
 \item{...}{one or more unquoted expressions separated by commas.
 You can treat variable names like they are positions.
@@ -81,10 +91,7 @@ See vignette("diagonosis") for an introduction to these concepts.
 diagnose_category(jobchange)
 
 # Select the variable to diagnose
-# diagnose_category(jobchange, education_level, company_type)
-# diagnose_category(jobchange, -education_level, -company_type)
-# diagnose_category(jobchange, "education_level", "company_type")
-# diagnose_category(jobchange, 7)
+diagnose_category(jobchange, education_level, company_type)
 
 # Using pipes ---------------------------------
 library(dplyr)
@@ -100,14 +107,6 @@ jobchange \%>\%
 # Negative values to drop variables
 jobchange \%>\%
   diagnose_category(-company_type, -job_chnge)
-  
-# Positions values select variables
-jobchange \%>\%
-  diagnose_category(7)
-  
-# Negative values to drop variables
-jobchange \%>\%
-  diagnose_category(-7)
   
 # Top rank levels with top argument
 jobchange \%>\%
@@ -135,7 +134,13 @@ jobchange \%>\%
 # extract only 3 rows
 jobchange \%>\% 
   diagnose_category(enrollee_id, top = 3, type = "n")
-}
+
+# Using group_by ------------------------------
+# Calculate the diagnosis of 'company_type' variable by 'job_chnge' using group_by()
+jobchange \%>\%
+  group_by(job_chnge) \%>\% 
+  diagnose_category(company_type) 
+}   
   
 }
 \seealso{

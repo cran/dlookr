@@ -56,7 +56,8 @@ The number of observations supported by the stats::shapiro.test function is 3 to
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 library(dplyr)
 
 # connect DBMS

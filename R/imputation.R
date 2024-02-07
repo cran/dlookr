@@ -54,7 +54,6 @@
 #' }
 #' @seealso \code{\link{imputate_outlier}}.
 #' @examples
-#' \donttest{
 #' # Generate data for the example
 #' heartfailure2 <- heartfailure
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 20), "platelets"] <- NA
@@ -65,14 +64,11 @@
 #' 
 #' # Replace the missing value of the platelets variable with rpart
 #' # The target variable is death_event.
-#' # imputate_na(heartfailure2, platelets, death_event, method = "rpart")
+#' # Require rpart package
+#' imputate_na(heartfailure2, platelets, death_event, method = "rpart")
 #' 
 #' # Replace the missing value of the smoking variable with mode
-#' # imputate_na(heartfailure2, smoking, method = "mode")
-#' 
-#' # Replace the missing value of the smoking variable with mice
-#' # The target variable is death_event.
-#' # imputate_na(heartfailure2, smoking, death_event, method = "mice")
+#' imputate_na(heartfailure2, smoking, method = "mode")
 #' 
 #' ## using dplyr -------------------------------------
 #' library(dplyr)
@@ -86,19 +82,9 @@
 #'             imputation = mean(platelets_imp))
 #' 
 #' # If the variable of interest is a numerical variable
+#' # Require rpart package
 #' platelets <- imputate_na(heartfailure2, platelets, death_event, method = "rpart")
 #' platelets
-#' summary(platelets)
-#' 
-#' # plot(platelets)
-#' 
-#' # If the variable of interest is a categorical variable
-#' # smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
-#' # smoking
-#' # summary(smoking)
-#' 
-#' # plot(smoking)
-#' }
 #' 
 #' @export
 #'
@@ -226,8 +212,9 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
                             data = df[!is.na(pull(df, x)), setdiff(intersect(names(df), complete_flag), y)],
                             method = method, na.action = na.omit)
     } else {
-      stop("Package 'rpart' needed for this function to work. Please install it.", 
+      warning("Package 'rpart' needed for this function to work. Please install it.", 
            call. = FALSE)
+      return(NULL)
     }
 
     pred <- predict(model, df[is.na(pull(df, x)), !names(df) %in% y],
@@ -250,8 +237,9 @@ imputate_na_impl <- function(df, xvar, yvar, method, seed = NULL,
       if (requireNamespace("mice", quietly = TRUE)) {
         model <- mice::mice(df[, !names(df) %in% y], method = "rf", printFlag = print_flag)
       } else {
-        stop("Package 'mice' needed for this function to work. Please install it.", 
+        warning("Package 'mice' needed for this function to work. Please install it.", 
              call. = FALSE)
+        return(NULL)
       }
 
       if (all(is.na(model$imp[[x]]))) {
@@ -503,7 +491,6 @@ imputate_outlier_impl <- function(df, xvar, method, no_attrs = FALSE,
 #'
 #' @seealso \code{\link{imputate_na}}, \code{\link{imputate_outlier}}, \code{\link{summary.imputation}}.
 #' @examples
-#' \donttest{
 #' # Generate data for the example
 #' heartfailure2 <- heartfailure
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 20), "platelets"] <- NA
@@ -511,26 +498,17 @@ imputate_outlier_impl <- function(df, xvar, method, no_attrs = FALSE,
 #'
 #' # Impute missing values -----------------------------
 #' # If the variable of interest is a numerical variables
-#' platelets <- imputate_na(heartfailure2, platelets, death_event, method = "rpart")
-#' platelets
+#' platelets <- imputate_na(heartfailure2, platelets, yvar = death_event, method = "rpart")
 #' summary(platelets)
-#' plot(platelets)
 #'
 #' # If the variable of interest is a categorical variables
-#' smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
-#' smoking
+#' smoking <- imputate_na(heartfailure2, smoking, yvar = death_event, method = "rpart")
 #' summary(smoking)
-#' 
-#' plot(smoking)
 #'
 #' # Impute outliers ----------------------------------
 #' # If the variable of interest is a numerical variable
 #' platelets <- imputate_outlier(heartfailure2, platelets, method = "capping")
-#' platelets
 #' summary(platelets)
-#' 
-#' plot(platelets)
-#' }
 #' @method summary imputation
 #' @importFrom tidyr gather
 #' @export
@@ -634,9 +612,9 @@ summary.imputation <- function(object, ...) {
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' only applies when the model argument is TRUE, and is used for ... of the plot.lm() function.
+#' @return A ggplot2 object.
 #' @seealso \code{\link{imputate_na}}, \code{\link{imputate_outlier}}, \code{\link{summary.imputation}}.
 #' @examples
-#' \donttest{
 #' # Generate data for the example
 #' heartfailure2 <- heartfailure
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 20), "platelets"] <- NA
@@ -644,27 +622,17 @@ summary.imputation <- function(object, ...) {
 #'
 #' # Impute missing values -----------------------------
 #' # If the variable of interest is a numerical variables
-#' platelets <- imputate_na(heartfailure2, platelets, death_event, method = "rpart")
-#' platelets
-#' summary(platelets)
-#' 
+#' platelets <- imputate_na(heartfailure2, platelets, yvar = death_event, method = "rpart")
 #' plot(platelets)
 #'
 #' # If the variable of interest is a categorical variables
-#' smoking <- imputate_na(heartfailure2, smoking, death_event, method = "mice")
-#' smoking
-#' summary(smoking)
-#' 
+#' smoking <- imputate_na(heartfailure2, smoking, yvar = death_event, method = "rpart")
 #' plot(smoking)
 #'
 #' # Impute outliers ----------------------------------
 #' # If the variable of interest is a numerical variable
 #' platelets <- imputate_outlier(heartfailure2, platelets, method = "capping")
-#' platelets
-#' summary(platelets)
-#' 
 #' plot(platelets)
-#' }
 #' @method plot imputation
 #' @import ggplot2
 #' @import hrbrthemes

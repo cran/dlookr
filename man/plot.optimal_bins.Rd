@@ -31,6 +31,9 @@ The default is 0 to not rotate the label.}
 
 \item{...}{further arguments to be passed from or to other methods.}
 }
+\value{
+An object of gtable class.
+}
 \description{
 It generates plots for understand distribution, frequency, bad rate, and weight of evidence using optimal_bins.
 
@@ -42,29 +45,25 @@ The base_family is selected from "Roboto Condensed", "Liberation Sans Narrow",
 use it after loading the Google font with import_google_font().
 }
 \examples{
-\donttest{
 # Generate data for the example
 heartfailure2 <- heartfailure
 heartfailure2[sample(seq(NROW(heartfailure2)), 5), "creatinine"] <- NA
 
 # optimal binning using binning_by()
 bin <- binning_by(heartfailure2, "death_event", "creatinine")
-bin
 
-# summary optimal_bins class.
-summary(bin)
+if (!is.null(bin)) {
+  # visualize all information for optimal_bins class
+  plot(bin)
 
-# visualize all information for optimal_bins class
-plot(bin)
+  # rotate the x-axis labels by 45 degrees so that they do not overlap.
+  plot(bin, rotate_angle = 45)
 
-# rotate the x-axis labels by 45 degrees so that they do not overlap.
-plot(bin, rotate_angle = 45)
+  # visualize WoE information for optimal_bins class
+  plot(bin, type = "WoE")
 
-# visualize WoE information for optimal_bins class
-plot(bin, type = "WoE")
-
-# visualize all information with typographic
-plot(bin)
+  # visualize all information with typographic
+  plot(bin)
 }
 
 }

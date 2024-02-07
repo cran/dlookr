@@ -573,7 +573,15 @@ summary.compare_category <- function(object, method = c("all", "table", "relativ
       relative[[j]] <- prop.table(contingency[[j]])
     }
     
-    suppressWarnings(chisq[j, ] <- contingency[[j]] %>% 
+    ## Remove the margimal
+    tab <- contingency[[j]][, colnames(contingency[[j]]) != "<Total>"]
+    tab <- tab[rownames(tab) != "<Total>", ]
+    
+    ## Remove the missing
+    tab <- tab[, !is.na(colnames(tab))]
+    tab <- tab[!is.na(rownames(tab)), ]    
+    
+    suppressWarnings(chisq[j, ] <- tab %>% 
                        chisq.test() %>% 
                        get_tab_chisq() %>% 
                        select(-method))
@@ -854,51 +862,35 @@ print.compare_numeric <- function(x, ...) {
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
-#' However, it only support las parameter. las is numeric in {0,1}; the style of axis labels.
+#' However, it only support las parameter. las is numeric in 0, 1; the style of axis labels.
 #' \itemize{
 #'   \item 0 : always parallel to the axis [default],
 #'   \item 1 : always horizontal to the axis,
 #' }
-#'    
+#' @return NULL. This function just draws a plot.
 #' @seealso \code{\link{compare_category}}, \code{\link{print.compare_category}}, \code{\link{summary.compare_category}}.
 #' @examples
-#' \donttest{
 #' # Generate data for the example
-#' heartfailure2 <- heartfailure
+#' heartfailure2 <- heartfailure[, c("hblood_pressure", "smoking", "death_event")]
 #' heartfailure2[sample(seq(NROW(heartfailure2)), 5), "smoking"] <- NA
-#' 
-#' library(dplyr)
 #' 
 #' # Compare the all categorical variables
 #' all_var <- compare_category(heartfailure2)
 #' 
-#' # Print compare_numeric class objects
-#' all_var
+#' # plot all pair of variables
+#' plot(all_var)
 #' 
 #' # Compare the two categorical variables
 #' two_var <- compare_category(heartfailure2, smoking, death_event)
 #' 
-#' # Print compare_category class objects
-#' two_var
-#' 
-#' # plot all pair of variables
-#' # plot(all_var)
-#' 
 #' # plot a pair of variables
 #' plot(two_var)
-#'
-#' # plot all pair of variables by prompt
-#' plot(all_var, prompt = TRUE)
 #'   
 #' # plot a pair of variables without NA
 #' plot(two_var, na.rm = TRUE)
 #' 
-#' # plot a pair of variables
-#' plot(two_var, las = 1)
-#' 
 #' # plot a pair of variables not focuses on typographic elements
 #' plot(two_var, typographic = FALSE)
-#' }
 #' 
 #' @method plot compare_category
 #' @export
@@ -1020,6 +1012,7 @@ plot.compare_category <- function(x, prompt = FALSE, na.rm = FALSE,
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' However, it does not support.
+#' @return NULL. This function just draws a plot.
 #' @seealso \code{\link{compare_numeric}}, \code{\link{print.compare_numeric}}, \code{\link{summary.compare_numeric}}.
 #' @examples
 #' \donttest{

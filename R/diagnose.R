@@ -244,10 +244,7 @@ diagnose_category <- function(.data, ...) {
 #' diagnose_category(jobchange)
 #' 
 #' # Select the variable to diagnose
-#' # diagnose_category(jobchange, education_level, company_type)
-#' # diagnose_category(jobchange, -education_level, -company_type)
-#' # diagnose_category(jobchange, "education_level", "company_type")
-#' # diagnose_category(jobchange, 7)
+#' diagnose_category(jobchange, education_level, company_type)
 #' 
 #' # Using pipes ---------------------------------
 #' library(dplyr)
@@ -263,14 +260,6 @@ diagnose_category <- function(.data, ...) {
 #' # Negative values to drop variables
 #' jobchange %>%
 #'   diagnose_category(-company_type, -job_chnge)
-#'   
-#' # Positions values select variables
-#' jobchange %>%
-#'   diagnose_category(7)
-#'   
-#' # Negative values to drop variables
-#' jobchange %>%
-#'   diagnose_category(-7)
 #'   
 #' # Top rank levels with top argument
 #' jobchange %>%
@@ -350,7 +339,8 @@ diagn_category_impl <- function(df, vars, top, type, add_character, add_date) {
             count(variable, sort = TRUE) %>% 
             transmute(variables = x, levels = variable, N = sum(n), freq = n,
                       ratio = n / sum(n) * 100, 
-                      rank = rank(max(freq) - freq, ties.method = "min"))
+                      rank = rank(max(freq) - freq, ties.method = "min")) %>% 
+            mutate(levels = as.character(levels))
         )  
         
         tab <- tab[, c("variables", setdiff(names(tab), "variables"))]
@@ -434,7 +424,8 @@ diagnose_category_group_impl <- function(df, vars, top, type, add_character,
             count(variable, sort = TRUE) %>% 
             transmute(variables = x, levels = variable, N = sum(n), freq = n,
                       ratio = n / sum(n) * 100, 
-                      rank = rank(max(freq) - freq, ties.method = "min"))
+                      rank = rank(max(freq) - freq, ties.method = "min")) %>% 
+            mutate(levels = as.character(levels))
         )  
         
         tab <- tab[, c("variables", setdiff(names(tab), "variables"))]
@@ -932,42 +923,15 @@ plot_outlier <- function(.data, ...) {
 #' # Visualization of all numerical variables
 #' plot_outlier(heartfailure)
 #' 
-#' # Select the variable to diagnose
-#' plot_outlier(heartfailure, cpk_enzyme, sodium)
-#' plot_outlier(heartfailure, -cpk_enzyme, -sodium)
-#' plot_outlier(heartfailure, "cpk_enzyme", "sodium")
-#' plot_outlier(heartfailure, 7)
-#' 
-#' # Using the col argument
-#' plot_outlier(heartfailure, cpk_enzyme, col = "gray")
+#' # Select the variable to diagnose using the col argument
+#' plot_outlier(heartfailure, cpk_enzyme, sodium, col = "gray")
 #' 
 #' # Not allow typographic argument
 #' plot_outlier(heartfailure, cpk_enzyme, typographic = FALSE)
 #' 
-#' # Using pipes ---------------------------------
+#' # Using pipes & dplyr -------------------------
 #' library(dplyr)
 #' 
-#' # Visualization of all numerical variables
-#' heartfailure %>%
-#'   plot_outlier()
-#' 
-#' # Positive values select variables
-#' heartfailure %>%
-#'   plot_outlier(cpk_enzyme, sodium)
-#'   
-#' # Negative values to drop variables
-#' heartfailure %>%
-#'   plot_outlier(-cpk_enzyme, -sodium)
-#' 
-#' # Positions values select variables
-#' heartfailure %>%
-#'   plot_outlier(7)
-#' 
-#' # Negative values to drop variables
-#' heartfailure %>%
-#'   plot_outlier(-1, -5)
-#' 
-#' # Using pipes & dplyr -------------------------
 #' # Visualization of numerical variables with a ratio of
 #' # outliers greater than 5%
 #' heartfailure %>%
@@ -1151,7 +1115,6 @@ plot_outlier_raw <- function(x, main = NULL, col = "steelblue",
 #' @seealso \code{\link{plot_outlier.data.frame}}.
 #' @export
 #' @examples
-#' \donttest{
 #' # the target variable is a categorical variable
 #' categ <- target_by(heartfailure, death_event)
 #' 
@@ -1164,7 +1127,9 @@ plot_outlier_raw <- function(x, main = NULL, col = "steelblue",
 #'   target_by(death_event) %>% 
 #'   plot_outlier(sodium, cpk_enzyme)
 #' 
-#' # death_eventing DBMS tables ----------------------------------
+#' ## death_eventing DBMS tables ----------------------------------
+#' # If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+#' if (FALSE) {
 #' # connect DBMS
 #' con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 #' 
@@ -1175,6 +1140,9 @@ plot_outlier_raw <- function(x, main = NULL, col = "steelblue",
 #' categ <- target_by(con_sqlite %>% tbl("TB_HEARTFAILURE") , death_event)
 #' 
 #' plot_outlier(categ, sodium)
+#' 
+#' # Disconnect DBMS   
+#' DBI::dbDisconnect(con_sqlite)
 #' }
 #' 
 #' @method plot_outlier target_df
@@ -1388,8 +1356,9 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' @param browse logical. choose whether to output the report results to the browser.
 #' @param ... arguments to be passed to methods.
 #'
+#' @return No return value. This function only generates a report.
+#' 
 #' @examples
-#' \donttest{
 #' if (FALSE) {
 #' # reporting the diagnosis information -------------------------
 #' # create pdf file. file name is DataDiagnosis_Report.pdf
@@ -1407,7 +1376,6 @@ diagnose_report <- function(.data, output_format, output_file, output_dir, ...) 
 #' 
 #' # create html file. file name is Diagn.html
 #' diagnose_report(heartfailure, output_format = "html", output_file = "Diagn.html")
-#' }
 #' }
 #' 
 #' @importFrom knitr knit2pdf
@@ -1489,8 +1457,9 @@ diagnose_report.data.frame <- function(.data, output_format = c("pdf", "html"),
     file.copy(from = Rmd_file, to = path, recursive = TRUE)
     
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     rmarkdown::render(paste(path, rmd, sep = "/"),

@@ -114,16 +114,18 @@ transform <- function(x, method = c("zscore", "minmax", "log", "log+1", "sqrt",
     result <- x^3
   else if (method == "Box-Cox") {
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
 
     result <- get_boxcox(x)        
   }
   else if (method == "Yeo-Johnson")  {
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     result <- get_yjohnson(x)
@@ -196,6 +198,15 @@ summary.transform <- function(object, ...) {
   invisible(smmry)
 }
 
+
+#' @param x an object of class "transform",usually, a result of a call to transform().
+#' @param ... further arguments passed to or from other methods.
+#' @rdname summary.transform
+#' @method print transform
+#' @export
+print.transform <- function(x, ...) {
+  print(as.numeric(x))
+}
 
 #' Visualize Information for an "transform" Object
 #'
@@ -339,9 +350,9 @@ plot.transform <- function(x, typographic = TRUE, base_family = NULL, ...) {
 #' @param output_dir name of directory to generate report file. default is tempdir().
 #' @param font_family character. font family name for figure in pdf.
 #' @param browse logical. choose whether to output the report results to the browser.
-#'
+#' @return No return value. This function only generates a report.
+#' 
 #' @examples
-#' \donttest{
 #' if (FALSE) {
 #' # reporting the Binning information -------------------------
 #' # create pdf file. file name is Transformation_Report.pdf & No target variable
@@ -360,7 +371,6 @@ plot.transform <- function(x, typographic = TRUE, base_family = NULL, ...) {
 #' # create html file. file name is Transformation_heartfailure.html
 #' transformation_report(heartfailure, death_event, output_format = "html", 
 #'                       output_file = "Transformation_heartfailure.html")
-#' }
 #' }
 #' 
 #' @importFrom knitr knit2pdf
@@ -449,8 +459,9 @@ transformation_report <- function(.data, target = NULL, output_format = c("pdf",
     file.copy(from = Rmd_file, to = path, recursive = TRUE)
 
     if (!requireNamespace("forecast", quietly = TRUE)) {
-      stop("Package \"forecast\" needed for this function to work. Please install it.",
+      warning("Package \"forecast\" needed for this function to work. Please install it.",
            call. = FALSE)
+      return(NULL)
     }
     
     rmarkdown::render(paste(path, rmd, sep = "/"),

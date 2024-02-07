@@ -50,7 +50,6 @@ The plot derived from the numerical data diagnosis is as follows.
 }
 
 \examples{
-\donttest{
 # the target variable is a categorical variable
 categ <- target_by(heartfailure, death_event)
 
@@ -63,7 +62,9 @@ heartfailure \%>\%
   target_by(death_event) \%>\% 
   plot_outlier(sodium, cpk_enzyme)
 
-# death_eventing DBMS tables ----------------------------------
+## death_eventing DBMS tables ----------------------------------
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 # connect DBMS
 con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
@@ -74,6 +75,9 @@ copy_to(con_sqlite, heartfailure, name = "TB_HEARTFAILURE", overwrite = TRUE)
 categ <- target_by(con_sqlite \%>\% tbl("TB_HEARTFAILURE") , death_event)
 
 plot_outlier(categ, sodium)
+
+# Disconnect DBMS   
+DBI::dbDisconnect(con_sqlite)
 }
 
 }

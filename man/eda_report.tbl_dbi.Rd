@@ -40,6 +40,9 @@ Applies only if in_database = FALSE.}
 
 \item{...}{arguments to be passed to methods.}
 }
+\value{
+No return value. This function only generates a report.
+}
 \description{
 The eda_report() report the information of Exploratory
 data analysis for object inheriting from the DBMS table through tbl_dbi
@@ -97,7 +100,7 @@ See vignette("EDA") for an introduction to these concepts.
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
 if (FALSE) {
 library(dplyr)
 
@@ -178,7 +181,6 @@ con_sqlite \%>\%
   
 # Disconnect DBMS   
 DBI::dbDisconnect(con_sqlite)
-}
 }
 
 }

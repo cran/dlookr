@@ -54,20 +54,16 @@
 #' }
 #' 
 #' @examples
-#' \donttest{
 #' library(dplyr)
+#' 
+#' # If you want to use this feature, you need to install the 'ppsr' package.
+#' if (!requireNamespace("ppsr", quietly = TRUE)) {
+#'   cat("If you want to use this feature, you need to install the 'ppsr' package.\n")
+#' }
 #' 
 #' # pps type is generic =======================================
 #' pps_generic <- pps(iris)
 #' pps_generic
-#' 
-#' # summary pps class 
-#' mat <- summary(pps_generic)
-#' mat
-#' 
-#' # visualize pps class 
-#' plot(pps_generic)
-#' 
 #' 
 #' # pps type is target_by =====================================
 #' ##-----------------------------------------------------------
@@ -89,34 +85,12 @@
 #' 
 #' pps_cat
 #' 
-#' # Using parallel process
-#' # pps_cat <- iris %>% 
-#' #   target_by(Species) %>% 
-#' #   pps(do_parallel = TRUE)
-#' # 
-#' # pps_cat
-#' 
-#' # summary pps class 
-#' tab <- summary(pps_cat)
-#' tab
-#' 
-#' # visualize pps class
-#' plot(pps_cat)
-#' 
 #' ##-----------------------------------------------------------
 #' # If the target variable is a numerical variable
 #' num <- target_by(iris, Petal.Length)
 #' 
 #' pps_num <- pps(num)
 #' pps_num
-#' 
-#' # summary pps class 
-#' tab <- summary(pps_num)
-#' tab
-#' 
-#' # plot pps class
-#' plot(pps_num)
-#' }
 #' 
 #' @export
 pps <- function(.data, ...) {
@@ -153,8 +127,9 @@ pps.target_df <- function(.data, ..., cv_folds = 5, do_parallel = FALSE,
 
 pps_impl <- function(.data, vars, cv_folds, do_parallel, n_cores) {
   if (!requireNamespace("ppsr", quietly = TRUE)) {
-    stop("Package \"ppsr\" needed for this function to work. Please install it.",
+    warning("Package \"ppsr\" needed for this function to work. Please install it.",
          call. = FALSE)
+    return(NULL)
   }
   
   if (length(vars) == 0) vars <- names(.data)
@@ -175,8 +150,9 @@ pps_impl <- function(.data, vars, cv_folds, do_parallel, n_cores) {
 
 pps_impl_target <- function(.data, vars, cv_folds, do_parallel, n_cores) {
   if (!requireNamespace("ppsr", quietly = TRUE)) {
-    stop("Package \"ppsr\" needed for this function to work. Please install it.",
+    warning("Package \"ppsr\" needed for this function to work. Please install it.",
          call. = FALSE)
+    return(NULL)
   }
   
   if (length(vars) == 0) vars <- names(.data)
@@ -212,16 +188,22 @@ pps_impl_target <- function(.data, vars, cv_folds, do_parallel, n_cores) {
 #'
 #' @seealso \code{\link{pps}}, \code{\link{plot.pps}}.
 #' @examples
-#' \donttest{
 #' library(dplyr)
+#' 
+#' # If you want to use this feature, you need to install the 'ppsr' package.
+#' if (!requireNamespace("ppsr", quietly = TRUE)) {
+#'   cat("If you want to use this feature, you need to install the 'ppsr' package.\n")
+#' }
 #' 
 #' # pps type is generic ======================================
 #' pps_generic <- pps(iris)
 #' pps_generic
 #' 
-#' # summary pps class 
-#' mat <- summary(pps_generic)
-#' mat
+#' if (!is.null(pps_generic)) {
+#'   # summary pps class 
+#'   mat <- summary(pps_generic)
+#'   mat
+#' }
 #' 
 #' # pps type is target_by =====================================
 #' ##-----------------------------------------------------------
@@ -233,9 +215,11 @@ pps_impl_target <- function(.data, vars, cv_folds, do_parallel, n_cores) {
 #' 
 #' pps_cat
 #' 
-#' # summary pps class 
-#' tab <- summary(pps_cat)
-#' tab
+#' if (!is.null(pps_cat)) {
+#'   # summary pps class 
+#'   tab <- summary(pps_cat)
+#'   tab
+#' }
 #' 
 #' ##-----------------------------------------------------------
 #' # If the target variable is a numerical variable
@@ -244,9 +228,10 @@ pps_impl_target <- function(.data, vars, cv_folds, do_parallel, n_cores) {
 #' pps_num <- pps(num)
 #' pps_num
 #' 
-#' # summary pps class 
-#' tab <- summary(pps_num)
-#' tab
+#' if (!is.null(pps_num)) {
+#'   # summary pps class 
+#'   tab <- summary(pps_num)
+#'   tab
 #' }
 #' 
 #' @method summary pps
@@ -305,18 +290,25 @@ summary.pps <- function(object, ...) {
 #' The default is TRUE. if TRUE provides a base theme that focuses on typographic elements using hrbrthemes package.
 #' @param base_family character. The name of the base font family to use 
 #' for the visualization. If not specified, the font defined in dlookr is applied. (See details)
+#' @return A ggplot2 object.
 #' @param ... arguments to be passed to methods, such as graphical parameters (see par).
 #' @seealso \code{\link{pps}}, \code{\link{summary.pps}}.
 #' @examples
-#' \donttest{
 #' library(dplyr)
+#' 
+#' # If you want to use this feature, you need to install the 'ppsr' package.
+#' if (!requireNamespace("ppsr", quietly = TRUE)) {
+#'   cat("If you want to use this feature, you need to install the 'ppsr' package.\n")
+#' }
 #' 
 #' # pps type is generic ======================================
 #' pps_generic <- pps(iris)
 #' pps_generic
 #' 
-#' # visualize pps class 
-#' plot(pps_generic)
+#' if (!is.null(pps_generic)) {
+#'   # visualize pps class 
+#'   plot(pps_generic)
+#' }
 #' 
 #' # pps type is target_by =====================================
 #' ##-----------------------------------------------------------
@@ -326,8 +318,10 @@ summary.pps <- function(object, ...) {
 #'   target_by(Species) %>% 
 #'   pps()
 #' 
-#' # plot pps class
-#' plot(pps_cat)
+#' if (!is.null(pps_cat)) {
+#'   # plot pps class
+#'   plot(pps_cat)
+#' }
 #' 
 #' ##---------------------------------------------------
 #' # If the target variable is a numerical variable
@@ -336,8 +330,9 @@ summary.pps <- function(object, ...) {
 #'   target_by(Petal.Length) %>% 
 #'   pps()
 #' 
-#' # plot pps class
-#' plot(pps_num)
+#' if (!is.null(pps_num)) {
+#'   # plot pps class
+#'   plot(pps_num)
 #' }
 #' 
 #' @method plot pps

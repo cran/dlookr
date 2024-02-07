@@ -71,6 +71,9 @@ Applies only if in_database = FALSE.}
 
 \item{...}{arguments to be passed to methods.}
 }
+\value{
+No return value. This function only generates a report.
+}
 \description{
 The diagnose_web_report() report the information for diagnosing
 the quality of the DBMS table through tbl_dbi
@@ -121,7 +124,7 @@ Reported from the data diagnosis is as follows.
 }
 
 \examples{
-\donttest{
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
 if (FALSE) {
 library(dplyr)
 
@@ -149,7 +152,6 @@ con_sqlite \%>\%
   
 # Disconnect DBMS   
 DBI::dbDisconnect(con_sqlite)
-}
 }
 
 }

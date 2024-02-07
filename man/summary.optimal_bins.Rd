@@ -40,7 +40,6 @@ summary.performance_bin() includes general metrics and result of significance te
 }
 }
 \examples{
-\donttest{
 library(dplyr)
 
 # Generate data for the example
@@ -57,18 +56,10 @@ summary(bin)
 # performance table
 attr(bin, "performance")
 
-# visualize all information for optimal_bins class
-plot(bin)
-
-# visualize WoE information for optimal_bins class
-plot(bin, type = "WoE")
-
-# visualize all information without typographic
-plot(bin, typographic = FALSE)
-
 # extract binned results
-extract(bin) \%>\% 
-  head(20)
+if (!is.null(bin)) {
+  extract(bin) \%>\% 
+    head(20)
 }
 
 }

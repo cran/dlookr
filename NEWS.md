@@ -1,12 +1,52 @@
-# dlookr 0.6.3.9001
+# dlookr 0.6.3.9004
+
+## NEW FEATURES
+  
+* New data medicost and Carseats. (#107)
 
 ## MINOR CHANGES
 
-* Remove the funModeling package dependency of the binning_rgr() function. (thanks to Pablo Casas, #96)
+* Remove the funModeling package dependency of the binning_rgr() function. 
+  (thanks to Pablo Casas, #96)
 
-   
+* Error occurred in binning() during CRAN test. (#104) 
+  
+* Moved partykit package from Imports to Suggests (#105)
+    - What is affected:
+        - When performing binning_by(), it checks if the partykit package is installed,
+        - and if not, it prints a warning message and exits.  
+* Tasks for submitting to CRAN. (#117)  
+    - add \value tags for some man pages
+    - remove \dontrun tags for some man pages
+    - remove comments in example scripts for some man pages
+    - remove \donttest tags for some man pages
 
-# dlookr 0.6.2.9001
+## BUG FIXES
+
+* Fixed misstyop in html_missing(), html_paged_missing(), html_missing(), and some functions.
+  (thanks to @jcochanc, #103)
+
+* Fixed a wrong of degree of freedom in eda_web_report(), eda_paged_report(). 
+  (thanks to Jessica N Busler, #98) 
+  
+* Fixed an error that occurred when there was a non-character data type (such as a date) among categorical variables in diagnose_category(). 
+  (thanks to @hope-data-science, #100, @marcozanotti, #102)   
+  
+* Reduce example execution time (#112)
+  
+* Fixed an error that occurred when CRAN was submitted. (#109)  
+    - Define an additional function print.transform()
+
+* Fixed an error that is "Errors with eda_paged_report". (#86)  
+
+* Fixed blank pages in EDA paged reports. (#114)
+
+* Fixed CRAN submit for suggests packages. (#118)
+
+
+
+
+# dlookr 0.6.2
 
 ## MAJOR CHANGES
 

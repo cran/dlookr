@@ -12,7 +12,7 @@
 
 <meta name="author" content="Choonghyun Ryu" />
 
-<meta name="date" content="2023-06-30" />
+<meta name="date" content="2024-02-06" />
 
 <title>Introduce dlookr</title>
 
@@ -239,7 +239,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduce dlookr</h1>
 <h4 class="author">Choonghyun Ryu</h4>
-<h4 class="date">2023-06-30</h4>
+<h4 class="date">2024-02-06</h4>
 
 
 
@@ -260,23 +260,23 @@ performing the analysis.</li>
 <ul>
 <li>Performs a data diagnosis or automatically generates a data
 diagnosis report.</li>
-<li>Discover data in a variety of ways, and automatically generate
-EDA(exploratory data analysis) report.</li>
+<li>Discover data in various ways and automatically generate
+EDA(exploratory data analysis) reports.</li>
 <li>Impute missing values and outliers, resolve skewed data, and
 binaries continuous variables into categorical variables. And generates
 an automated report to support it.</li>
 </ul>
 <p>dlookr increases synergy with <code>dplyr</code>. Particularly in
-data exploration and data wrangle, it increases the efficiency of the
+data exploration and data wrangling, it increases the efficiency of the
 <code>tidyverse</code> package group.</p>
 </div>
 <div id="supported-data-structures" class="section level2">
 <h2>Supported data structures</h2>
 <p>Data diagnosis supports the following data structures.</p>
 <ul>
-<li>data frame : data.frame class.</li>
-<li>data table : tbl_df class.</li>
-<li>table of DBMS : table of the DBMS through tbl_dbi.
+<li>data frame: data.frame class.</li>
+<li>data table: tbl_df class.</li>
+<li>table of DBMS: table of the DBMS through tbl_dbi
 <ul>
 <li>Use dplyr as the back-end interface for any DBI-compatible
 database.</li>
@@ -396,15 +396,15 @@ categorical variables</td>
 <tbody>
 <tr class="odd">
 <td align="left">pareto chart for missing value</td>
-<td align="left">visualize pareto chart for variables with missing
+<td align="left">visualize the Pareto chart for variables with a missing
 value.</td>
 <td align="left"><code>plot_na_pareto()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">combination chart for missing value</td>
-<td align="left">visualize distribution of missing value by combination
-of variables.</td>
+<td align="left">visualize the distribution of missing value by
+combining variables.</td>
 <td align="left"><code>plot_na_hclust()</code></td>
 <td align="center"></td>
 </tr>
@@ -412,7 +412,7 @@ of variables.</td>
 <td align="left">plot the combination variables that is include missing
 value</td>
 <td align="left">visualize the combinations of missing value across
-cases..</td>
+cases</td>
 <td align="left"><code>plot_na_intersect()</code></td>
 <td align="center"></td>
 </tr>
@@ -438,34 +438,34 @@ cases..</td>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">reporting the information of data diagnosis into pdf
+<td align="left">report the information of data diagnosis into a PDF
 file</td>
-<td align="left">report the information for diagnosing the quality of
-the data.</td>
+<td align="left">report the information for diagnosing the data
+quality</td>
 <td align="left"><code>diagnose_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="left">reporting the information of data diagnosis into html
+<td align="left">reporting the information of data diagnosis into HTML
 file</td>
 <td align="left">report the information for diagnosing the quality of
-the data.</td>
+the data</td>
 <td align="left"><code>diagnose_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="odd">
-<td align="left">reporting the information of data diagnosis into html
+<td align="left">reporting the information of data diagnosis into HTML
 file</td>
 <td align="left">dynamic report the information for diagnosing the
-quality of the data.</td>
+quality of the data</td>
 <td align="left"><code>diagnose_web_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="left">reporting the information of data diagnosis into pdf
-and html file</td>
+<td align="left">reporting the information of data diagnosis into PDF
+and HTML files</td>
 <td align="left">paged report the information for diagnosing the quality
-of the data.</td>
+of the data</td>
 <td align="left"><code>diagnose_paged_report()</code></td>
 <td align="center">x</td>
 </tr>
@@ -847,26 +847,26 @@ observation</td>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">reporting the information of EDA into pdf file</td>
-<td align="left">reporting the information of EDA.</td>
+<td align="left">reporting the information of EDA into PDF file</td>
+<td align="left">reporting the information of EDA</td>
 <td align="left"><code>eda_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="left">reporting the information of EDA into html file</td>
-<td align="left">reporting the information of EDA.</td>
+<td align="left">reporting the information of EDA into HTML file</td>
+<td align="left">reporting the information of EDA</td>
 <td align="left"><code>eda_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="odd">
-<td align="left">reporting the information of EDA into pdf file</td>
-<td align="left">dynamic reporting the information of EDA.</td>
+<td align="left">reporting the information of EDA into PDF file</td>
+<td align="left">dynamic reporting the information of EDA</td>
 <td align="left"><code>eda_web_report()</code></td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="left">reporting the information of EDA into html file</td>
-<td align="left">paged reporting the information of EDA.</td>
+<td align="left">reporting the information of EDA into HTML file</td>
+<td align="left">paged reporting the information of EDA</td>
 <td align="left"><code>eda_paged_report()</code></td>
 <td align="center">x</td>
 </tr>
@@ -910,8 +910,8 @@ the object that inherits the data.frame</td>
 </tr>
 <tr class="odd">
 <td align="left">skewed variable</td>
-<td align="left">find the numerical variable that skewed variable that
-inherits the data.frame</td>
+<td align="left">find the numerical variable that is the skewed variable
+that inherits the data.frame</td>
 <td align="left"><code>find_skewness()</code></td>
 <td align="center"></td>
 </tr>
@@ -1031,14 +1031,14 @@ and weight of evidence after running binning_by()</td>
 <tr class="odd">
 <td align="left">infogain binning</td>
 <td align="left">categorizes a numeric characteristic into bins for
-multi-class variable using recursive information gain ratio
+multi-class variables using recursive information gain ratio
 maximization</td>
 <td align="left"><code>binning_rgr()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">visualize</td>
-<td align="left">generates plots for understand distribution and
+<td align="left">generates plots for understanding distribution and
 distribution by target variable after running binning_rgr()</td>
 <td align="left"><code>plot.infogain_bins()</code></td>
 <td align="center"></td>
@@ -1059,8 +1059,8 @@ classification model after performance_bin()</td>
 </tr>
 <tr class="odd">
 <td align="left">visualize</td>
-<td align="left">It generates plots for understand frequency, WoE by
-bins using performance_bin after running binning_by()</td>
+<td align="left">It generates plots to understand frequency, WoE by bins
+using performance_bin after running binning_by()</td>
 <td align="left"><code>plot.performance_bin()</code></td>
 <td align="center"></td>
 </tr>
@@ -1096,21 +1096,21 @@ objects</td>
 <td align="left">diagnosis</td>
 <td align="left">performs diagnose performance that calculates metrics
 to evaluate the performance of binned variable for binomial
-classification model.</td>
+classification model</td>
 <td align="left"><code>performance_bin()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">summaries</td>
 <td align="left">summary method for “performance_bin”. summary metrics
-to evaluate the performance of binomial classification model.</td>
+to evaluate the performance of the binomial classification model</td>
 <td align="left"><code>summary.performance_bin()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">visualize</td>
-<td align="left">visualize for understand frequency, WoE by bins using
-performance_bin and something else.</td>
+<td align="left">visualize for understanding frequency, WoE by bins
+using performance_bin and something else</td>
 <td align="left"><code>plot.performance_bin()</code></td>
 <td align="center"></td>
 </tr>
@@ -1138,7 +1138,7 @@ performance_bin and something else.</td>
 <tr class="odd">
 <td align="left">transformation</td>
 <td align="left">performs variable transformation for standardization
-and resolving skewness of numerical variables.</td>
+and resolving skewness of numerical variables</td>
 <td align="left"><code>transform()</code></td>
 <td align="center"></td>
 </tr>
@@ -1151,9 +1151,9 @@ transformation</td>
 </tr>
 <tr class="odd">
 <td align="left">visualize</td>
-<td align="left">visualize two kinds of plot by attribute of ‘transform’
-class. The transformation of a numerical variable is a density
-plot.</td>
+<td align="left">visualize two kinds of a plot by attribute of the
+‘transform’ class. The transformation of a numerical variable is a
+density plot</td>
 <td align="left"><code>plot.transform()</code></td>
 <td align="center"></td>
 </tr>
@@ -1180,30 +1180,28 @@ plot.</td>
 <tbody>
 <tr class="odd">
 <td align="left">reporting the information of transformation into
-pdf</td>
-<td align="left">reporting the information of transformation.</td>
+PDF</td>
+<td align="left">reporting the information of transformation</td>
 <td align="left"><code>transformation_report()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">reporting the information of transformation into
-html</td>
-<td align="left">reporting the information of transformation.</td>
+HTML</td>
+<td align="left">reporting the information of transformation</td>
 <td align="left"><code>transformation_report()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
-<td align="left">reporting the information of transformation into
-pdf</td>
-<td align="left">dynamic reporting the information of
-transformation.</td>
+<td align="left">reporting the transformation information into PDF</td>
+<td align="left">dynamic reporting the transformation information</td>
 <td align="left"><code>transformation_web_report()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">reporting the information of transformation into
-html</td>
-<td align="left">paged reporting the information of transformation.</td>
+HTML</td>
+<td align="left">paged reporting the information of transformation</td>
 <td align="left"><code>transformation_paged_report()</code></td>
 <td align="center"></td>
 </tr>
@@ -1233,53 +1231,53 @@ html</td>
 <tbody>
 <tr class="odd">
 <td align="left">statistics</td>
-<td align="left">calculate the entropy.</td>
+<td align="left">calculate the entropy</td>
 <td align="left"><code>entropy()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">statistics</td>
-<td align="left">calculate the skewness of the data.</td>
+<td align="left">calculate the skewness of the data</td>
 <td align="left"><code>skewness()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">statistics</td>
-<td align="left">calculate the kurtosis of the data.</td>
+<td align="left">calculate the kurtosis of the data</td>
 <td align="left"><code>kurtosis()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">statistics</td>
 <td align="left">calculate the Jensen-Shannon divergence between two
-probability distributions.</td>
+probability distributions</td>
 <td align="left"><code>jsd()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">statistics</td>
 <td align="left">calculate the Kullback-Leibler divergence between two
-probability distributions.</td>
+probability distributions</td>
 <td align="left"><code>kld()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">statistics</td>
 <td align="left">calculate the Cramer’s V statistic between two
-categorical(discrete) variables.</td>
+categorical(discrete) variables</td>
 <td align="left"><code>cramer()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">statistics</td>
 <td align="left">calculate the Theil’s U statistic between two
-categorical(discrete) variables.</td>
+categorical(discrete) variables</td>
 <td align="left"><code>theil()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">statistics</td>
-<td align="left">finding percentile of numerical variable.</td>
+<td align="left">finding percentile of a numerical variable.</td>
 <td align="left"><code>get_percentile()</code></td>
 <td align="center"></td>
 </tr>
@@ -1327,32 +1325,32 @@ categorical(discrete) variables.</td>
 <tr class="odd">
 <td align="left">programming</td>
 <td align="left">extracts variable information having a certain class
-from an object inheriting data.frame.</td>
+from an object inheriting data.frame</td>
 <td align="left"><code>find_class()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">programming</td>
-<td align="left">gets class of variables in data.frame or tbl_df.</td>
+<td align="left">gets class of variables in data.frame or tbl_df</td>
 <td align="left"><code>get_class()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">programming</td>
 <td align="left">retrieves the column information of the DBMS table
-through the tbl_bdi object of dplyr.</td>
+through the tbl_bdi object of dplyr</td>
 <td align="left"><code>get_column_info()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="even">
 <td align="left">programming</td>
-<td align="left">finding Users Machine’s OS.</td>
+<td align="left">finding the user machine’s OS.</td>
 <td align="left"><code>get_os()</code></td>
 <td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="left">programming</td>
-<td align="left">import Google Fonts.</td>
+<td align="left">import Google fonts</td>
 <td align="left"><code>import_google_font()</code></td>
 <td align="center"></td>
 </tr>

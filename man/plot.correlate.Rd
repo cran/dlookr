@@ -17,6 +17,9 @@ for the visualization. If not specified, the font defined in dlookr is applied. 
 
 \item{...}{arguments to be passed to methods, such as graphical parameters (see par).}
 }
+\value{
+No return value. This function is called for its side effect, which is to produce a plot on the current graphics device.
+}
 \description{
 Visualize by attribute of `correlate` class.
 The plot of correlation matrix is a tile plot.
@@ -53,7 +56,9 @@ tab_corr <- iris \%>\%
 # plot correlate class
 plot(tab_corr)
 
-# S3 method for correlate class by 'tbl_dbi' ================
+## S3 method for correlate class by 'tbl_dbi' ================
+# If you have the 'DBI' and 'RSQLite' packages installed, perform the code block:
+if (FALSE) {
 # connect DBMS
 con_sqlite <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
 
@@ -62,13 +67,14 @@ copy_to(con_sqlite, iris, name = "TB_IRIS", overwrite = TRUE)
 
 # correlation coefficients of all numerical variables
 tab_corr <- con_sqlite \%>\% 
-  tbl("TB_IRIS") \%>\% 
-  correlate()
-  
+   tbl("TB_IRIS") \%>\% 
+   correlate()
+   
 plot(tab_corr)   
-  
+   
 # Disconnect DBMS   
 DBI::dbDisconnect(con_sqlite)
+}
 }
 
 }

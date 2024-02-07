@@ -1,20 +1,20 @@
 Package: dlookr
 Type: Package
 Title: Tools for Data Diagnosis, Exploration, Transformation
-Version: 0.6.2
-Date: 2023-06-30
+Version: 0.6.3
+Date: 2024-02-06
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
 Description: A collection of tools that support data diagnosis, exploration, and transformation. 
-    Data diagnostics provides information and visualization of missing values and outliers and 
-    unique and negative values to help you understand the distribution and quality of your data. 
+    Data diagnostics provides information and visualization of missing values, outliers, and unique 
+    and negative values to help you understand the distribution and quality of your data. 
     Data exploration provides information and visualization of the descriptive statistics of 
-    univariate variables, normality tests and outliers, correlation of two variables, and 
-    relationship between target variable and predictor. Data transformation supports binning 
-    for categorizing continuous variables, imputates missing values and outliers, resolving skewness. 
+    univariate variables, normality tests and outliers, correlation of two variables, 
+    and the relationship between the target variable and predictor. Data transformation supports binning 
+    for categorizing continuous variables, imputes missing values and outliers, and resolves skewness. 
     And it creates automated reports that support these three tasks.
-License: GPL-2 | file LICENSE
+License: GPL-2
 URL: https://github.com/choonghyunryu/dlookr/,
         https://choonghyunryu.github.io/dlookr/
 Encoding: UTF-8
@@ -23,17 +23,16 @@ Depends: R (>= 3.2.0)
 Imports: dplyr (>= 0.7.6), showtext (>= 0.9-4), sysfonts (>= 0.7.1),
         ggplot2 (>= 3.0.0), grid, gridExtra, hrbrthemes (>= 0.8.0),
         htmltools, kableExtra, knitr (>= 1.22), methods, mice, pagedown
-        (>= 0.15), partykit, purrr, reactable, rlang, rmarkdown, shiny,
+        (>= 0.15), purrr, reactable, rlang, rmarkdown, rpart, shiny,
         tibble, tidyr, tidyselect, utils
-Suggests: DBI, classInt, dbplyr, forecast (>= 8.3), Hmisc, ISLR,
-        nycflights13, ppsr, randomForest, rpart, prettydoc, RSQLite,
-        ranger, stringi
+Suggests: DBI, classInt, dbplyr, forecast (>= 8.3), Hmisc, partykit,
+        ppsr, prettydoc, randomForest, RSQLite, ranger, stringi
 Author: Choonghyun Ryu [aut, cre]
 Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>
 BugReports: https://github.com/choonghyunryu/dlookr/issues
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-06-30 13:43:23 UTC; choonghyunryu
+Packaged: 2024-02-06 12:21:05 UTC; choonghyunryu
 Repository: CRAN
-Date/Publication: 2023-07-01 07:40:10 UTC
+Date/Publication: 2024-02-07 12:00:06 UTC

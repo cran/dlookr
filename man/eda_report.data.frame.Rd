@@ -37,6 +37,9 @@ eda_report(.data, ...)
 
 \item{browse}{logical. choose whether to output the report results to the browser.}
 }
+\value{
+No return value. This function only generates a report.
+}
 \description{
 The eda_report() report the information of exploratory
 data analysis for object inheriting from data.frame.
@@ -93,7 +96,6 @@ See vignette("EDA") for an introduction to these concepts.
 }
 
 \examples{
-\donttest{
 if (FALSE) {
 library(dplyr)
 
@@ -141,6 +143,5 @@ eda_report(heartfailure, output_format = "html")
 
 # create html file. file name is EDA2.html
 eda_report(heartfailure, output_format = "html", output_file = "EDA2.html")
-}
 }
 }

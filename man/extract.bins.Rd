@@ -34,9 +34,11 @@ heartfailure2[sample(seq(NROW(heartfailure2)), 5), "creatinine"] <- NA
 bin <- binning_by(heartfailure2, "death_event", "creatinine")
 bin
 
-# extract binning result
-extract(bin) \%>\% 
-  head(20)
+if (!is.null(bin)) {
+  # extract binning result
+  extract(bin) \%>\% 
+    head(20)
+}
 
 }
 \seealso{
